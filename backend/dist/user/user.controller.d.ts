@@ -17,12 +17,9 @@ export declare class UserController {
     }>;
     me(): Promise<{
         id: number;
-        username: string;
         createdAt: Date;
         updatedAt: Date;
-        friends: string[];
-        status: import(".prisma/client").$Enums.Status;
-        avatar: string;
+        status: import(".prisma/client").$Enums.userStatus;
     }[]>;
     deleteAllUsers(): Promise<import(".prisma/client").Prisma.BatchPayload>;
 }

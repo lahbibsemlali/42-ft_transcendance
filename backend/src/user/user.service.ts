@@ -1,38 +1,45 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { extname } from 'path';
 
 const prisma = new PrismaClient;
 
 @Injectable()
 export class UserService {
+    async createUserProfile(username: string, imageLink: string) {
+        const user = await prisma.user.create({
+            data: {}
+        })
+        const profile = await prisma.profile.create({
+            data: {
+                userId: user.id,
+                username: username,
+                avatar: imageLink
+            }
+        })
+        return profile
+    }
     async loginOrRegister(userData: {username: string, imageLink: string}) {
-        const user = await prisma.user.findFirst({
+        const profile = await prisma.profile.findFirst({
             where: {
               username: userData.username,
             },
         });
-        if (user)
-            return {id: user.id, username: user.username, status: 200}
+        if (profile)
+            return {id: profile.userId, username: profile.username, status: 200}
         else {
-            await prisma.user.create({
-                data: {
-                    username: userData.username,
-                    avatar: userData.imageLink
-                },
-            });
-            return {id: user.id, username: user.username, status: 201}
+            const profile = await this.createUserProfile(userData.username, userData.imageLink)
+            return {id: profile.userId, username: profile.username, status: 201}
         }
     }
     async updateAvatar(userName: string, location: string) {
-        const user = await prisma.user.findUnique({
+        const user = await prisma.profile.findUnique({
             where: {
               username: userName,
             },
         });
         if (user) {
             console.log(location, userName)
-            await prisma.user.update({
+            await prisma.profile.update({
                 where: {username: userName},
                 data: {avatar: location}
             })
@@ -43,31 +50,56 @@ export class UserService {
         }
     }
     async addFriend(userName: string, friendName: string) {
-        const user = await prisma.user.findUnique({
+        const userProfile = await prisma.profile.findUnique({
             where: {
                 username: userName
             }
         })
-        const friend = await prisma.user.findUnique({
+        const friendProfile = await prisma.profile.findUnique({
             where: {
                 username: friendName
             }
         })
-        if (!user || !friend)
+        if (!userProfile || !friendProfile)
             return {status: 404, message: "no such user or friend"}
-        const exists = user.friends.includes(friendName)
-        if (!exists) {
-            await prisma.user.update({
-                where: {
-                    username: userName
-                },
+        const friendship = prisma.friendship.findFirst({
+            where: {
+                friend1Id: userProfile.userId,
+                friend2Id: friendProfile.userId,
+                OR: [{
+                    friend1Id: friendProfile.userId,
+                    friend2Id: userProfile.userId
+                }]
+            }
+        })
+        if (!friendship) {
+            await prisma.friendship.create({
                 data: {
-                    friends: [...user.friends, friendName]
+                    friend1Id: userProfile.userId,
+                    friend2Id: friendProfile.userId
                 }
             })
             return {status: 201, message: `user ${friendName} added successfully`}
         }
         else
             return {status: 400, message: `user ${friendName} already exists`}
+    }
+    async setUserTwoFASecrete(username: string, secrete: string) {
+        const user = prisma.profile.findUnique({
+            where: {
+                username: username
+            }
+        })
+        if (!user)
+            throw new UnauthorizedException("no such user");
+        prisma.profile.update({
+            where: {
+                username: username
+            },
+            data: {
+                twoFASecrete: secrete
+            }
+        })
+        return {status: 200, message: "2fa is set successfully"}
     }
 }

@@ -10,14 +10,16 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const user_module_1 = require("./user/user.module");
 const auth_module_1 = require("./auth/auth.module");
+const two_fa_service_1 = require("./two-fa/two-fa.service");
+const two_fa_controller_1 = require("./two-fa/two-fa.controller");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [user_module_1.UserModule, auth_module_1.AuthModule],
-        controllers: [],
-        providers: [],
+        controllers: [two_fa_controller_1.TwoFaController],
+        providers: [two_fa_service_1.TwoFaService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

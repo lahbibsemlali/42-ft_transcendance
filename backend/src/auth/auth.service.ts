@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import * as jwt from "jsonwebtoken";
+import { authenticator } from 'otplib';
 
 const prisma = new PrismaClient
 @Injectable()
