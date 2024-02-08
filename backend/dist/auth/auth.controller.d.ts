@@ -5,7 +5,5 @@ export declare class AuthController {
     private userService;
     constructor(authService: AuthService, userService: UserService);
     log(): void;
-    consL(req: any): Promise<{
-        token: string;
-    }>;
+    consL(req: any, res: any): Promise<void>;
 }

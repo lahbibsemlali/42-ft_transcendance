@@ -16,10 +16,10 @@ export class AuthController {
 
   @Get('/42_callback')
   @UseGuards(AuthGuard('42'))
-  async consL(@Req() req) {
+  async consL(@Req() req, @Res() res) {
     const user = req.user;
     const token = await this.authService.generateJwtToken(user);
-    console.log(user, token)
-    return {token}
+    res.cookie('jwt', token);
+    res.redirect(`http://localhost:4000/`);
   }
 }

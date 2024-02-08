@@ -25,11 +25,11 @@ let AuthController = class AuthController {
         this.userService = userService;
     }
     log() { }
-    async consL(req) {
+    async consL(req, res) {
         const user = req.user;
         const token = await this.authService.generateJwtToken(user);
-        console.log(user, token);
-        return { token };
+        res.cookie('jwt', token);
+        res.redirect(`http://localhost:4000/`);
     }
 };
 exports.AuthController = AuthController;
@@ -44,8 +44,9 @@ __decorate([
     (0, common_1.Get)('/42_callback'),
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('42')),
     __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "consL", null);
 exports.AuthController = AuthController = __decorate([
