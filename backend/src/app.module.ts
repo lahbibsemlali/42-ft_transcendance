@@ -5,10 +5,23 @@ import { TwoFaService } from './two-fa/two-fa.service';
 import { TwoFaController } from './two-fa/two-fa.controller';
 import { GameGateway } from './Game/game.Gateway';
 import { GameService } from './Game/game.service';
+import { JwtModule } from '@nestjs/jwt';
+import { TwoFaModule } from './two-fa/two-fa.module';
 
 @Module({
-  imports: [UserModule, AuthModule],
-  controllers: [TwoFaController],
-  providers: [TwoFaService, GameService, GameGateway],
+  imports: [
+    UserModule, 
+    AuthModule, 
+    TwoFaModule,
+    JwtModule.registerAsync({
+      useFactory: async () => ({
+        secret: process.env.JWT_SECRETE,
+        signOptions: {
+          expiresIn: `${process.env.JWT_EXPIRE_TIME}s`
+        },
+      })
+    })
+  ],
+  providers: [GameService, GameGateway],
 })
 export class AppModule {}

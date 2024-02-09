@@ -14,10 +14,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
-const passport_1 = require("@nestjs/passport");
 const client_1 = require("@prisma/client");
 const auth_service_1 = require("./auth.service");
 const user_service_1 = require("../user/user.service");
+const forty_two_auth_guard_1 = require("../guards/forty-two-auth.guard");
 const prisma = new client_1.PrismaClient();
 let AuthController = class AuthController {
     constructor(authService, userService) {
@@ -26,23 +26,25 @@ let AuthController = class AuthController {
     }
     log() { }
     async consL(req, res) {
-        const user = req.user;
-        const token = await this.authService.generateJwtToken(user);
+        const payload = req.user;
+        const token = await this.authService.generateJwtToken(payload);
         res.cookie('jwt', token);
+        if (payload.isTwoFaEnabled)
+            res.redirect('http://localhost:4000/2auth');
         res.redirect(`http://localhost:4000/`);
     }
 };
 exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Get)('/42'),
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('42')),
+    (0, common_1.UseGuards)(forty_two_auth_guard_1.fortyTwoAuthGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "log", null);
 __decorate([
     (0, common_1.Get)('/42_callback'),
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('42')),
+    (0, common_1.UseGuards)(forty_two_auth_guard_1.fortyTwoAuthGuard),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),

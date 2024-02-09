@@ -9,16 +9,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthModule = void 0;
 const common_1 = require("@nestjs/common");
 const auth_controller_1 = require("./auth.controller");
-const fortyTwo_strategy_1 = require("./strategies/fortyTwo-strategy");
 const auth_service_1 = require("./auth.service");
 const user_service_1 = require("../user/user.service");
+const forty_two_strategy_1 = require("../strategies/forty-two.strategy");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         controllers: [auth_controller_1.AuthController],
-        providers: [fortyTwo_strategy_1.FortyTwoStrategy, auth_service_1.AuthService, user_service_1.UserService]
+        providers: [forty_two_strategy_1.FortyTwoStrategy, auth_service_1.AuthService, user_service_1.UserService]
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map

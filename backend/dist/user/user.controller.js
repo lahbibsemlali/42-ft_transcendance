@@ -20,7 +20,7 @@ const multer_1 = require("multer");
 const path_1 = require("path");
 const user_service_1 = require("./user.service");
 const client_1 = require("@prisma/client");
-const jwt_guard_1 = require("./jwt.guard");
+const jwt_guard_1 = require("../guards/jwt.guard");
 const prisma = new client_1.PrismaClient;
 let UserController = class UserController {
     constructor(userService) {

@@ -11,6 +11,16 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient;
 let UserService = class UserService {
+    async getUserById(userId) {
+        const user = await prisma.profile.findUnique({
+            where: {
+                userId: userId,
+            }
+        });
+        if (!user)
+            throw new common_1.UnauthorizedException('no such user');
+        return user;
+    }
     async createUserProfile(username, imageLink) {
         const user = await prisma.user.create({
             data: {}
@@ -31,10 +41,10 @@ let UserService = class UserService {
             },
         });
         if (profile)
-            return { id: profile.userId, username: profile.username, status: 200 };
+            return { id: profile.userId, isTwoFaEnabled: profile.twoFA };
         else {
             const profile = await this.createUserProfile(userData.username, userData.imageLink);
-            return { id: profile.userId, username: profile.username, status: 201 };
+            return { id: profile.userId, isTwoFaEnabled: profile.twoFA };
         }
     }
     async updateAvatar(userName, location) {
@@ -68,7 +78,7 @@ let UserService = class UserService {
         });
         if (!userProfile || !friendProfile)
             return { status: 404, message: "no such user or friend" };
-        const friendship = prisma.friendship.findFirst({
+        const friendship = await prisma.friendship.findFirst({
             where: {
                 friend1Id: userProfile.userId,
                 friend2Id: friendProfile.userId,
@@ -90,23 +100,41 @@ let UserService = class UserService {
         else
             return { status: 400, message: `user ${friendName} already exists` };
     }
-    async setUserTwoFASecrete(username, secrete) {
-        const user = prisma.profile.findUnique({
+    async setTwoFaSecrete(userId, secrete) {
+        const user = await prisma.profile.findUnique({
             where: {
-                username: username
+                userId: userId
             }
         });
         if (!user)
             throw new common_1.UnauthorizedException("no such user");
-        prisma.profile.update({
+        await prisma.profile.update({
             where: {
-                username: username
+                userId: userId
             },
             data: {
                 twoFASecrete: secrete
             }
         });
-        return { status: 200, message: "2fa is set successfully" };
+        return { status: 201, message: "2fa is set successfully" };
+    }
+    async turnOnUserTwoFa(userId) {
+        const user = await prisma.profile.findUnique({
+            where: {
+                userId: userId
+            }
+        });
+        if (!user)
+            throw new common_1.UnauthorizedException("no such user");
+        await prisma.profile.update({
+            where: {
+                userId: userId
+            },
+            data: {
+                twoFA: true,
+            }
+        });
+        return { status: 201, message: "2fa is set successfully" };
     }
 };
 exports.UserService = UserService;
