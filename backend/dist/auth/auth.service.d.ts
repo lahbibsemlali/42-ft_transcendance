@@ -1,3 +1,3 @@
 export declare class AuthService {
-    generateJwtToken(payload: any): Promise<string>;
+    generateJwtToken(payload: any, isTwoFa?: boolean): Promise<string>;
 }

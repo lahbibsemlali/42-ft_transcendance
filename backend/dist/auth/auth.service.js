@@ -12,7 +12,8 @@ const client_1 = require("@prisma/client");
 const jwt = require("jsonwebtoken");
 const prisma = new client_1.PrismaClient;
 let AuthService = class AuthService {
-    async generateJwtToken(payload) {
+    async generateJwtToken(payload, isTwoFa = false) {
+        payload.isTwoFaAuthenticated = isTwoFa;
         const token = jwt.sign(payload, process.env.JWT_SECRETE, { expiresIn: "1h" });
         return token;
     }

@@ -15,14 +15,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TwoFaController = void 0;
 const common_1 = require("@nestjs/common");
 const two_fa_service_1 = require("./two-fa.service");
-const jwt_guard_1 = require("../user/jwt.guard");
+const jwt_guard_1 = require("../guards/jwt.guard");
+const auth_service_1 = require("../auth/auth.service");
+const user_service_1 = require("../user/user.service");
 let TwoFaController = class TwoFaController {
-    constructor(twoFaService) {
+    constructor(twoFaService, authService, userService) {
         this.twoFaService = twoFaService;
+        this.authService = authService;
+        this.userService = userService;
     }
     async register(response, request) {
         const { url } = await this.twoFaService.generateTwoFaSecrete(request.user);
         return this.twoFaService.pipeQrCodeStream(response, url);
+    }
+    async turnTwoFaOn({ token }, userId) {
+        const isValid = this.twoFaService.isTwoFaValid(token, userId);
+        if (!isValid)
+            throw new common_1.UnauthorizedException('wrong 2fa token');
+        await this.twoFaService.turnTwoFaOn(userId);
+    }
+    async authenticate({ token }, userId, res) {
+        const isValid = this.twoFaService.isTwoFaValid(token, userId);
+        if (!isValid)
+            throw new common_1.UnauthorizedException('Wrong 2fa token');
+        const user = await this.userService.getUserById(userId);
+        const payload = { id: userId, isTwoFaEnabled: user.twoFA };
+        const jwtToken = this.authService.generateJwtToken(payload);
+        res.cookie('jwt', jwtToken);
+        res.redirect('http://localhost:4000');
     }
 };
 exports.TwoFaController = TwoFaController;
@@ -35,9 +55,29 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], TwoFaController.prototype, "register", null);
+__decorate([
+    (0, common_1.Post)('turn-on:id'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], TwoFaController.prototype, "turnTwoFaOn", null);
+__decorate([
+    (0, common_1.Get)('authenticate:id'),
+    (0, common_1.UseGuards)(jwt_guard_1.JwtGuard),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], TwoFaController.prototype, "authenticate", null);
 exports.TwoFaController = TwoFaController = __decorate([
     (0, common_1.Controller)('2fa'),
     (0, common_1.UseInterceptors)(common_1.ClassSerializerInterceptor),
-    __metadata("design:paramtypes", [two_fa_service_1.TwoFaService])
+    __metadata("design:paramtypes", [two_fa_service_1.TwoFaService,
+        auth_service_1.AuthService,
+        user_service_1.UserService])
 ], TwoFaController);
 //# sourceMappingURL=two-fa.controller.js.map

@@ -10,18 +10,29 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const user_module_1 = require("./user/user.module");
 const auth_module_1 = require("./auth/auth.module");
-const two_fa_service_1 = require("./two-fa/two-fa.service");
-const two_fa_controller_1 = require("./two-fa/two-fa.controller");
 const game_Gateway_1 = require("./Game/game.Gateway");
 const game_service_1 = require("./Game/game.service");
+const jwt_1 = require("@nestjs/jwt");
+const two_fa_module_1 = require("./two-fa/two-fa.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [user_module_1.UserModule, auth_module_1.AuthModule],
-        controllers: [two_fa_controller_1.TwoFaController],
-        providers: [two_fa_service_1.TwoFaService, game_service_1.GameService, game_Gateway_1.GameGateway],
+        imports: [
+            user_module_1.UserModule,
+            auth_module_1.AuthModule,
+            two_fa_module_1.TwoFaModule,
+            jwt_1.JwtModule.registerAsync({
+                useFactory: async () => ({
+                    secret: process.env.JWT_SECRETE,
+                    signOptions: {
+                        expiresIn: `${process.env.JWT_EXPIRE_TIME}s`
+                    },
+                })
+            })
+        ],
+        providers: [game_service_1.GameService, game_Gateway_1.GameGateway],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

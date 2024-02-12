@@ -5,7 +5,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { UserService } from './user.service';
 import { PrismaClient } from '@prisma/client';
-import { JwtGuard } from './jwt.guard';
+import { JwtGuard } from 'src/guards/jwt.guard';
 
 const prisma = new PrismaClient
 // @UseGuards(guards)

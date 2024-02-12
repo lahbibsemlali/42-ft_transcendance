@@ -5,6 +5,16 @@ const prisma = new PrismaClient;
 
 @Injectable()
 export class UserService {
+    async getUserById(userId: number) {
+        const user = await prisma.profile.findFirst({
+            where: {
+                userId: userId,
+            }
+        })
+        if (!user)
+            throw new UnauthorizedException('no such user')
+        return user
+    }
     async createUserProfile(username: string, imageLink: string) {
         const user = await prisma.user.create({
             data: {}
@@ -25,14 +35,14 @@ export class UserService {
             },
         });
         if (profile)
-            return {id: profile.userId, username: profile.username, status: 200}
+            return {id: profile.userId, isTwoFaEnabled: profile.twoFA}
         else {
             const profile = await this.createUserProfile(userData.username, userData.imageLink)
-            return {id: profile.userId, username: profile.username, status: 201}
+            return {id: profile.userId, isTwoFaEnabled: profile.twoFA}
         }
     }
     async updateAvatar(userName: string, location: string) {
-        const user = await prisma.profile.findUnique({
+        const user = await prisma.profile.findFirst({
             where: {
               username: userName,
             },
@@ -50,19 +60,19 @@ export class UserService {
         }
     }
     async addFriend(userName: string, friendName: string) {
-        const userProfile = await prisma.profile.findUnique({
+        const userProfile = await prisma.profile.findFirst({
             where: {
                 username: userName
             }
         })
-        const friendProfile = await prisma.profile.findUnique({
+        const friendProfile = await prisma.profile.findFirst({
             where: {
                 username: friendName
             }
         })
         if (!userProfile || !friendProfile)
             return {status: 404, message: "no such user or friend"}
-        const friendship = prisma.friendship.findFirst({
+        const friendship = await prisma.friendship.findFirst({
             where: {
                 friend1Id: userProfile.userId,
                 friend2Id: friendProfile.userId,
@@ -84,22 +94,40 @@ export class UserService {
         else
             return {status: 400, message: `user ${friendName} already exists`}
     }
-    async setUserTwoFASecrete(username: string, secrete: string) {
-        const user = prisma.profile.findUnique({
+    async setTwoFaSecrete(userId: number, secrete: string) {
+        const user = await prisma.profile.findFirst({
             where: {
-                username: username
+                userId: userId
             }
         })
         if (!user)
             throw new UnauthorizedException("no such user");
-        prisma.profile.update({
+        await prisma.profile.update({
             where: {
-                username: username
+                userId: userId
             },
             data: {
                 twoFASecrete: secrete
             }
         })
-        return {status: 200, message: "2fa is set successfully"}
+        return {status: 201, message: "2fa is set successfully"}
+    }
+    async turnOnUserTwoFa(userId: number) {
+        const user = await prisma.profile.findFirst({
+            where: {
+                userId: userId
+            }
+        })
+        if (!user)
+            throw new UnauthorizedException("no such user");
+        await prisma.profile.update({
+            where: {
+                userId: userId
+            },
+            data: {
+                twoFA: true,
+            }
+        })
+        return {status: 201, message: "2fa is set successfully"}
     }
 }

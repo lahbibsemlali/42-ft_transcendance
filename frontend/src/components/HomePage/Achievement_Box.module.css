@@ -1,0 +1,29 @@
+
+.AchBox{
+    display: flex;
+    flex-direction: column;
+    justify-content:space-between;
+    width: 150px;
+    height: 100px;
+    background-color: #218DDC;
+    padding: 10px;
+    margin: 10px;
+    margin-left: 120px;
+    border-radius: 9px;
+}
+
+.AchBox p{
+    /* margin-top: 80px; */
+    margin-left: 25px;
+    font-family: simo;
+    font-size: small;
+}
+
+.AchImg{
+    width: 100px;
+    height: 90px;
+    margin: -10px;
+    margin-left: 25px;
+    background-color: #1C6CA7;
+    background-size: contain;
+}

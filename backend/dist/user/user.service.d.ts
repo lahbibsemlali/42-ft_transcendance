@@ -1,4 +1,11 @@
 export declare class UserService {
+    getUserById(userId: number): Promise<{
+        userId: number;
+        username: string;
+        twoFA: boolean;
+        twoFASecrete: string;
+        avatar: string;
+    }>;
     createUserProfile(username: string, imageLink: string): Promise<{
         userId: number;
         username: string;
@@ -11,8 +18,7 @@ export declare class UserService {
         imageLink: string;
     }): Promise<{
         id: number;
-        username: string;
-        status: number;
+        isTwoFaEnabled: boolean;
     }>;
     updateAvatar(userName: string, location: string): Promise<{
         status: number;
@@ -22,7 +28,11 @@ export declare class UserService {
         status: number;
         message: string;
     }>;
-    setUserTwoFASecrete(username: string, secrete: string): Promise<{
+    setTwoFaSecrete(userId: number, secrete: string): Promise<{
+        status: number;
+        message: string;
+    }>;
+    turnOnUserTwoFa(userId: number): Promise<{
         status: number;
         message: string;
     }>;
