@@ -18,6 +18,7 @@ const passport_1 = require("@nestjs/passport");
 const client_1 = require("@prisma/client");
 const auth_service_1 = require("./auth.service");
 const user_service_1 = require("../user/user.service");
+const jwt_guard_1 = require("../user/jwt.guard");
 const prisma = new client_1.PrismaClient();
 let AuthController = class AuthController {
     constructor(authService, userService) {
@@ -30,6 +31,8 @@ let AuthController = class AuthController {
         const token = await this.authService.generateJwtToken(user);
         res.cookie('jwt', token);
         res.redirect(`http://localhost:4000/`);
+    }
+    async checkToken(req) {
     }
 };
 exports.AuthController = AuthController;
@@ -49,6 +52,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "consL", null);
+__decorate([
+    (0, common_1.Get)('checkToken'),
+    (0, common_1.UseGuards)(jwt_guard_1.JwtGuard),
+    (0, common_1.HttpCode)(200),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Request]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "checkToken", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService, user_service_1.UserService])

@@ -6,4 +6,5 @@ export declare class AuthController {
     constructor(authService: AuthService, userService: UserService);
     log(): void;
     consL(req: any, res: any): Promise<void>;
+    checkToken(req: Request): Promise<void>;
 }

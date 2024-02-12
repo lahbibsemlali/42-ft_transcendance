@@ -1,0 +1,11 @@
+Check player if is in another game befor start a new game
+Display btn Go to Home when Game over or Replay match and set all var to default
+
+
+//true up P2
+// down false P1
+
+
+three dots {
+    if chat ==> display: -mute
+}
