@@ -7,6 +7,7 @@ import { GameGateway } from './Game/game.Gateway';
 import { GameService } from './Game/game.service';
 import { JwtModule } from '@nestjs/jwt';
 import { TwoFaModule } from './two-fa/two-fa.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { TwoFaModule } from './two-fa/two-fa.module';
           expiresIn: `${process.env.JWT_EXPIRE_TIME}s`
         },
       })
-    })
+    }),
+    ChatModule
   ],
   providers: [GameService, GameGateway],
 })
