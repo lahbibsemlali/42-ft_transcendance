@@ -185,4 +185,18 @@ export class UserService {
         })
         return {status: 201, message: "2fa is set successfully"}
     }
+
+    async searchUser(keyword: string) {
+        const matches = await prisma.profile.findMany({
+            where: {
+                username: {
+                    startsWith: keyword
+                }
+            },
+            select: {
+                username: true
+            }
+        })
+        return matches
+    }
 }

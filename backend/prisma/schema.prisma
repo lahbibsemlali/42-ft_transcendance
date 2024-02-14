@@ -28,6 +28,12 @@ enum friendStatus {
   Pending
 }
 
+enum groupStatus {
+  Private
+  Protected
+  Public
+}
+
 model Profile {
   userId       Int
   user         User    @relation(fields: [userId], references: [id])
@@ -67,7 +73,9 @@ model Chat {
   name      String
   image     String
   isGroup   Boolean    @default(false)
+  status    groupStatus @default(Public)
   lastMessage String?
+  password  String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   users     UserChat[]

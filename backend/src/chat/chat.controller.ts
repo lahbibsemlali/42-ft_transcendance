@@ -8,15 +8,23 @@ import { User } from 'src/user/user.decorator';
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  @Post('createGroup')
-  createGroup(@User() user, @Query('id') targetId, @Body() body) {
-    return this.chatService.createGroup(user.id, body.groupName);
+  @Post('create_group')
+  createGroup(@User() user, @Body() body) {
+    const {name, password, status} = body;
+    this.chatService.createGroup(user.id, name, password, status);
   }
 
-  @Get('getChat')
+  @Get('get_chat')
   getChat(@User() user) {
     const chat = this.chatService.getChat(user.id)
     return chat
   }
 
+  @Get('add_to_group')
+  addToGroup(@User() user, @Query('targetId') targetId, @Query('groupId') groupId) {
+    this.chatService.addToGroup(user.id, targetId, groupId)
+  }
+
+  // @Get('join_group')
+  // joinGroup
 }
