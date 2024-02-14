@@ -128,6 +128,9 @@ export class ChatService {
             lastMessage: true
           }
         }
+      },
+      orderBy: {
+        updatedAt: 'desc'
       }
     })
     const neededForm = chat.map(ch => ({
