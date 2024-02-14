@@ -72,17 +72,6 @@ export class ChatService {
     })
   }
 
-  async updateLastMessage(userId: number, chatId: number, message: string) {
-    const lastMessage = await prisma.chat.update({
-      where: {
-        id: chatId,
-      },
-      data: {
-        lastMessage: message
-      }
-    })
-  }
-
   async createMessage(userId: number, chatId: number, content: string) {
     const message = await prisma.message.create({
       data: {
@@ -93,8 +82,39 @@ export class ChatService {
     })
   }
 
+  async getMessages(userId: number, chatId: number) {
+    const messages = await prisma.message.findMany({
+      where: {
+        senderId: userId,
+        chatId: chatId
+      },
+      select: {
+        sender: {
+          select: {
+            profile: {
+              select: {
+                userId: true,
+                username: true
+              }
+            }
+          }
+        },
+        body: true
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    })
+    const neededForm = messages.map(message => ({
+      isMe: message.sender.profile.userId == userId ? true : false,
+      username: message.sender.profile.username,
+      content: message.body
+    }))
+    return neededForm
+  }
+
   async getChat(userId: number) {
-    const userChat = await prisma.userChat.findMany({
+    const chat = await prisma.userChat.findMany({
       where: {
         userId: userId,
       },
@@ -110,6 +130,14 @@ export class ChatService {
         }
       }
     })
+    const neededForm = chat.map(ch => ({
+      id: ch.chat.id,
+      name: ch.chat.name,
+      image: ch.chat.image,
+      isGroup: ch.chat.isGroup,
+      lastMessage: ch.chat.lastMessage
+    }))
+    return neededForm
   }
 
   async searchGroups(keyword: string) {

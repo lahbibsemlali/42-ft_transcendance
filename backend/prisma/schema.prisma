@@ -52,7 +52,7 @@ model User {
   updatedAt DateTime     @updatedAt
   status    userStatus   @default(Online)
   chat      UserChat[]
-  Messages   Message[]
+  messages   Message[]
   roles     userRole[]
   send      Friendship[] @relation("send")
   receive   Friendship[] @relation("receive")
@@ -113,7 +113,6 @@ model Message {
   id        Int      @id @default(autoincrement())
   body      String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   sender    User     @relation(fields: [senderId], references: [id])
   senderId  Int
   chat      Chat     @relation(fields: [chatId], references: [id])

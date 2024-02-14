@@ -25,6 +25,8 @@ export class ChatController {
     this.chatService.addToGroup(user.id, targetId, groupId)
   }
 
-  // @Get('join_group')
-  // joinGroup
+  @Get('join_group')
+  joinGroup(@User() user, @Query('id') groupId, @Query('password') password) {
+    this.chatService.joinGroup(user.id, groupId, password)
+  }
 }
