@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UseInterceptors } from '@nestjs/common';
 import { diskStorage } from 'multer';
@@ -6,21 +6,23 @@ import { extname } from 'path';
 import { UserService } from './user.service';
 import { PrismaClient } from '@prisma/client';
 import { JwtGuard } from 'src/guards/jwt.guard';
+import { User } from './user.decorator';
 
 const prisma = new PrismaClient
 // @UseGuards(guards)
 @Controller('user')
+@UseGuards(JwtGuard)
 export class UserController {
     constructor(private userService: UserService) {}
 
     @Post('/add_friend')
-    async addFiend(@Body() body: {user: string, friend: string}) {
-        return this.userService.addFriend(body.user, body.friend);
+    async addFiend(@User() user, @Query() friend) {
+        return this.userService.addFriend(user.id, friend);
     }
 
-    @Get('test')
-    async test() {
-        console.log(process.env.USER, process.env.USER, process.env.LOGNAME, process.env.USERNAME)
+    @Get('accept_friend')
+    async acceptFriend(@User() user, @Query('friendId') friendId) {
+        this.userService.acceptFriend(user.id, friendId)
     }
 
     @Post("upload_avatar/:username")
@@ -60,7 +62,6 @@ export class UserController {
     }
     
     @Get('deleteAll')
-    @UseGuards(JwtGuard)
     async deleteAllUsers() {
         const users = await prisma.user.deleteMany();
         return users

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient;
@@ -15,6 +15,7 @@ export class UserService {
             throw new UnauthorizedException('no such user')
         return user
     }
+
     async createUserProfile(username: string, imageLink: string) {
         const user = await prisma.user.create({
             data: {}
@@ -59,19 +60,19 @@ export class UserService {
             return {status: 404, message: "user not found"};
         }
     }
-    async addFriend(userName: string, friendName: string) {
+    async addFriend(userId: number, friendId: number) {
         const userProfile = await prisma.profile.findFirst({
             where: {
-                username: userName
+                userId: userId
             }
         })
         const friendProfile = await prisma.profile.findFirst({
             where: {
-                username: friendName
+                userId: friendId
             }
         })
         if (!userProfile || !friendProfile)
-            return {status: 404, message: "no such user or friend"}
+            throw new UnauthorizedException("no such user or friend")
         const friendship = await prisma.friendship.findFirst({
             where: {
                 friend1Id: userProfile.userId,
@@ -85,15 +86,69 @@ export class UserService {
         if (!friendship) {
             await prisma.friendship.create({
                 data: {
-                    friend1Id: userProfile.userId,
-                    friend2Id: friendProfile.userId
+                    friend1Id: userId,
+                    friend2Id: userId
                 }
             })
-            return {status: 201, message: `user ${friendName} added successfully`}
+
+            return 201
         }
         else
-            return {status: 400, message: `user ${friendName} already exists`}
+            return 200
     }
+
+    async getUserName(userId: number) {
+        const name = await prisma.profile.findFirst({
+            where: {
+                userId: userId
+            },
+            select: {
+                username: true
+            }
+        })
+        return name
+    }
+
+    async createDm(userId: number, target: {username: string, avatar: string}) {
+        const chat = await prisma.chat.create({
+          data: {
+            name: target.username,
+            image: target.avatar,
+          }
+        })
+    
+        await prisma.userChat.create({
+          data: {
+            userId: userId,
+            chatId: chat.id
+          }
+        })
+      }
+    
+    async acceptFriend(userId: number, friendId: number) {
+        const friendship = await prisma.friendship.findFirst({
+            where: {
+                friend1Id: userId,
+                friend2Id: friendId
+            }
+        })
+        if (!friendship)
+            throw new HttpException('no such friendship', HttpStatus.INTERNAL_SERVER_ERROR)
+        await prisma.friendship.update({
+            where: {
+                friend1Id_friend2Id: {
+                    friend1Id: userId,
+                    friend2Id: friendId
+                }
+            },
+            data: {
+                status: 'Accepted'
+            }
+        })
+        const friend: {username: string, avatar: string} = await this.getUserById(friendId)
+        this.createDm(userId, friend)
+    }
+
     async setTwoFaSecrete(userId: number, secrete: string) {
         const user = await prisma.profile.findFirst({
             where: {

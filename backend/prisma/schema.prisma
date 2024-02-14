@@ -46,7 +46,7 @@ model User {
   updatedAt DateTime     @updatedAt
   status    userStatus   @default(Online)
   chat      UserChat[]
-  Message   Message[]
+  Messages   Message[]
   roles     userRole[]
   send      Friendship[] @relation("send")
   receive   Friendship[] @relation("receive")
@@ -67,6 +67,7 @@ model Chat {
   name      String
   image     String
   isGroup   Boolean    @default(false)
+  lastMessage String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   users     UserChat[]
