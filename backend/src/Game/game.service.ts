@@ -1,11 +1,15 @@
 import { Injectable } from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
+import { UserService } from "src/user/user.service";
+
+const prisma = new PrismaClient;
 
 @Injectable()
 export class GameService {
     public nRooms: number;
     public nameRoom: string;
 
-    constructor() {
+    constructor(private userService: UserService) {
         this.nRooms = 0;
     }
 
@@ -36,5 +40,15 @@ export class GameService {
     decrementNRooms() {
         if (this.nRooms > 0)
             --this.nRooms;
+    }
+
+    async isPlaying (userId: number) {
+        const user = await this.userService.getUserById(userId)
+        const isPlaying = user.status == 'InGame';
+        return isPlaying;
+    }
+
+    async setResult(userId: number, result: number) {
+        this.userService.setResult(userId, result);
     }
 }

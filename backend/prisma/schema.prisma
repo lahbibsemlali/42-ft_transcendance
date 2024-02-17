@@ -41,7 +41,9 @@ model Profile {
   twoFA        Boolean @default(false)
   twoFASecrete String?  @unique
   avatar       String
-
+  status        userStatus   @default(Online)
+  wins          Int     @default(0)
+  loses         Int     @default(0)
   @@id([userId])
 }
 
@@ -50,7 +52,6 @@ model User {
   profile   Profile?
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
-  status    userStatus   @default(Online)
   chat      UserChat[]
   messages   Message[]
   roles     userRole[]

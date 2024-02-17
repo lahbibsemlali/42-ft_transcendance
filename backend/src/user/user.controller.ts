@@ -55,10 +55,17 @@ export class UserController {
         return this.userService.updateAvatar(userName, file.filename)
     }
 
-    @Get('getUsers')
-    async me() {
-      const users = await prisma.user.findMany();
-      return users;
+    @Get('getAvatar')
+    async getAvatar(@User() user) {
+      const avatar = await prisma.profile.findFirst({
+        where: {
+            userId: user.id
+        },
+        select: {
+            avatar: true
+        }
+      });
+      return {avatarUrl: avatar.avatar};
     }
     
     @Get('deleteAll')

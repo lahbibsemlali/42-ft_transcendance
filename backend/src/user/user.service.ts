@@ -199,4 +199,20 @@ export class UserService {
         })
         return matches
     }
+
+    async setResult(userId: number, result: number) {
+        await prisma.profile.update({
+            where: {
+                userId: userId
+            },
+            data: {
+                wins: {
+                    increment: result == 5 ? 1 : 0
+                },
+                loses: {
+                    increment: result < 5 ? 1 : 0
+                }
+            }
+        })
+    }
 }
