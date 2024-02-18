@@ -29,7 +29,7 @@ export class GameService {
         this.nRooms++;
 
 
-        console.log("room name: ", this.nameRoom);
+        // console.log("room name: ", this.nameRoom);
         return this.nameRoom;
     }
 
@@ -44,11 +44,15 @@ export class GameService {
 
     async isPlaying (userId: number) {
         const user = await this.userService.getUserById(userId)
-        const isPlaying = user.status == 'InGame';
-        return isPlaying;
+        // console.log("is paliiiiiiiiiiiiiing ", user.inGame);
+        return user.inGame;
     }
 
     async setResult(userId: number, result: number) {
-        this.userService.setResult(userId, result);
+        await this.userService.setResult(userId, result);
+    }
+
+    async updateStatus(userId: number, state: boolean) {
+        await this.userService.updateGameState(userId, state)
     }
 }

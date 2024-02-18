@@ -45,19 +45,26 @@ export class GameGateway
   }
 
   @SubscribeMessage('waiting')
-  handleWaitingEvent(client: Socket) {
-    client.join(this.gameService.createRooms());
+  async handleWaitingEvent(client: Socket, idUser: number) {
     const roomArray = Array.from(client.rooms);
-    if ((this.gameService.getNRooms() % 2) == 0) {
-      this.server.to(roomArray[1]).emit("startgame");
-      client.to(roomArray[1]).emit("witchplayer");
-    }
-    client.on('disconnect', () => {
-      client.to(roomArray[1]).emit("winer");
-      if ((this.gameService.getNRooms() % 2) != 0) {
-        this.gameService.decrementNRooms();
+    const ifPlay = await this.gameService.isPlaying(idUser);
+    console.log("is playing ", ifPlay);
+    if (!ifPlay) {
+      await this.gameService.updateStatus(idUser, true);
+      client.join(this.gameService.createRooms());
+      if ((this.gameService.getNRooms() % 2) == 0) {
+        this.server.to(roomArray[1]).emit("startgame");
+        client.to(roomArray[1]).emit("witchplayer");
       }
-    });
+      client.on('disconnect', async () => {
+        await this.gameService.updateStatus(idUser, false);
+        client.to(roomArray[1]).emit("winer");
+        if ((this.gameService.getNRooms() % 2) != 0) {
+          this.gameService.decrementNRooms();
+        }
+      });
+    }
+    // console.log(roomArray);
   }
 
     @SubscribeMessage('updateBallPosition')
@@ -76,7 +83,7 @@ export class GameGateway
 
       @SubscribeMessage('visibilitychange')
       visibilityChange(client: Socket): void {
-        console.log('visibilitychange');
+        // console.log('visibilitychange');
       }
 
       @SubscribeMessage("please change my ball position")
@@ -85,8 +92,11 @@ export class GameGateway
         this.server.to(roomArray[1]).emit('please give me your ball position', bool);
       }
 
-      // @SubscribeMessage("please give me your score")
-      // getScore(client: Socket, bool: boolean): void {
-      //   this.server.emit('please give me your score', bool);
-      // }
+      @SubscribeMessage("updateResulte")
+      async getResulte(client: Socket, userId: number, result: number) {
+        await this.gameService.setResult(userId, result);
+        await this.gameService.updateStatus(userId, false);
+        // const roomArray = Array.from(client.rooms);
+        // this.server.to(roomArray[1]).emit('please give me your ball position', bool);
+      }
 }

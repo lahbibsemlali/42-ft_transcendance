@@ -16,12 +16,6 @@ enum Role {
   Owner
 }
 
-enum userStatus {
-  Online
-  Offline
-  InGame
-}
-
 enum friendStatus {
   Accepted
   Rejected
@@ -41,10 +35,11 @@ model Profile {
   twoFA        Boolean @default(false)
   twoFASecrete String?  @unique
   avatar       String
-  status        userStatus   @default(Online)
+  state        Int   @default(0)
+  inGame        Boolean @default(false)
   wins          Int     @default(0)
   loses         Int     @default(0)
-  @@id([userId])
+  @@unique([userId])
 }
 
 model User {

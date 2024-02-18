@@ -1,11 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
+import MenuImg from "./MenuImg";
 
-type Props = {};
+type LeftMsgProps = {
+  isAdmin: boolean;
+};
 
-const LeftMsg = (props: Props) => {
+const LeftMsg: React.FC<LeftMsgProps> = ({ isAdmin }) => {
+
+  // isAdmin = true; // to be remove
+
+  const [menuClicked, setMenuClicked] = useState(false);
+
+  const imgClicked = () => {
+    if (menuClicked) setMenuClicked(false);
+    else setMenuClicked(true);
+  };
+
   return (
     <div className="leftmsg">
-      <div className="contentleft">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</div>
+      <div className="div-wrapper">
+        <img
+          onClick={imgClicked}
+          src="https://cdn.intra.42.fr/users/bc6d13d354c50b832542b18db4a7d7ba/lsemlali.jpg"
+        />
+      </div>
+      {menuClicked && isAdmin && <MenuImg />}
+      <div className="contentleft">LEFT MSG
+      </div>
     </div>
   );
 };

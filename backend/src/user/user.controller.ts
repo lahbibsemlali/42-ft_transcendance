@@ -55,6 +55,11 @@ export class UserController {
         return this.userService.updateAvatar(userName, file.filename)
     }
 
+    @Get('getUserId')
+    async getUserId(@User() user) {
+        return user.id;
+    }
+
     @Get('getAvatar')
     async getAvatar(@User() user) {
       const avatar = await prisma.profile.findFirst({

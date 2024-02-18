@@ -3,6 +3,7 @@ import socketIOClient from "socket.io-client";
 const ENDPOINT = "http://localhost:3000";
 import Cookies from "js-cookie";
 import axios from "axios";
+import Header from "../Header/Header";
 
 let canvaWidth: number;
 let canvaHeight: number;
@@ -13,10 +14,10 @@ let player = false; // down paddle
 let scoreP1 = 0;
 let scoreP2 = 0;
 const socket = socketIOClient(ENDPOINT, { transports: ["websocket"] });
+const mytoken = Cookies.get("jwt") || "";
 
 const CheckAuth = async () => {
-  const mytoken = Cookies.get("jwt") || "";
-  const CheckAuth2 = async () => {
+  // const CheckAuth2 = async () => {
     try {
       const res = await axios.get("http://localhost:3000/auth/checkToken", {
         headers: {
@@ -27,8 +28,22 @@ const CheckAuth = async () => {
     } catch (error) {
       return false;
     }
-  };
-  return await CheckAuth2();
+  // };
+  // return await CheckAuth2();
+};
+
+const GetUSerId = async () => {
+  try {
+    const res = await axios.get("http://localhost:3000/user/getUserId", {
+      headers: {
+        Authorization: `bearer ${mytoken}`,
+      },
+    });
+    console.log(res.data);
+  } catch (error) {
+    // console.log("pppppppppppppppp");
+    // return false;
+  }
 };
 
 function sketch(p5: P5CanvasInstance) {
@@ -74,6 +89,7 @@ function sketch(p5: P5CanvasInstance) {
   let downPaddle: Paddle;
   let textBtn = "START GAME";
   let ifGuest: boolean;
+  let userId: number;
 
   let textfont: any;
 
@@ -82,6 +98,7 @@ function sketch(p5: P5CanvasInstance) {
   };
 
   p5.setup = async () => {
+    userId = GetUSerId();
     ifGuest = (await CheckAuth()) || false;
     if (!ifGuest) textBtn = "PLAY WITH BOT";
     p5.textFont(textfont);
@@ -156,10 +173,12 @@ function sketch(p5: P5CanvasInstance) {
             // up p2
             if (scoreP2 == 5) toDisplayText = "winner";
             else toDisplayText = "los";
+            socket.emit("updateResulte", userId, scoreP2);
           } else {
             // down p1
             if (scoreP1 == 5) toDisplayText = "winner";
             else toDisplayText = "los";
+            socket.emit("updateResulte", userId, scoreP1);
           }
           drawText2();
           // setToDefault();
@@ -383,6 +402,7 @@ function sketch(p5: P5CanvasInstance) {
 const GamePage = () => {
   return (
     <div>
+      {/* <Header /> */}
       <div
         style={{
           display: "flex",

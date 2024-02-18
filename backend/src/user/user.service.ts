@@ -215,4 +215,15 @@ export class UserService {
             }
         })
     }
+
+    async updateGameState(id: number, state: boolean) {
+        await prisma.profile.update({
+            where: {
+                userId: id
+            },
+            data: {
+                inGame: state
+            }
+        })
+    }
 }
