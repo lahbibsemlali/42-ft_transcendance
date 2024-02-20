@@ -53,6 +53,8 @@ export class GameService {
     }
 
     async updateStatus(userId: number, state: boolean) {
-        await this.userService.updateGameState(userId, state)
+        console.log(typeof userId, "----", userId)
+
+        await this.userService.updateGameState(1, state)
     }
 }

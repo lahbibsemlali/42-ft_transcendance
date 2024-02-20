@@ -1,0 +1,9 @@
+##
+
+Dockerfile
+.dockerignore
+app/.eslingrc.js
+app/.prettierrc
+app/node_modules
+app/npm-debug.log
+app/dist
