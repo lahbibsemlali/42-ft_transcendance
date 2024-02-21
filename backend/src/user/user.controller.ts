@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, Uplo
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UseInterceptors } from '@nestjs/common';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { UserService } from './user.service';
 import { PrismaClient } from '@prisma/client';
 import { JwtGuard } from 'src/guards/jwt.guard';
@@ -25,17 +25,19 @@ export class UserController {
         this.userService.acceptFriend(user.id, friendId)
     }
 
-    @Post("upload_avatar/:username")
-    @UseInterceptors(FileInterceptor('file', {
+    @Post("upload_avatar")
+    @UseInterceptors(FileInterceptor('image', {
         storage: diskStorage({
-            destination: './uploads',
+            destination: '/home/lsemlali/trans/backend/uploads',
             filename: (req, file, callback) => {
+                console.log(file)
                 const suffix = Date.now() + '_' + Math.round(Math.random() * 1e9)
                 const filename = `${suffix}${extname(file.originalname)}`
                 callback(null, filename)
             }
         }),
         fileFilter:(req, file, callback) => {
+            console.log("++++++++++++++++++++++++++++")
             const allowedFileTypes = ['.jpg', '.jpeg', '.png'];
             const isValidFileType = allowedFileTypes.includes(extname(file.originalname).toLowerCase());
             
@@ -48,11 +50,9 @@ export class UserController {
             fileSize: 5 * 1024 * 1024
         }
     }))
-    async uploadAvatar(@Param('username') userName: string, @UploadedFile() file: Express.Multer.File) {
-        if (!userName)
-            return "errrror"
-            console.log(file, userName)
-        return this.userService.updateAvatar(userName, file.filename)
+    async uploadAvatar(@Body() body, @User() user, @UploadedFile() file: Express.Multer.File) {
+        console.log(join(file.destination, file.filename))
+        return this.userService.updateAvatar(user.id, join(file.destination, file.filename))
     }
 
     @Get('getUserId')
@@ -61,7 +61,7 @@ export class UserController {
     }
 
     @Get('getAvatar')
-    async getAvatar(@User() user) {
+    async getAvatar(@User() user, @Res() res) {
       const avatar = await prisma.profile.findFirst({
         where: {
             userId: user.id
@@ -70,7 +70,7 @@ export class UserController {
             avatar: true
         }
       });
-      return {avatarUrl: avatar.avatar};
+      res.sendFile(avatar.avatar)
     }
     
     @Get('deleteAll')

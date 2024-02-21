@@ -88,3 +88,27 @@
     font-family: simo;
     font-size: xx-large;
 }
+
+input {
+    display:none;
+  }
+  
+  label {
+    /* top: 70%; */
+    width: 200px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    /* margin-left: auto; */
+    /* margin-right: auto; */
+    padding: 1rem;
+    border-radius: 1rem;
+    background: linear-gradient(to right, #aa4b6b, #6b6b83, #3b8d99);
+    color: white;
+    /* font-family: sans-serif; */
+    /* transition: all .5s; */
+    /* box-shadow: 1px 1px 15px 3px gray; */
+  }
+  

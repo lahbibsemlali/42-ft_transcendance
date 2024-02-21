@@ -33,16 +33,14 @@ let UserController = class UserController {
     async acceptFriend(user, friendId) {
         this.userService.acceptFriend(user.id, friendId);
     }
-    async uploadAvatar(userName, file) {
-        if (!userName)
-            return "errrror";
-        console.log(file, userName);
-        return this.userService.updateAvatar(userName, file.filename);
+    async uploadAvatar(body, user, file) {
+        console.log((0, path_1.join)(file.destination, file.filename));
+        return this.userService.updateAvatar(user.id, (0, path_1.join)(file.destination, file.filename));
     }
     async getUserId(user) {
         return user.id;
     }
-    async getAvatar(user) {
+    async getAvatar(user, res) {
         const avatar = await prisma.profile.findFirst({
             where: {
                 userId: user.id
@@ -51,7 +49,7 @@ let UserController = class UserController {
                 avatar: true
             }
         });
-        return { avatarUrl: avatar.avatar };
+        res.sendFile(avatar.avatar);
     }
     async deleteAllUsers() {
         const users = await prisma.user.deleteMany();
@@ -76,17 +74,19 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "acceptFriend", null);
 __decorate([
-    (0, common_1.Post)("upload_avatar/:username"),
-    (0, common_2.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
+    (0, common_1.Post)("upload_avatar"),
+    (0, common_2.UseInterceptors)((0, platform_express_1.FileInterceptor)('image', {
         storage: (0, multer_1.diskStorage)({
-            destination: './uploads',
+            destination: '/home/lsemlali/trans/backend/uploads',
             filename: (req, file, callback) => {
+                console.log(file);
                 const suffix = Date.now() + '_' + Math.round(Math.random() * 1e9);
                 const filename = `${suffix}${(0, path_1.extname)(file.originalname)}`;
                 callback(null, filename);
             }
         }),
         fileFilter: (req, file, callback) => {
+            console.log("++++++++++++++++++++++++++++");
             const allowedFileTypes = ['.jpg', '.jpeg', '.png'];
             const isValidFileType = allowedFileTypes.includes((0, path_1.extname)(file.originalname).toLowerCase());
             if (isValidFileType)
@@ -98,10 +98,11 @@ __decorate([
             fileSize: 5 * 1024 * 1024
         }
     })),
-    __param(0, (0, common_1.Param)('username')),
-    __param(1, (0, common_1.UploadedFile)()),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, user_decorator_1.User)()),
+    __param(2, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "uploadAvatar", null);
 __decorate([
@@ -114,8 +115,9 @@ __decorate([
 __decorate([
     (0, common_1.Get)('getAvatar'),
     __param(0, (0, user_decorator_1.User)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getAvatar", null);
 __decorate([

@@ -42,16 +42,15 @@ export class UserService {
             return {id: profile.userId, isTwoFaEnabled: profile.twoFA}
         }
     }
-    async updateAvatar(userName: string, location: string) {
+    async updateAvatar(userId: number, location: string) {
         const user = await prisma.profile.findFirst({
             where: {
-              username: userName,
+              userId: userId,
             },
         });
         if (user) {
-            console.log(location, userName)
             await prisma.profile.update({
-                where: {username: userName},
+                where: {userId: userId},
                 data: {avatar: location}
             })
             return {status: 201, message: "avatar uploaded successfully"}

@@ -28,7 +28,7 @@ export declare class UserService {
         id: number;
         isTwoFaEnabled: boolean;
     }>;
-    updateAvatar(userName: string, location: string): Promise<{
+    updateAvatar(userId: number, location: string): Promise<{
         status: number;
         message: string;
     }>;
