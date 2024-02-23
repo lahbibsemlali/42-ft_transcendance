@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import MenuImg from "./MenuImg";
 
-type LeftMsgProps = {
+type Props = {
   isAdmin: boolean;
+  idClient: number;
+  idChat: number;
+  urlImg: string;
+  msg: string;
 };
 
-const LeftMsg: React.FC<LeftMsgProps> = ({ isAdmin }) => {
+const LeftMsg = (props: Props) => {
 
   // isAdmin = true; // to be remove
 
@@ -21,12 +25,11 @@ const LeftMsg: React.FC<LeftMsgProps> = ({ isAdmin }) => {
       <div className="div-wrapper">
         <img
           onClick={imgClicked}
-          src="https://cdn.intra.42.fr/users/bc6d13d354c50b832542b18db4a7d7ba/lsemlali.jpg"
+          src={props.urlImg}
         />
       </div>
-      {menuClicked && isAdmin && <MenuImg />}
-      <div className="contentleft">LEFT MSG
-      </div>
+      {menuClicked && props.isAdmin && <MenuImg idClient={props.idClient} idChat={props.idChat} />}
+      <div className="contentleft">{props.msg}</div>
     </div>
   );
 };

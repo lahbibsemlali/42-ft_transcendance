@@ -13,25 +13,26 @@ let ifWin = false;
 let player = false; // down paddle
 let scoreP1 = 0;
 let scoreP2 = 0;
+// let ifHidden = false;
+let ifHidden2 = false;
+let inGame = false;
+let isGameOver = false;
 const socket = socketIOClient(ENDPOINT, { transports: ["websocket"] });
 const mytoken = Cookies.get("jwt") || "";
 
 const CheckAuth = async () => {
-  // const CheckAuth2 = async () => {
-    try {
-      const res = await axios.get("http://localhost:3000/auth/checkToken", {
-        headers: {
-          Authorization: `bearer ${mytoken}`,
-        },
-      });
-      if (res.status === 200) return true;
-    } catch (error) {
-      return false;
-    }
-  // };
-  // return await CheckAuth2();
+  try {
+    const res = await axios.get("http://localhost:3000/auth/checkToken", {
+      headers: {
+        Authorization: `bearer ${mytoken}`,
+      },
+    });
+    if (res.status === 200) return true;
+  } catch (error) {
+    return false;
+  }
 };
-
+// false
 const GetUSerId = async () => {
   try {
     const res = await axios.get("http://localhost:3000/user/getUserId", {
@@ -39,11 +40,8 @@ const GetUSerId = async () => {
         Authorization: `bearer ${mytoken}`,
       },
     });
-    console.log(res.data);
-  } catch (error) {
-    // console.log("pppppppppppppppp");
-    // return false;
-  }
+    return res.data;
+  } catch (error) {}
 };
 
 function sketch(p5: P5CanvasInstance) {
@@ -57,18 +55,31 @@ function sketch(p5: P5CanvasInstance) {
     console.log("winner");
   });
 
+  socket.on("in game", () => {
+    // console.log("in gameeeeeeeeeee");
+    inGame = true;
+  });
+
   socket.on("witchplayer", () => {
     player = true;
   });
 
-  document.addEventListener("visibilitychange", function () {
-    if (!document.hidden && startGmae && ifGuest) {
-      socket.emit("please change my ball position", player);
-    }
+  socket.on("Game Over", () => {
+    isGameOver = true;
   });
 
-  socket.on("please give me your ball position", (bool) => {
-    if (bool != player && ifGuest) {
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden && startGmae && ifGuest) {
+      // is game over
+      socket.emit("is Game Over");
+      socket.emit("please change my ball position");
+    }
+    socket.emit("this is my visibility", document.hidden);
+    // ifHidden = document.hidden;
+  });
+
+  socket.on("please give me your ball position", () => {
+    // if (bool != player && ifGuest) {
       socket.emit("updateBallPosition", {
         x: myball.x,
         y: myball.y,
@@ -79,7 +90,16 @@ function sketch(p5: P5CanvasInstance) {
         sp1: scoreP1,
         sp2: scoreP2,
       });
-    }
+    // }
+  });
+
+  // socket.on("give Me your Visibility", () => {
+  //   // if (bool != player)
+  //   socket.emit("this is my visibility", ifHidden);
+  // });
+
+  socket.on("this is the visibility", (visibState) => {
+    ifHidden2 = visibState;
   });
 
   let toDisplayText = "PLEASE WAIT";
@@ -98,7 +118,7 @@ function sketch(p5: P5CanvasInstance) {
   };
 
   p5.setup = async () => {
-    userId = GetUSerId();
+    userId = await GetUSerId();
     ifGuest = (await CheckAuth()) || false;
     if (!ifGuest) textBtn = "PLAY WITH BOT";
     p5.textFont(textfont);
@@ -109,7 +129,6 @@ function sketch(p5: P5CanvasInstance) {
     myball = new Ball();
     upPaddle = new Paddle(true);
     downPaddle = new Paddle(false);
-    // BUTTON
     createBtn();
   };
 
@@ -121,7 +140,7 @@ function sketch(p5: P5CanvasInstance) {
     button.mousePressed(() => {
       startGmae = true;
       button.remove();
-      if (ifGuest) socket.emit("waiting");
+      if (ifGuest) socket.emit("waiting", userId);
     });
   }
 
@@ -152,6 +171,17 @@ function sketch(p5: P5CanvasInstance) {
 
   p5.draw = () => {
     p5.background(p5.color(34, 71, 113));
+    if (inGame) {
+      toDisplayText = "IN GAME";
+      drawText2();
+      return;
+    }
+
+    if (isGameOver) {
+      toDisplayText = "Game oveeer";
+      drawText2();
+      return;
+    }
     if (startGmae && ifGuest) {
       if (waiting && ifWin != true) {
         if (scoreP1 != 5 && scoreP2 != 5) {
@@ -173,20 +203,34 @@ function sketch(p5: P5CanvasInstance) {
             // up p2
             if (scoreP2 == 5) toDisplayText = "winner";
             else toDisplayText = "los";
-            socket.emit("updateResulte", userId, scoreP2);
+            socket.emit("updateResulte", userId);
           } else {
             // down p1
             if (scoreP1 == 5) toDisplayText = "winner";
             else toDisplayText = "los";
-            socket.emit("updateResulte", userId, scoreP1);
+            socket.emit("updateResulte", userId);
           }
           drawText2();
-          // setToDefault();
+          setToDefault();
         }
       } else if (ifWin != true) drawText2(); // PLEASE WAIT
-      else drawText2(); // WINNER
+      else drawText2(); // WINNER // check this
     } else runBot();
   };
+
+  function setToDefault() {
+    startGmae = false;
+    waiting = false;
+    toDisplayText = "PLEASE WAIT";
+    ifWin = false;
+    player = false;
+    scoreP1 = 0;
+    scoreP2 = 0;
+    inGame = false;
+    upPaddle.x = p5.width / 2;
+    downPaddle.x = p5.width / 2;
+    createBtn();
+  }
 
   function runBot() {
     if (startGmae) {
@@ -362,18 +406,30 @@ function sketch(p5: P5CanvasInstance) {
         this.xSpeed *= -1;
 
       if (this.y - this.mywidth / 2 < upPaddle.y) {
+        const tmpScore = scoreP2;
         this.x = p5.width / 2;
         this.y = p5.height / 2;
-        if (!player && ifGuest)
-          socket.emit("please change my ball position", player);
+        if (!player && ifGuest) {
+          // socket.emit("isVisible");
+          if (!ifHidden2) socket.emit("please change my ball position");
+          else scoreP2++;
+        }
         if (player) scoreP2++;
+        if (tmpScore != scoreP2) socket.emit("updateScoor", userId, scoreP2);
+
+        // socket.emit("updateResulte", userId);
       }
       if (this.y + this.mywidth / 2 > downPaddle.y + 3) {
+        const tmpScore = scoreP1;
         this.x = p5.width / 2;
         this.y = p5.height / 2;
-        if (player && ifGuest)
-          socket.emit("please change my ball position", player);
+        if (player && ifGuest) {
+          // socket.emit("isVisible");
+          if (!ifHidden2) socket.emit("please change my ball position");
+          else scoreP1++;
+        }
         if (!player) scoreP1++;
+        if (tmpScore != scoreP1) socket.emit("updateScoor", userId, scoreP1);
       }
 
       if (

@@ -127,7 +127,9 @@ export class ChatService {
             isGroup: true,
             lastMessage: true
           }
-        }
+        },
+        dmName: true,
+        dmImage: true
       },
       orderBy: {
         updatedAt: 'desc'
@@ -135,8 +137,8 @@ export class ChatService {
     })
     const neededForm = chat.map(ch => ({
       id: ch.chat.id,
-      name: ch.chat.name,
-      image: ch.chat.image,
+      name: ch.chat.isGroup ? ch.chat.name : ch.dmName,
+      image: ch.chat.isGroup ? ch.chat.image : ch.dmImage,
       isGroup: ch.chat.isGroup,
       lastMessage: ch.chat.lastMessage
     }))

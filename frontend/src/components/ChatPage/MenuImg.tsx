@@ -1,6 +1,9 @@
 import MenuBtn from "./MenuBtn";
 
-type Props = {};
+type Props = {
+  idClient: number;
+  idChat: number;
+};
 
 const MenuImg = (props: Props) => {
   return (

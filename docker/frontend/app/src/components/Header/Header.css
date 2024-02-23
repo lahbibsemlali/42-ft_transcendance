@@ -1,0 +1,45 @@
+.awsomeCss {
+  font-size: 40px;
+  margin: 0px 17px;
+  color: #2190e2;
+}
+
+.iconclass {
+  margin-right: 100px;
+  padding: 10px 0;
+  float: right;
+}
+
+.container2 {
+  /* background-color: red; */
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.search {
+  font-family: simo;
+  width: 100%;
+  font-size: 16px;
+  padding: 0px 10px;
+  background-color: #2190e2;
+  color: #061333;
+  border-radius: 6px;
+  border: none;
+}
+
+.search-box {
+  height: 50px;
+  width: 350px;
+  display: flex;
+  margin-left: 100px;
+}
+
+.search-btn {
+  background-color: transparent;
+  font-size: 25px;
+  margin-left: -45px;
+  border: none;
+  color: #061333;
+}
