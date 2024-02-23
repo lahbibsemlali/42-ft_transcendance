@@ -1,6 +1,6 @@
 import { P5CanvasInstance, ReactP5Wrapper } from "react-p5-wrapper";
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://localhost:8000/ws";
+const ENDPOINT = "http://localhost:8000";
 import Cookies from "js-cookie";
 import axios from "axios";
 
