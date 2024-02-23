@@ -30,7 +30,7 @@ let AuthController = class AuthController {
         const payload = req.user;
         const token = await this.authService.generateJwtToken(payload);
         res.cookie('jwt', token);
-        res.redirect(`http://localhost:4000/`);
+        res.redirect(`http://localhost:8000/`);
     }
     async checkToken(req) {
     }

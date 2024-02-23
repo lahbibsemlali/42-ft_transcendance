@@ -31,7 +31,7 @@ const Authorization: React.FC<AuthorizationProps> = ({ children }) => {
     const CheckAuth = async () => {
       if (token.length) {
         try {
-          const res = await axios.get("http://localhost:3000/auth/checkToken", {
+          const res = await axios.get("http://localhost:8000/api/auth/checkToken", {
             headers: {
               Authorization: `bearer ${token}`,
             },

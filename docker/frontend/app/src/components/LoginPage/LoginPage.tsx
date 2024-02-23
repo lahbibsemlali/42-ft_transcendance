@@ -26,9 +26,9 @@ const LoginPage = (props: Props) => {
     <div className={styles.loginBox}>
       <h1>Account Login </h1>
       <h2>Login with your Accout </h2>
-      <Link to="http://localhost:3000/auth/42">
+      <a href="http://localhost:8000/api/auth/42">
         <button className={styles.button}></button>
-      </Link>
+      </a>
     </div>
   );
 };

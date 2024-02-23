@@ -19,7 +19,7 @@ let FortyTwoStrategy = class FortyTwoStrategy extends (0, passport_1.PassportStr
         super({
             clientID: process.env.INTRA_UID,
             clientSecret: process.env.INTRA_SECRETE,
-            callbackURL: 'http://localhost:3000/auth/42_callback',
+            callbackURL: 'http://localhost:8000/api/auth/42_callback',
         });
         this.userService = userService;
     }

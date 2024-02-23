@@ -42,7 +42,7 @@ let TwoFaController = class TwoFaController {
         const payload = { id: userId, isTwoFaEnabled: user.twoFA };
         const jwtToken = this.authService.generateJwtToken(payload);
         res.cookie('jwt', jwtToken);
-        res.redirect('http://localhost:4000');
+        res.redirect('http://localhost:8000');
     }
 };
 exports.TwoFaController = TwoFaController;
