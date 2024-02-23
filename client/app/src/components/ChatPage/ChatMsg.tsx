@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import DropdownMenu from "./DropdownMenu";
 import { useState } from "react";
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://localhost:3000";
+const ENDPOINT = "http://localhost:8000";
 const socket = socketIOClient(ENDPOINT, { transports: ["websocket"] });
 import { useEffect } from "react";
 import GeneratMsg from "./GeneratMsg";

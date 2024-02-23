@@ -7,22 +7,22 @@ services:
     image: frontend
     container_name: front-end
     build:
-      context: ./frontend
+      context: ./client
     ports:
       - 8000:80
     volumes:
-      - ./frontend/app/src:/app/src
+      - ./client/app/src:/app/src
   backend:
     depends_on:
       - postgres
     image: backend
     container_name: back-end
     build:
-      context: ./backend
+      context: ./server
     env_file:
       - .env
     volumes:
-        - ./backend/app/src/:/app/src
+        - ./server/app/src/:/app/src
   postgres:
     image: postgres:latest
     container_name: db
