@@ -36,12 +36,6 @@
 
 FROM node:latest
 
-# Define build arguments for environment variables
-ARG VITE_DOMAIN
-
-# Set environment variables during the build process
-ENV VITE_DOMAIN=$VITE_DOMAIN
-
 WORKDIR /app
 
 COPY ./app/package*.json ./
@@ -50,4 +44,6 @@ RUN npm install
 
 COPY ./app .
 
-CMD ["npm", "run", "dev"]
+EXPOSE 4000
+
+ENTRYPOINT ["npm", "run", "dev"]

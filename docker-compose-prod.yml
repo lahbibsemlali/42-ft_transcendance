@@ -8,12 +8,10 @@ services:
     container_name: front-end
     build:
       context: ./client
-    volumes:
-      - ./client/app/src/:/app/src
+      args:
+        - VITE_DOMAIN=${VITE_DOMAIN}
     ports:
-      - 5000:4000
-    env_file:
-      - .env
+      - 8000:80
   backend:
     depends_on:
       - postgres
@@ -25,8 +23,6 @@ services:
       - .env
     volumes:
         - ./server/app/src/:/app/src
-    ports:
-      - 8000:3000
   postgres:
     image: postgres:latest
     container_name: db

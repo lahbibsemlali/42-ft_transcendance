@@ -16,4 +16,6 @@ RUN npm run build
 
 RUN chmod u+x init.sh
 
+EXPOSE 3000
+
 CMD [ "bash", "./init.sh"]
