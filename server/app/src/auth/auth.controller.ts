@@ -25,7 +25,7 @@ export class AuthController {
     res.cookie('jwt', token);
     // if (payload.isTwoFaEnabled)
     //   res.redirect(`http://${process.env.VITE_DOMAIN}:8000/auth`)
-    res.redirect(`http://${process.env.VITE_DOMAIN}:8000/`);
+    res.redirect(`http://${process.env.VITE_DOMAIN}:5000/`);
   }
 
   @Get('checkToken')
