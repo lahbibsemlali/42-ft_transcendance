@@ -27,7 +27,7 @@ export class UserController {
         this.userService.acceptFriend(user.id, friendId)
     }
 
-    @Post("upload_avatar/:username")
+    @Post("upload_avatar")
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
             destination: './uploads',
@@ -50,11 +50,9 @@ export class UserController {
             fileSize: 5 * 1024 * 1024
         }
     }))
-    async uploadAvatar(@Param('username') userName: string, @UploadedFile() file: Express.Multer.File) {
-        if (!userName)
-            return "errrror"
-            console.log(file, userName)
-        return this.userService.updateAvatar(userName, file.filename)
+    async uploadAvatar(@User() user, @UploadedFile() file: Express.Multer.File) {
+        const fileName = `${process.env.VITE_DOMAIN}:8000/api/get_avatar/${file.filename}`
+        return this.userService.updateAvatar(user.id, fileName)
     }
 
     @Get('getUserId')
@@ -72,7 +70,7 @@ export class UserController {
             avatar: true
         }
       });
-      return {avatarUrl: avatar.avatar};
+      return {avatar: avatar.avatar};
     }
     
     @Get('deleteAll')

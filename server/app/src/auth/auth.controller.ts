@@ -24,8 +24,8 @@ export class AuthController {
     const token = await this.authService.generateJwtToken(payload);
     res.cookie('jwt', token);
     // if (payload.isTwoFaEnabled)
-    //   res.redirect('http://localhost:8000/auth')
-    res.redirect(`http://localhost:8000/`);
+    //   res.redirect(`http://${process.env.VITE_DOMAIN}:8000/auth`)
+    res.redirect(`http://${process.env.VITE_DOMAIN}:8000/`);
   }
 
   @Get('checkToken')

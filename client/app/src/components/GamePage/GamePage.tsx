@@ -1,6 +1,6 @@
 import { P5CanvasInstance, ReactP5Wrapper } from "react-p5-wrapper";
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "http://localhost:8000";
+const ENDPOINT = `http://${import.meta.env.VITE_DOMAIN}:8000`;
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -21,7 +21,7 @@ const mytoken = Cookies.get("jwt") || "";
 
 const CheckAuth = async () => {
   try {
-    const res = await axios.get("http://localhost:8000/api/auth/checkToken", {
+    const res = await axios.get(`http://${import.meta.env.VITE_DOMAIN}:8000/api/auth/checkToken`, {
       headers: {
         Authorization: `bearer ${mytoken}`,
       },
@@ -34,7 +34,7 @@ const CheckAuth = async () => {
 // false
 const GetUSerId = async () => {
   try {
-    const res = await axios.get("http://localhost:8000/api/user/getUserId", {
+    const res = await axios.get(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getUserId`, {
       headers: {
         Authorization: `bearer ${mytoken}`,
       },

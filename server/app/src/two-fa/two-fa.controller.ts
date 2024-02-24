@@ -40,6 +40,6 @@ export class TwoFaController {
     const payload = {id: userId, isTwoFaEnabled: user.twoFA}
     const jwtToken = this.authService.generateJwtToken(payload)
     res.cookie('jwt', jwtToken)
-    res.redirect('http://localhost:8000')
+    res.redirect(`http://${process.env.VITE_DOMAIN}:8000`)
   }
 }

@@ -35,7 +35,7 @@ const ChatPage = () => {
     const fetchData = async () => {
       try {
         // const res = await axios.get("https://api.imgflip.com/get_memes");
-        const res = await axios.get("http://localhost:8000/api/chat/get_chat", {
+        const res = await axios.get(`http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/get_chat`, {
           headers: {
             Authorization: `bearer ${mytoken}`,
           },

@@ -88,3 +88,25 @@
     font-family: simo;
     font-size: xx-large;
 }
+
+label input{display:none}
+
+label{
+  top: 31%;
+  padding:1rem 1.5rem;
+  background:#1f66fd;
+  box-shadow:2px 2px 2px #aaa;
+  font:1em Arial, sans-serif;
+  color:#fff;
+  position:relative;
+  cursor:pointer;
+  user-select:none; 
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+label:active{
+ top:2px; 
+ box-shadow:none;
+}
