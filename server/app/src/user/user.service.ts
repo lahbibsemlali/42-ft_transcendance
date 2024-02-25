@@ -35,8 +35,10 @@ export class UserService {
               username: userData.username,
             },
         });
-        if (profile)
+        if (profile) {
+            console.log("founded >>...")
             return {id: profile.userId, isTwoFaEnabled: profile.twoFA}
+        }
         else {
             const profile = await this.createUserProfile(userData.username, userData.imageLink)
             return {id: profile.userId, isTwoFaEnabled: profile.twoFA}
@@ -63,6 +65,30 @@ export class UserService {
             return {status: 404, message: "user not found"};
         }
     }
+
+    async updateUsername(userId: number, username: string) {
+        const user = await prisma.profile.findFirst({
+            where: {
+              userId: userId,
+            },
+        });
+        console.log(user.username, "to new username :: ", username)
+        if (user) {
+            await prisma.profile.update({
+                where: {
+                    userId: userId
+                },
+                data: {
+                    username: username
+                }
+            })
+            return {status: 201, message: "username has changed successfully"}
+        }
+        else {
+            return {status: 404, message: "user not found"};
+        }
+    }
+    
     async addFriend(userId: number, friendId: number) {
         const userProfile = await prisma.profile.findFirst({
             where: {

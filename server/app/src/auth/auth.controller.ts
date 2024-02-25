@@ -1,5 +1,4 @@
 import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, UploadedFile, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { PrismaClient } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
@@ -24,8 +23,8 @@ export class AuthController {
     const token = await this.authService.generateJwtToken(payload);
     res.cookie('jwt', token);
     // if (payload.isTwoFaEnabled)
-    //   res.redirect(`http://${process.env.VITE_DOMAIN}:8000/auth`)
-    res.redirect(`http://${process.env.VITE_DOMAIN}:8000/`);
+    //   res.redirect(`http://${process.env.VITE_DOMAIN}:5000/auth`)
+    res.redirect(`http://${process.env.VITE_DOMAIN}:5000/`);
   }
 
   @Get('checkToken')
