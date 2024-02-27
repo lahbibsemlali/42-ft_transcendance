@@ -4,6 +4,8 @@ import { Response } from 'express';
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { UserService } from 'src/user/user.service';
+import { User } from 'src/user/user.decorator';
+import * as qrcode from 'qrcode';
 
 @Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -14,15 +16,24 @@ export class TwoFaController {
     private userService: UserService
   ) {}
  
-  @Post('generate')
+  @Get('generate')
   @UseGuards(JwtGuard)
-  async register(@Res() response: Response, @Req() request) {
-    const { url } = await this.twoFaService.generateTwoFaSecrete(request.user);
- 
-    return this.twoFaService.pipeQrCodeStream(response, url);
+  async register(@Res() res: Response, @User() user) {
+    const url = await this.twoFaService.generateTwoFaSecrete(user.id);
+
+    qrcode.toDataURL(url, (err, qrUrl) => {
+      if (err) {
+          console.error('Error generating QR code:', err);
+          return {qrUrl: 'error'};
+      }
+      console.log('qrcode', qrUrl)
+      res.send({
+        qrUrl: qrUrl
+      })
+    });
   }
 
-  @Post('turn-on:id')
+  @Post('turn-on')
   async turnTwoFaOn(@Body() { token }, @Param('id') userId) {
     const isValid = this.twoFaService.isTwoFaValid(token, userId)
     if (!isValid)

@@ -19,9 +19,19 @@ const SettingsPage = () => {
   let [avatar, setAvatar] = useState(null)
   let [label, setLabel] = useState('')
   let [twoFa, setTwoFa] = useState(false)
-  let [valState, setValState] = useState('of')
+
   useEffect(() => {
     let fetcher = async () => {
+      await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/2fa/generate`, {
+        headers: {
+          Authorization: `bearer ${Cookies.get('jwt')}`
+        }
+      })
+      .then((res) => {
+        // console.log("qrcode:??", res.data.qrUrl)
+        // setAvatarUrl(() => res.data.qrUrl)
+        return res
+      })
       await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getUserData`, {
         headers: {
           Authorization: `bearer ${Cookies.get('jwt')}`
@@ -34,8 +44,6 @@ const SettingsPage = () => {
         setTwoFa(() => res.data.isTwoFa)
         return res
       })
-      setValState(twoFa ? 'on' : 'of')
-      console.log(valState, '++', twoFa)
     }
     fetcher();
   }, [])
@@ -126,15 +134,14 @@ const SettingsPage = () => {
   
   const stateTwoFa = (e: any) => {
     // e.preventDefault();
-    setValState((prev:any) => {return (prev == 'on') ? 'of': 'on'})
     console.log("2fa ", e.target.value)
     setTwoFa((pref) => !pref);
-    // e.target.value = 'of'
+    // e.target.value = 'off'
   }
 
   if (isLoggedIn == 2) return <LoginPage />;
   
-  console.log(username, '---------', valState, '-----', twoFa)
+  console.log(username, '-----', twoFa)
   return (
     <div>
       <Header />
@@ -147,7 +154,7 @@ const SettingsPage = () => {
           {/* <button className={styles.Sbox_button1}>Edit Picture </button > */}
           <input placeholder={label} type="text" className={styles.Sbox_input1} onChange={stateUsername}/>
           {/* <h1> TWO FACTOR AUTHENTICATION </h1> */}
-          <input className={styles.toggle} type="checkbox" onChange={stateTwoFa} value={valState}/>
+          <input className={styles.toggle} type="checkbox" onChange={stateTwoFa} checked={twoFa}/>
           <button className={styles.Sbox_button2} onClick={updateInfo}> UPDATE </button>
         </div> 
       </div>

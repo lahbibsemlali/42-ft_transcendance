@@ -59,7 +59,7 @@ export class UserController {
     @UseGuards(JwtGuard)
     @Get('getUserId')
     async getUserId(@User() user) {
-        return user.id;
+        return {userId: user.id};
     }
 
     @Get('getAvatar/:filename')
@@ -93,6 +93,7 @@ export class UserController {
         };
     }
     
+    @UseGuards(JwtGuard)
     @Get('delete')
     async delete() {
         await {ss: prisma.profile.deleteMany()};

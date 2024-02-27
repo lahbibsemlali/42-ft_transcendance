@@ -39,8 +39,10 @@ const GetUSerId = async () => {
         Authorization: `bearer ${mytoken}`,
       },
     });
-    return res.data;
+    console.log('type is : ', typeof res.data)
+    return res.data.userId;
   } catch (error) {}
+  return null;
 };
 
 function sketch(p5: P5CanvasInstance) {
@@ -108,7 +110,7 @@ function sketch(p5: P5CanvasInstance) {
   let downPaddle: Paddle;
   let textBtn = "START GAME";
   let ifGuest: boolean;
-  let userId: number;
+  let userId: string;
 
   let textfont: any;
 

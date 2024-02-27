@@ -6,14 +6,19 @@ const prisma = new PrismaClient;
 @Injectable()
 export class UserService {
     async getUserById(userId: string) {
-        const user = await prisma.profile.findFirst({
-            where: {
-                userId: userId,
-            }
-        })
-        if (!user)
-            throw new UnauthorizedException('no such user')
-        return user
+        try {
+            const user = await prisma.profile.findFirst({
+                where: {
+                    userId: userId,
+                }
+            })
+            if (!user)
+                throw new UnauthorizedException('no such user')
+            return user
+        }
+        catch (err) {
+            console.log('err: ', err)
+        }
     }
 
     async createUserProfile(userId: string, username: string, imageLink: string) {
