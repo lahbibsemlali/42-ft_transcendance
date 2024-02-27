@@ -16,8 +16,7 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Post('/add_friend')
-    async addFiend(@User() user, @Query('friendId') friend) {
-        const friendId = parseInt(friend)
+    async addFiend(@User() user, @Query('friendId') friendId) {
         return this.userService.addFriend(user.id, friendId);
     }
 
@@ -63,20 +62,6 @@ export class UserController {
         return user.id;
     }
 
-    @UseGuards(JwtGuard)
-    @Get('getAvatarUrl')
-    async getAvatarUrl(@User() user) {
-      const avatar = await prisma.profile.findFirst({
-        where: {
-            userId: user.id
-        },
-        select: {
-            avatar: true
-        }
-      });
-      return {avatar: avatar.avatar};
-    }
-
     @Get('getAvatar/:filename')
     async getAvatar(@Res() res, @Param('filename') filename) {
         console.log("lllll")
@@ -86,13 +71,30 @@ export class UserController {
     @UseGuards(JwtGuard)
     @Post('updateUsername')
     async updateUsername(@User() user, @Body('username') username) {
+        console.log(username)
         return this.userService.updateUsername(user.id, username);
     }
 
     @UseGuards(JwtGuard)
-    @Get('getUsername')
-    async getUsername(@User() user) {
+    @Post('updateTwoFa')
+    async updateTwoFa(@User() user, @Body('twoFa') twoFa) {
+        console.log(twoFa)
+        return this.userService.updateTwoFa(user.id, twoFa);
+    }
+
+    @UseGuards(JwtGuard)
+    @Get('getUserData')
+    async getUserData(@User() user) {
         const userInfo = await this.userService.getUserById(user.id);
-        return {username: userInfo.username};
+        return {
+            username: userInfo.username,
+            isTwoFa: userInfo.twoFA,
+            avatar: userInfo.avatar
+        };
+    }
+    
+    @Get('delete')
+    async delete() {
+        await {ss: prisma.profile.deleteMany()};
     }
 }

@@ -7,7 +7,7 @@ const prisma = new PrismaClient;
 
 @Injectable()
 export class ChatService {
-  async createGroup(userId: number, groupName: string, password: string, status: any) {
+  async createGroup(userId: string, groupName: string, password: string, status: any) {
     const salt = await bcrypt.genSalt()
     const hash = status == 'Protected' && password && password.length ? await bcrypt.hash(password, salt) : null
     const group = await prisma.chat.create({
@@ -27,7 +27,7 @@ export class ChatService {
     })
   }
 
-  async addToGroup(userId: number, targetId: number, groupId: number) {
+  async addToGroup(userId: string, targetId: string, groupId: number) {
     const group = await prisma.chat.findFirst({
       where: {
         id: groupId
@@ -51,7 +51,7 @@ export class ChatService {
     })
   }
 
-  async joinGroup(userId: number, groupId: number, password: string) {
+  async joinGroup(userId: string, groupId: number, password: string) {
     const group = await prisma.chat.findFirst({
       where: {
         id: groupId
@@ -72,7 +72,7 @@ export class ChatService {
     })
   }
 
-  async createMessage(userId: number, chatId: number, content: string) {
+  async createMessage(userId: string, chatId: number, content: string) {
     const message = await prisma.message.create({
       data: {
         senderId: userId,
@@ -82,7 +82,7 @@ export class ChatService {
     })
   }
 
-  async getMessages(userId: number, chatId: number) {
+  async getMessages(userId: string, chatId: number) {
     const messages = await prisma.message.findMany({
       where: {
         senderId: userId,
@@ -113,7 +113,7 @@ export class ChatService {
     return neededForm
   }
 
-  async getChat(userId: number) {
+  async getChat(userId: string) {
     const chat = await prisma.userChat.findMany({
       where: {
         userId: userId,

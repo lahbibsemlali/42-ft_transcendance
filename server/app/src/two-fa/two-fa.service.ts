@@ -8,7 +8,7 @@ import { UserService } from 'src/user/user.service';
 export class TwoFaService {
     constructor(private userService: UserService) {}
 
-    async generateTwoFaSecrete(userId: number) {
+    async generateTwoFaSecrete(userId: string) {
         const secrete = authenticator.generateSecret();
         const username = (await this.userService.getUserById(userId)).username
         const url = authenticator.keyuri(username, process.env.TWOFA_APP_NAME, secrete)
@@ -18,13 +18,13 @@ export class TwoFaService {
     async pipeQrCodeStream(stream: Response, otpauthUrl: string) {
         return toFileStream(stream, otpauthUrl);
     }
-    async isTwoFaValid(token: string, userId: number) {
+    async isTwoFaValid(token: string, userId: string) {
         return authenticator.verify({
             token: token,
             secret: (await this.userService.getUserById(userId)).twoFASecrete
         })
     }
-    async turnTwoFaOn(userId: number) {
+    async turnTwoFaOn(userId: string) {
         this.userService.turnOnUserTwoFa(userId)
     }
 }

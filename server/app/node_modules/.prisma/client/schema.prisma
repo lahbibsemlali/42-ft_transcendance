@@ -29,7 +29,7 @@ enum groupStatus {
 }
 
 model Profile {
-  userId       Int
+  userId       String
   user         User    @relation(fields: [userId], references: [id])
   username     String  @unique
   twoFA        Boolean @default(false)
@@ -43,7 +43,7 @@ model Profile {
 }
 
 model User {
-  id        Int          @id @default(autoincrement())
+  id        String          @id @default(uuid())
   profile   Profile?
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
@@ -56,8 +56,8 @@ model User {
 
 model Friendship {
   id        Int          @id @default(autoincrement())
-  friend1Id Int
-  friend2Id Int
+  friend1Id String
+  friend2Id String
   status    friendStatus @default(Pending)
   friend1   User         @relation(name: "send", fields: [friend1Id], references: [id])
   friend2   User         @relation(name: "receive", fields: [friend2Id], references: [id])
@@ -80,7 +80,7 @@ model Chat {
 
 model userRole {
   id        Int      @id @default(autoincrement())
-  userId    Int
+  userId    String
   user      User     @relation(fields: [userId], references: [id])
   chatId    Int
   chat      Chat     @relation(fields: [chatId], references: [id])
@@ -91,7 +91,7 @@ model userRole {
 
 model UserChat {
   // id        Int      @id @default(autoincrement())
-  userId    Int
+  userId    String
   user      User     @relation(fields: [userId], references: [id])
 
   chatId    Int
@@ -112,7 +112,7 @@ model Message {
   body      String
   createdAt DateTime @default(now())
   sender    User     @relation(fields: [senderId], references: [id])
-  senderId  Int
+  senderId  String
   chat      Chat     @relation(fields: [chatId], references: [id])
   chatId    Int
 }

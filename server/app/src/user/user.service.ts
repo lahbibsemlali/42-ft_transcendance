@@ -5,7 +5,7 @@ const prisma = new PrismaClient;
 
 @Injectable()
 export class UserService {
-    async getUserById(userId: number) {
+    async getUserById(userId: string) {
         const user = await prisma.profile.findFirst({
             where: {
                 userId: userId,
@@ -16,9 +16,11 @@ export class UserService {
         return user
     }
 
-    async createUserProfile(username: string, imageLink: string) {
+    async createUserProfile(userId: string, username: string, imageLink: string) {
         const user = await prisma.user.create({
-            data: {}
+            data: {
+                id: userId
+            }
         })
         const profile = await prisma.profile.create({
             data: {
@@ -29,10 +31,10 @@ export class UserService {
         })
         return profile
     }
-    async loginOrRegister(userData: {username: string, imageLink: string}) {
+    async loginOrRegister(userData: {id: string, username: string, imageLink: string}) {
         const profile = await prisma.profile.findFirst({
             where: {
-              username: userData.username,
+              userId: userData.id,
             },
         });
         if (profile) {
@@ -40,11 +42,11 @@ export class UserService {
             return {id: profile.userId, isTwoFaEnabled: profile.twoFA}
         }
         else {
-            const profile = await this.createUserProfile(userData.username, userData.imageLink)
+            const profile = await this.createUserProfile(userData.id, userData.username, userData.imageLink)
             return {id: profile.userId, isTwoFaEnabled: profile.twoFA}
         }
     }
-    async updateAvatar(userId: number, location: string) {
+    async updateAvatar(userId: string, location: string) {
         const user = await prisma.profile.findFirst({
             where: {
               userId: userId,
@@ -66,12 +68,13 @@ export class UserService {
         }
     }
 
-    async updateUsername(userId: number, username: string) {
+    async updateUsername(userId: string, username: string) {
         const user = await prisma.profile.findFirst({
             where: {
               userId: userId,
             },
         });
+        console.log(await prisma.profile.findMany())
         console.log(user.username, "to new username :: ", username)
         if (user) {
             await prisma.profile.update({
@@ -89,7 +92,30 @@ export class UserService {
         }
     }
     
-    async addFriend(userId: number, friendId: number) {
+    async updateTwoFa(userId: string, twoFa: boolean) {
+        const user = await prisma.profile.findFirst({
+            where: {
+              userId: userId,
+            },
+        });
+        console.log(user.twoFA, "to new username :: ", twoFa)
+        if (user) {
+            await prisma.profile.update({
+                where: {
+                    userId: userId
+                },
+                data: {
+                    twoFA: twoFa
+                }
+            })
+            return {status: 201, message: "twoFa has changed successfully"}
+        }
+        else {
+            return {status: 404, message: "twoFa not found"};
+        }
+    }
+
+    async addFriend(userId: string, friendId: string) {
         const userProfile = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -128,7 +154,7 @@ export class UserService {
             return 200
     }
 
-    async getUserName(userId: number) {
+    async getUserName(userId: string) {
         const name = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -167,7 +193,7 @@ export class UserService {
         })
       }
     
-    async acceptFriend(userId: number, friendId: number) {
+    async acceptFriend(userId: string, friendId: string) {
 
         console.log("------------------------------", userId, friendId)
         const friendship = await prisma.friendship.findFirst({
@@ -199,7 +225,7 @@ export class UserService {
         this.createDm(user, friend)
     }
 
-    async setTwoFaSecrete(userId: number, secrete: string) {
+    async setTwoFaSecrete(userId: string, secrete: string) {
         const user = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -217,7 +243,7 @@ export class UserService {
         })
         return {status: 201, message: "2fa is set successfully"}
     }
-    async turnOnUserTwoFa(userId: number) {
+    async turnOnUserTwoFa(userId: string) {
         const user = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -250,7 +276,7 @@ export class UserService {
         return matches
     }
 
-    async setResult(userId: number, result: number) {
+    async setResult(userId: string, result: number) {
         await prisma.profile.update({
             where: {
                 userId: userId
@@ -266,7 +292,7 @@ export class UserService {
         })
     }
 
-    async updateGameState(id: number, state: boolean) {
+    async updateGameState(id: string, state: boolean) {
         await prisma.profile.update({
             where: {
                 userId: id

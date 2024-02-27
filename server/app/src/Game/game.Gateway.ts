@@ -40,7 +40,7 @@ export class GameGateway
   handleDisconnect(client: Socket) {}
 
   @SubscribeMessage('waiting')
-  async handleWaitingEvent(client: Socket, idUser: number) {
+  async handleWaitingEvent(client: Socket, idUser: string) {
     await this.gameService.updateStatus(idUser, false);
 
     let roomArray;
@@ -128,7 +128,7 @@ export class GameGateway
   }
 
   @SubscribeMessage('updateResulte') // game over
-  async getResulte(client: Socket, userId: number) {
+  async getResulte(client: Socket, userId: string) {
     this.gameService.deleteCLientsMap(
       this.gameService.getCLientsMap(client.id),
     );

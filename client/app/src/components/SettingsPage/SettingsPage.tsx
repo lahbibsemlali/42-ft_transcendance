@@ -1,10 +1,11 @@
 import { isLogin, reCheck } from "../Authorization/Authorization";
-import { MutableRefObject, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import LoginPage from "../LoginPage/LoginPage";
 import Header from "../Header/Header";
 import styles from "./SettingsPage.module.css"
 import axios from "axios";
 import Cookies from "js-cookie";
+import Switch from "react-switch";
 
 const SettingsPage = () => {
   const isLoggedIn = useContext(isLogin);
@@ -13,27 +14,32 @@ const SettingsPage = () => {
     return;
   }
   
-  useEffect(() => {
-    axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getUsername`, {
-      headers: {
-        Authorization: `bearer ${Cookies.get('jwt')}`
-      }
-    })
-    .then((res) => setLabel(() => res.data.username))
-    .then(() => console.log("=-=-=", username))
-    axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getAvatarUrl`, {
-      headers: {
-        Authorization: `bearer ${Cookies.get('jwt')}`
-      }
-    })
-    .then((res) => setAvatarUrl(() => res.data.avatar))
-    .then(() => console.log("+-+-+", avatarUrl))
-  }, [])
-  
   let [avatarUrl, setAvatarUrl] = useState('')
   let [username, setUsername] = useState('')
-  let [avatar, setAvatar] = useState()
+  let [avatar, setAvatar] = useState(null)
   let [label, setLabel] = useState('')
+  let [twoFa, setTwoFa] = useState(false)
+  let [valState, setValState] = useState('of')
+  useEffect(() => {
+    let fetcher = async () => {
+      await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getUserData`, {
+        headers: {
+          Authorization: `bearer ${Cookies.get('jwt')}`
+        }
+      })
+      .then((res) => {
+        console.log(res.data)
+        setLabel(() => res.data.username)
+        setAvatarUrl(() => res.data.avatar)
+        setTwoFa(() => res.data.isTwoFa)
+        return res
+      })
+      setValState(twoFa ? 'on' : 'of')
+      console.log(valState, '++', twoFa)
+    }
+    fetcher();
+  }, [])
+  
 
   const updateAvatar = async (file: string) => {
     const formData = new FormData;
@@ -46,12 +52,13 @@ const SettingsPage = () => {
           Authorization: `Bearer ${Cookies.get('jwt')}`
         }
       })
-      const res = await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getAvatarUrl`, {
+      const res = await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getUserData`, {
         headers: {
           Authorization: `Bearer ${Cookies.get('jwt')}`
         }
       })
       setAvatarUrl(() => res.data.avatar)
+      setAvatar(null)
       console.log(avatar)
     } catch (err) {
       console.log(err)
@@ -64,6 +71,7 @@ const SettingsPage = () => {
     };
 
     try {
+      console.log("+++++++++++", username)
       const res = await axios.post(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/updateUsername`, jsonFormat, {
         headers: {
           Authorization: `Bearer ${Cookies.get('jwt')}`
@@ -71,19 +79,42 @@ const SettingsPage = () => {
       })
       console.log(res)
       setLabel(username)
+      setUsername('')
     } catch (err) {
       console.log(err)
     }
   }
 
+  const updateTwoFa = async () => {
+    const jsonFormat = {
+      twoFa: twoFa
+    };
+
+    try {
+      console.log("+++++++++++", twoFa)
+      const res = await axios.post(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/updateTwoFa`, jsonFormat, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get('jwt')}`
+        }
+      })
+      console.log('res is ', res)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+
   const updateInfo = async () => {
+    console.log(avatar)
     if (username.length)
       await changeUsername(username)
     if (avatar)
       await updateAvatar(avatar)
+    await updateTwoFa()
   }
 
   const stateUsername = (e: any) => {
+    console.log(username)
     e.preventDefault();
     setUsername(() => e.target.value);
   }
@@ -93,9 +124,17 @@ const SettingsPage = () => {
     setAvatar(() => e.target.files[0]);
   }
   
+  const stateTwoFa = (e: any) => {
+    // e.preventDefault();
+    setValState((prev:any) => {return (prev == 'on') ? 'of': 'on'})
+    console.log("2fa ", e.target.value)
+    setTwoFa((pref) => !pref);
+    // e.target.value = 'of'
+  }
+
   if (isLoggedIn == 2) return <LoginPage />;
   
-  console.log(username, '----------------------')
+  console.log(username, '---------', valState, '-----', twoFa)
   return (
     <div>
       <Header />
@@ -107,8 +146,8 @@ const SettingsPage = () => {
           </label>
           {/* <button className={styles.Sbox_button1}>Edit Picture </button > */}
           <input placeholder={label} type="text" className={styles.Sbox_input1} onChange={stateUsername}/>
-          <h1> TWO FACTOR AUTHENTICATION </h1>
-          <input placeholder="ACTIVATE" type="text" className={styles.Sbox_input2}/>
+          {/* <h1> TWO FACTOR AUTHENTICATION </h1> */}
+          <input className={styles.toggle} type="checkbox" onChange={stateTwoFa} value={valState}/>
           <button className={styles.Sbox_button2} onClick={updateInfo}> UPDATE </button>
         </div> 
       </div>

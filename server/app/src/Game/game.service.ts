@@ -43,7 +43,7 @@ export class GameService {
     if (this.nRooms > 0 && this.nRooms % 2) --this.nRooms;
   }
 
-  setMyMap(key: number, toSet: number): void {
+  setMyMap(key: string, toSet: number): void {
     this.scoorMap.set(key, toSet);
   }
 
@@ -70,7 +70,7 @@ export class GameService {
     return this.myRooms.get(key);
   }
 
-  deleteScoor(key: number) {
+  deleteScoor(key: string) {
     this.scoorMap.delete(key);
   }
 
@@ -78,22 +78,22 @@ export class GameService {
     this.myRooms.delete(key);
   }
 
-  saveResult(key: number, result: number): void {
+  saveResult(key: string, result: number): void {
     // console.log(key, result);
     this.setMyMap(key, result);
   }
 
-  async isPlaying(userId: number) {
+  async isPlaying(userId: string) {
     const user = await this.userService.getUserById(userId);
     return user.inGame;
   }
 
-  async setResult(userId: number) {
+  async setResult(userId: string) {
     // console.log("resule ", userId, this.scoorMap.get(userId));
     await this.userService.setResult(userId, this.scoorMap.get(userId));
   }
 
-  async updateStatus(userId: number, state: boolean) {
+  async updateStatus(userId: string, state: boolean) {
     await this.userService.updateGameState(userId, state);
   }
 }
