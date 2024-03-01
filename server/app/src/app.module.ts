@@ -14,14 +14,6 @@ import { ChatModule } from './chat/chat.module';
     UserModule, 
     AuthModule, 
     TwoFaModule,
-    JwtModule.registerAsync({
-      useFactory: async () => ({
-        secret: process.env.JWT_SECRETE,
-        signOptions: {
-          expiresIn: `${process.env.JWT_EXPIRE_TIME}s`
-        },
-      })
-    }),
     ChatModule
   ],
   providers: [GameService, GameGateway],

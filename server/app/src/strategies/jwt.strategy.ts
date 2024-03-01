@@ -14,10 +14,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: any) {
-    const user = await this.userService.getUserById(payload.userId)
+    const user = await this.userService.getUserById(payload.id)
+    console.log(user.twoFA, '======', payload)
     if (!user.twoFA)
       return payload
-    if (payload.isTwoFaEnabled)
+    if (user.twoFA && payload.isTwoFaEnabled)
       return payload
   }
 }

@@ -5,6 +5,7 @@ import GamePage from "./components/GamePage/GamePage";
 import LoginPage from "./components/LoginPage/LoginPage";
 import ChatPage from "./components/ChatPage/ChatPage";
 import SettingsPage from "./components/SettingsPage/SettingsPage";
+import Twofa from "./components/Twofa/Twofa";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/Login" element={<LoginPage />} />
           <Route path="/Chat" element={<ChatPage />} />
           <Route path="/Settings" element={<SettingsPage />} />
+          <Route path="/Auth" element={<Twofa />} />
         </Routes>
       </Router>
     </>

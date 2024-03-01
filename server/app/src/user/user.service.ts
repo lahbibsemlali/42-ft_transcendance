@@ -44,11 +44,11 @@ export class UserService {
         });
         if (profile) {
             console.log("founded >>...")
-            return {id: profile.userId, isTwoFaEnabled: profile.twoFA}
+            return {id: profile.userId, isTwoFaEnabled: false}
         }
         else {
             const profile = await this.createUserProfile(userData.id, userData.username, userData.imageLink)
-            return {id: profile.userId, isTwoFaEnabled: profile.twoFA}
+            return {id: profile.userId, isTwoFaEnabled: false}
         }
     }
     async updateAvatar(userId: string, location: string) {
@@ -271,22 +271,34 @@ export class UserService {
         const matches = await prisma.profile.findMany({
             where: {
                 username: {
-                    startsWith: keyword
+                    startsWith: keyword.toLowerCase()
                 }
             },
             select: {
+                userId: true,
                 username: true
             }
         })
+        console.log(keyword, '==========++', matches)
         return matches
     }
 
-    async setResult(userId: string, result: number) {
+    async setResult(userId: string, result: number, oppId: string, opResult: number) {
+        const me = await this.getUserById(oppId);
+        const opp = await this.getUserById(userId);
+
         await prisma.profile.update({
             where: {
                 userId: userId
             },
             data: {
+                lastFive: {
+                    create: {
+                        pic1: me.avatar,
+                        pic2: opp.avatar,
+                        result: `${result} : ${opResult}`
+                    }
+                },
                 wins: {
                     increment: result == 5 ? 1 : 0
                 },
@@ -296,6 +308,26 @@ export class UserService {
             }
         })
     }
+
+
+    async getLastFive(userId: string) {
+    const lastFive = await prisma.profile.findFirst({
+        where: {
+        userId: userId
+        },
+        select: {
+        lastFive: {
+            select: {
+            pic1: true,
+            pic2: true,
+            result: true
+            }
+        }
+        }
+    })
+    return lastFive.lastFive
+    }
+
 
     async updateGameState(id: string, state: boolean) {
         await prisma.profile.update({

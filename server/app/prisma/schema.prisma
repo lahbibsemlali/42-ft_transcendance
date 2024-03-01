@@ -28,7 +28,18 @@ enum groupStatus {
   Public
 }
 
+model Game {
+  id        Int          @id @default(autoincrement())
+  
+  profileId Int
+  profile   Profile @relation(fields: [profileId], references: [id])
+  pic1  String
+  pic2  String
+  result String
+}
+
 model Profile {
+  id            Int          @id @default(autoincrement())
   userId       String
   user         User    @relation(fields: [userId], references: [id])
   username     String  @unique
@@ -37,6 +48,7 @@ model Profile {
   avatar       String
   state        Int   @default(0)
   inGame        Boolean @default(false)
+  lastFive     Game[]
   wins          Int     @default(0)
   loses         Int     @default(0)
   @@unique([userId])

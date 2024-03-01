@@ -6,6 +6,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/user/user.decorator';
 import * as qrcode from 'qrcode';
+import { JwtTwoFaGuard } from 'src/guards/jwt-twofa.guard';
 
 @Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -16,8 +17,8 @@ export class TwoFaController {
     private userService: UserService
   ) {}
  
-  @Get('generate')
   @UseGuards(JwtGuard)
+  @Get('generate')
   async register(@Res() res: Response, @User() user) {
     const url = await this.twoFaService.generateTwoFaSecrete(user.id);
 
@@ -33,24 +34,29 @@ export class TwoFaController {
     });
   }
 
+  @UseGuards(JwtGuard)
   @Post('turn-on')
-  async turnTwoFaOn(@Body() { token }, @Param('id') userId) {
-    const isValid = this.twoFaService.isTwoFaValid(token, userId)
+  async turnTwoFaOn(@Body('token') token, @User() user) {
+    token = token.toString()
+    const isValid = await this.twoFaService.isTwoFaValid(token, user.id)
+    console.log('hererere ', isValid, typeof token)
     if (!isValid)
       throw new UnauthorizedException('wrong 2fa token')
-    await this.twoFaService.turnTwoFaOn(userId)
+    await this.twoFaService.turnTwoFaOn(user.id)
   }
 
-  @Get('authenticate:id')
-  @UseGuards(JwtGuard)
-  async authenticate(@Body() { token }, @Param('id') userId, @Res() res) {
-    const isValid = this.twoFaService.isTwoFaValid(token, userId)
+  @UseGuards(JwtTwoFaGuard)
+  @Post('authenticate')
+  async authenticate(@Body('token') token, @User() user) {
+    const isValid = await this.twoFaService.isTwoFaValid(token, user.id)
     if (!isValid)
       throw new UnauthorizedException('Wrong 2fa token')
-    const user = await this.userService.getUserById(userId)
-    const payload = {id: userId, isTwoFaEnabled: user.twoFA}
-    const jwtToken = this.authService.generateJwtToken(payload)
-    res.cookie('jwt', jwtToken)
-    res.redirect(`http://${process.env.VITE_DOMAIN}:5000`)
+    const payload = {
+      id: user.id,
+      isTwoFaEnabled: true
+    }
+    const jwtToken = await this.authService.generateJwtToken(payload)
+    console.log('serial ===', jwtToken)
+    return ({jwtToken: jwtToken})
   }
 }

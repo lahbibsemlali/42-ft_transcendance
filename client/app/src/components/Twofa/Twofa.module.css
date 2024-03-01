@@ -1,0 +1,49 @@
+.fo p{
+    margin: 15px;
+    text-align: center;
+  }
+
+.fo span{
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 900;
+  }
+  
+.codeInput{
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.fo .codeInput input {
+    height: 2.5em;
+    text-align: center;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: 1.5rem;
+    color: #fff;
+    border-radius: 12px;
+    border: 2.5px solid rgba(253, 253, 253, 0.363);
+    background-color: rgb(255 255 255 / 0.05);
+  }
+
+.Pass_verify{
+    padding: 10px 30px;
+    text-transform: uppercase;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    color: #00f7ff;
+    background: transparent;
+    box-shadow: transparent;
+    border: 1px solid #ffffff80;
+    transition: 0.5s ease;
+
+}
+
+.Pass_verify:hover,:focus {
+    background: #00eeff;
+    border: 1px solid #00e1ff;
+    box-shadow: 0 0 5px #00e1ff,
+                0 0 20px #00e1ff,
+                0 0 50px #00e1ff,
+                0 0 100px #00e1ff;
+}

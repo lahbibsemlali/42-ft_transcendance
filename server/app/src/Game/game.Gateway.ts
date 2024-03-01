@@ -8,6 +8,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
+import { UseGuards } from '@nestjs/common';
+import { JwtGuard } from 'src/guards/jwt.guard';
 
 @WebSocketGateway()
 export class GameGateway
@@ -52,9 +54,9 @@ export class GameGateway
       roomArray = Array.from(client.rooms);
       this.gameService.setRoomsMap(client.id, roomArray[roomArray.length - 1]);
       if (this.gameService.getNRooms() % 2 != 0)
-        this.gameService.players[0] = client.id;
+        this.gameService.players[0] = idUser;
       if (this.gameService.getNRooms() % 2 == 0) {
-        this.gameService.players[1] = client.id;
+        this.gameService.players[1] = idUser;
         //set clients map
         this.gameService.setCLientsMap();
         this.server.to(roomArray[1]).emit('startgame');
@@ -129,11 +131,11 @@ export class GameGateway
 
   @SubscribeMessage('updateResulte') // game over
   async getResulte(client: Socket, userId: string) {
+    await this.gameService.setResult(userId);
     this.gameService.deleteCLientsMap(
       this.gameService.getCLientsMap(client.id),
     );
     this.gameService.deleteCLientsMap(client.id);
-    await this.gameService.setResult(userId);
     await this.gameService.updateStatus(userId, false);
     client.leave(this.gameService.getRoomName(client.id));
     this.gameService.deleteRoomName(client.id);

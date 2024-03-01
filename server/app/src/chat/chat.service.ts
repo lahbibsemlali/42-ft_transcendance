@@ -119,6 +119,15 @@ export class ChatService {
         userId: userId,
       },
       select: {
+        user: {
+          select: {
+            profile: {
+              select: {
+                state: true
+              }
+            }
+          }
+        },
         chat: {
           select: {
             id: true,
@@ -129,7 +138,8 @@ export class ChatService {
           }
         },
         dmName: true,
-        dmImage: true
+        dmImage: true,
+        role: true
       },
       orderBy: {
         updatedAt: 'desc'
@@ -139,6 +149,8 @@ export class ChatService {
       id: ch.chat.id,
       name: ch.chat.isGroup ? ch.chat.name : ch.dmName,
       image: ch.chat.isGroup ? ch.chat.image : ch.dmImage,
+      status: ch.user.profile.state,
+      isAdmin: ch.role == 'Owner' || ch.role == 'Admin',
       isGroup: ch.chat.isGroup,
       lastMessage: ch.chat.lastMessage
     }))

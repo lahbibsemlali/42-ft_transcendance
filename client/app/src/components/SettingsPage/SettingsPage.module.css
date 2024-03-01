@@ -45,7 +45,7 @@
 
 .Sbox_input1{
     position: absolute;
-    top: 40%;
+    top: 45%;
     width: 350px;
     height: 50px;
     background-color: #224771;
@@ -87,30 +87,30 @@
     border:#2190E2;
     font-family: simo;
     font-size: xx-large;
+    cursor:pointer;
 }
 
 label input{display:none}
 
 label{
-  /* position: absolute; */
-  top: 31%;
+  position: absolute;
+  top: 32%;
   padding:1rem 1.5rem;
-  background:#1f66fd;
-  box-shadow:2px 2px 2px #aaa;
-  font:1em Arial, sans-serif;
+  border-radius: 5px;
+  background-color: #2190E2;
+  color: white;
+  border:#2190E2;
+  font-family: simo;
+  font-size: x-large;
   color:#fff;
   cursor:pointer;
-}
-
-label:active{
- top:2px; 
- box-shadow:none;
 }
 
 .toggle {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    top: 60%;
     width: 62px;
     height: 32px;
     display: inline-block;

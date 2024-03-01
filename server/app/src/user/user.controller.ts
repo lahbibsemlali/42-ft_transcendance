@@ -15,6 +15,14 @@ export class UserController {
     constructor(private userService: UserService) {}
 
     @UseGuards(JwtGuard)
+    @Get('search')
+    async search(@Query('keyword') keyword) {
+        return { 
+            matches: await this.userService.searchUser(keyword)
+        }
+    }
+
+    @UseGuards(JwtGuard)
     @Post('/add_friend')
     async addFiend(@User() user, @Query('friendId') friendId) {
         return this.userService.addFriend(user.id, friendId);
@@ -89,10 +97,18 @@ export class UserController {
         return {
             username: userInfo.username,
             isTwoFa: userInfo.twoFA,
-            avatar: userInfo.avatar
+            avatar: userInfo.avatar,
+            wins: userInfo.wins,
+            loses: userInfo.loses
         };
     }
-    
+
+    @Get('getLastFive')
+    @UseGuards(JwtGuard)
+    async getLastFive(@User() user) {
+      return {lastFive: await this.userService.getLastFive(user.id)}
+    }
+
     @UseGuards(JwtGuard)
     @Get('delete')
     async delete() {
