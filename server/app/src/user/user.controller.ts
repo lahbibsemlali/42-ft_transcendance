@@ -15,10 +15,41 @@ const prisma = new PrismaClient
 export class UserController {
     constructor(private userService: UserService) {}
 
-    @Post('/add_friend')
+    @Get('getUserData')
+    async getUserData(@User() user) {
+        const userdata = await prisma.profile.findFirst({
+            where: {
+                userId: user.id
+            },
+            select: {
+                avatar: true,
+            }
+        })
+        return {image: userdata.avatar}
+    }
+
+    @Get('getUserAvatar')
+    async getUserAvatar(@Query('userId') userId) {
+        const userdata = await prisma.profile.findFirst({
+            where: {
+                userId: userId.parseInt
+            },
+            select: {
+                avatar: true,
+            }
+        })
+        return {image: userdata.avatar}
+    }
+
+    @Post('add_friend')
     async addFiend(@User() user, @Query('friendId') friend) {
         const friendId = parseInt(friend)
         return this.userService.addFriend(user.id, friendId);
+    }
+
+    @Get('get_friends')
+    async getFriends(@User() user) {
+        return await prisma.profile.findMany();
     }
 
     @Get('accept_friend')

@@ -1,24 +1,38 @@
 type ListchatProps = {
+  id: number;
+  isGroup: boolean;
+  isAdmin: boolean;
   url: string;
   name: string;
   last: string;
-  status: boolean;
-  onChildClick?: (param: string) => void;
+  status: number;
+  isProtected: boolean;
+  isMuted: boolean;
+  onChildClick?: (param1: number, param2: boolean, param3: boolean, param4: boolean, param5: boolean) => void;
 };
 
 const Listchat: React.FC<ListchatProps> = ({
+  id,
+  isGroup,
+  isAdmin,
   name,
   url,
   last,
   onChildClick,
   status,
+  isProtected,
+  isMuted,
 }) => {
 
   const handleClick = () => {
     if (onChildClick) {
-      onChildClick(name);
+      onChildClick(id, isGroup, isAdmin, isProtected, isMuted);
     }
   };
+
+  let stat = false;
+  if (status)
+    stat = true;
 
   const isgroup = false;
 
@@ -35,10 +49,10 @@ const Listchat: React.FC<ListchatProps> = ({
           }}
         />
       </div>
-      {status && !isgroup && (
+      {stat && !isgroup && (
         <i style={{ color: "#00ff2a" }} className="fa-solid fa-circle stat"></i>
       )}
-      {!status  && !isgroup && (
+      {!stat  && !isgroup && (
         <i style={{ color: "red" }} className="fa-solid fa-circle stat"></i>
       )}
       <div className="text-container">

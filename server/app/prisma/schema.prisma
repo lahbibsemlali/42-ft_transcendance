@@ -52,6 +52,9 @@ model User {
   roles     userRole[]
   send      Friendship[] @relation("send")
   receive   Friendship[] @relation("receive")
+  blocked  User[] @relation("block")
+  blockedBy  User[] @relation("block")
+  
 }
 
 model Friendship {
@@ -61,6 +64,7 @@ model Friendship {
   status    friendStatus @default(Pending)
   friend1   User         @relation(name: "send", fields: [friend1Id], references: [id])
   friend2   User         @relation(name: "receive", fields: [friend2Id], references: [id])
+  @@unique([friend1Id, friend2Id])
 }
 
 model Chat {
@@ -101,6 +105,8 @@ model UserChat {
   dmImage     String?
 
   role      Role     @default(User)
+  isMutted   Boolean  @default(false)
+  isBanned  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

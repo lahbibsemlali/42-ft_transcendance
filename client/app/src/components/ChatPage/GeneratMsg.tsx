@@ -8,18 +8,20 @@ type Props = {
     idChat: number;
     urlImg: string;
     msg: string;
+    isMe: boolean;
+    isGroup: boolean;
+    isMuted: boolean;
 };
 
 const GeneratMsg = (props: Props) => {
-    if (props.idClient == 888888) {
+    if (props.isMe) {
         return (
-        <RightMsg isAdmin={props.isAdmin} idClient={props.idClient} idChat={props.idChat} urlImg={props.urlImg} msg={props.msg} />
+        <RightMsg isGroup={props.isGroup} isAdmin={props.isAdmin} idClient={props.idClient} idChat={props.idChat} urlImg={props.urlImg} msg={props.msg} />
         );
     }
   return (
     <>
-        <LeftMsg isAdmin={props.isAdmin} idClient={props.idClient} idChat={props.idChat} urlImg={props.urlImg} msg={props.msg} />
-        <RightMsg isAdmin={props.isAdmin} idClient={props.idClient} idChat={props.idChat} urlImg={props.urlImg} msg={props.msg} />
+        <LeftMsg isMuted={props.isMuted} isGroup={props.isGroup} isAdmin={props.isAdmin} idClient={props.idClient} idChat={props.idChat} urlImg={props.urlImg} msg={props.msg} />
     </>
   );
 }

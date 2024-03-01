@@ -27,6 +27,7 @@ services:
         - ./server/app/src/:/app/src
     ports:
       - 8000:3000
+      - 5555:5555
   postgres:
     image: postgres:latest
     container_name: db

@@ -7,6 +7,8 @@ type Props = {
   idChat: number;
   urlImg: string;
   msg: string;
+  isGroup: boolean;
+  isMuted: boolean;
 };
 
 const LeftMsg = (props: Props) => {
@@ -28,7 +30,7 @@ const LeftMsg = (props: Props) => {
           src={props.urlImg}
         />
       </div>
-      {menuClicked && props.isAdmin && <MenuImg idClient={props.idClient} idChat={props.idChat} />}
+      {menuClicked && <MenuImg isMuted={props.isMuted} isGroup={props.isGroup} isAdmin={props.isAdmin}  idClient={props.idClient} idChat={props.idChat} />}
       <div className="contentleft">{props.msg}</div>
     </div>
   );

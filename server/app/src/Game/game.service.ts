@@ -96,4 +96,14 @@ export class GameService {
   async updateStatus(userId: number, state: boolean) {
     await this.userService.updateGameState(userId, state);
   }
+
+
+
+
+
+
+
+
+
+  
 }
