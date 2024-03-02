@@ -286,7 +286,6 @@ export class UserService {
     async setResult(userId: string, result: number, oppId: string, opResult: number) {
         const me = await this.getUserById(oppId);
         const opp = await this.getUserById(userId);
-
         await prisma.profile.update({
             where: {
                 userId: userId
@@ -313,17 +312,21 @@ export class UserService {
     async getLastFive(userId: string) {
     const lastFive = await prisma.profile.findFirst({
         where: {
-        userId: userId
+            userId: userId
         },
         select: {
-        lastFive: {
-            select: {
-            pic1: true,
-            pic2: true,
-            result: true
+            lastFive: {
+                select: {
+                    pic1: true,
+                    pic2: true,
+                    result: true
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                }
             }
         }
-        }
+        
     })
     return lastFive.lastFive
     }

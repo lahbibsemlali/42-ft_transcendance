@@ -13,10 +13,6 @@
     position: relative;
 }
 
-.status h1{
-    margin: auto;
-}
-
 .statusAvatar{
     position: absolute;
     left: 3%;

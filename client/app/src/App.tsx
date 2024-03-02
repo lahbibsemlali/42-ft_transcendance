@@ -6,6 +6,7 @@ import LoginPage from "./components/LoginPage/LoginPage";
 import ChatPage from "./components/ChatPage/ChatPage";
 import SettingsPage from "./components/SettingsPage/SettingsPage";
 import Twofa from "./components/Twofa/Twofa";
+import NotFound from "./components/NotFound/NotFound";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/Chat" element={<ChatPage />} />
           <Route path="/Settings" element={<SettingsPage />} />
           <Route path="/Auth" element={<Twofa />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </>
