@@ -3,6 +3,8 @@ import styles from "./SettingsPage.module.css";
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Qr from './Qr';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const StCenter = () => {
     let [avatarUrl, setAvatarUrl] = useState('')
@@ -11,6 +13,7 @@ const StCenter = () => {
     let [label, setLabel] = useState('')
     let [twoFa, setTwoFa] = useState(false)
     let [changed, setChanged] = useState(false)
+    let [error, setError] = useState(false)
 
     useEffect(() => {
       let fetcher = async () => {
@@ -69,8 +72,10 @@ const StCenter = () => {
         })
         console.log(res)
         setLabel(username)
-        setUsername('')
+        setUsername(() => '')
+
       } catch (err) {
+        setError(true)
         console.log(err)
       }
     }
@@ -81,7 +86,6 @@ const StCenter = () => {
       };
   
       try {
-        console.log("+++++++++++", twoFa)
         let res = await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getUserData`, {
           headers: {
             Authorization: `Bearer ${Cookies.get('jwt')}`
@@ -101,9 +105,10 @@ const StCenter = () => {
         console.log(err)
       }
     }
-  
-  
+    
+    const notify = () => toast("data updated successfuly!");
     const updateInfo = async () => {
+      notify();
       console.log(avatar)
       if (username.length)
         await changeUsername(username)
@@ -129,6 +134,7 @@ const StCenter = () => {
       setTwoFa((pref) => !pref);
       // e.target.value = 'off'
     }
+
     if (changed) {
       return <Qr setChanged={setChanged}/>
     }
@@ -139,7 +145,7 @@ const StCenter = () => {
           <input className={styles.Sbox_button1} name="myImage" type="file" accept="image/*" onChange={stateAvatar}/>
         </label>
         {/* <button className={styles.Sbox_button1}>Edit Picture </button > */}
-        <input placeholder={label} type="text" className={styles.Sbox_input1} onChange={stateUsername}/>
+        <input placeholder={label} type="text" className={styles.Sbox_input1} onChange={stateUsername} value={username}/>
         <h1> TWO FACTOR AUTHENTICATION </h1>
         <input className={styles.toggle} type="checkbox" onChange={stateTwoFa} checked={twoFa}/>
         <button className={styles.Sbox_button2} onClick={updateInfo}> UPDATE </button>
