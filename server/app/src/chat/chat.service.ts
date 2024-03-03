@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { join } from 'path';
 import * as bcrypt from 'bcrypt';
@@ -40,49 +40,47 @@ export class ChatService {
     if (block) {
       await prisma.user.update({
         where: {
-          id: userId
+          id: userId,
         },
         data: {
           blocked: {
-            connect: [{id: targetId}]
-          }
-        }
-      })
+            connect: [{ id: targetId }],
+          },
+        },
+      });
       await prisma.user.update({
         where: {
-          id: targetId
+          id: targetId,
         },
         data: {
-          blocked: {
-            connect: [{id: userId}]
-          }
-        }
-      })
-    }
-    else {
+          blockedBy: {
+            connect: [{ id: userId }],
+          },
+        },
+      });
+    } else {
       await prisma.user.update({
         where: {
-          id: userId
+          id: userId,
         },
         data: {
           blocked: {
-            disconnect: [{id: targetId}]
-          }
-        }
-      })
+            disconnect: [{ id: targetId }],
+          },
+        },
+      });
       await prisma.user.update({
         where: {
-          id: targetId
+          id: targetId,
         },
         data: {
-          blocked: {
-            disconnect: [{id: userId}]
-          }
-        }
-      })
+          blockedBy: {
+            disconnect: [{ id: userId }],
+          },
+        },
+      });
     }
   }
-
 
   async muteOrUnmute(
     userId: number,
@@ -90,7 +88,7 @@ export class ChatService {
     chatId: number,
     mute: boolean,
   ) {
-    console.log(userId, chatId, 'mute is :', mute);
+    // console.log(userId, chatId, 'mute is :', mute);
     await prisma.userChat.update({
       where: {
         userId_chatId: {
@@ -140,7 +138,19 @@ export class ChatService {
     });
   }
 
-  async addToGroup(userId: number, targetId: number, groupId: number) {
+  async getUserByUsername(username: string) {
+    const user = await prisma.profile.findFirst({
+        where: {
+            username: username,
+        }
+    })
+    if (!user)
+        throw new UnauthorizedException('no such user')
+    return user
+}
+  async addToGroup(userId: number, target: string, groupId: number) {
+    const user = await this.getUserByUsername(target);
+    const targetId = user.userId;
     const group = await prisma.chat.findFirst({
       where: {
         id: groupId,
@@ -186,25 +196,95 @@ export class ChatService {
     });
   }
 
+  async removeGroup(userId: string, groupId: number) {
+    const group = await prisma.chat.delete({
+      where: {
+        id: groupId
+      }
+    })
+  }
+
+  async changePass(userId: number, groupId: number, password: string) {
+    const userChat = await prisma.userChat.findFirst({
+      where: {
+        userId: userId,
+        chatId: groupId
+      }
+    })
+    if (!userChat)
+      throw new UnauthorizedException('user not in group')
+    if (userChat.role != 'Owner' && userChat.role != 'Admin')
+      throw new UnauthorizedException('user is neither Owner or Admin in this group')
+    const group = await prisma.chat.findFirst({
+      where: {
+        id: groupId
+      }
+    })
+    if (!group || group.status != 'Protected' || password || password.length < 5 )
+      throw new InternalServerErrorException('something wrong')
+    const salt = await bcrypt.genSalt()
+    const hash = await bcrypt.hash(password, salt)
+    await prisma.chat.update({
+      where: {
+        id: groupId
+      },
+      data: {
+        password: hash
+      }
+    })
+  }
+
+  async removePass(userId: number, groupId: number) {
+    const userChat = await prisma.userChat.findFirst({
+      where: {
+        userId: userId,
+        chatId: groupId
+      }
+    })
+    if (!userChat)
+      throw new UnauthorizedException('user not in group')
+    if (userChat.role != 'Owner' && userChat.role != 'Admin')
+      throw new UnauthorizedException('user is neither Owner or Admin in this group')
+    const group = await prisma.chat.findFirst({
+      where: {
+        id: groupId
+      }
+    })
+    if (!group)
+      throw new InternalServerErrorException('something wrong')
+    await prisma.chat.update({
+      where: {
+        id: groupId
+      },
+      data: {
+        status: 'Public',
+        password: null
+      }
+    })
+  }
+
   async createMessage(userId: number, chatId: number, content: string) {
     const chat = await prisma.userChat.findMany({
       where: {
-        chatId: chatId
+        chatId: chatId,
       },
       select: {
         chat: {
           select: {
-            isGroup: true
-          }
+            isGroup: true,
+          },
         },
-        userId: true
-      }
-    })
+        userId: true,
+      },
+    });
 
-    const isBlocked = !chat[0].chat.isGroup && await this.isBlocked(chat[0].userId, chat[1].userId)
-    console.log(isBlocked)
+    const isBlocked =
+      !chat[0].chat.isGroup &&
+      ((await this.isBlocked(chat[0].userId, chat[1].userId)) ||
+        (await this.hasBlocked(chat[0].userId, chat[1].userId)));
+        console.log(isBlocked, "is")
     if (!isBlocked) {
-    const message = await prisma.message.create({
+      const message = await prisma.message.create({
         data: {
           senderId: userId,
           chatId: chatId,
@@ -215,25 +295,52 @@ export class ChatService {
   }
 
   async isBlocked(f1Id: number, f2Id: number) {
+    if (f1Id == f2Id) return false;
+    console.log(f1Id, '--------', f2Id);
     const user = await prisma.user.findFirst({
       where: {
-        id: f1Id
+        id: f1Id,
       },
       select: {
         blocked: {
           select: {
-            id: true
-          }
-        }
-      }
-    })
-    return user.blocked.includes({id: f2Id})
+            id: true,
+          },
+        },
+      },
+    });
+    return user.blocked.map((b) => b.id).includes(f2Id);
+  }
+
+  async hasBlocked(f1Id: number, f2Id: number) {
+    if (f1Id == f2Id) return false;
+    const user = await prisma.user.findFirst({
+      where: {
+        id: f1Id,
+      },
+      select: {
+        blocked: {
+          select: {
+            id: true,
+          },
+        },
+        blockedBy: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    return (
+      user.blocked.map((b) => b.id).includes(f2Id) ||
+      user.blockedBy.map((b) => b.id).includes(f2Id)
+    );
   }
 
   async getMessages(userId: number, chatId: number) {
     const messages = await prisma.message.findMany({
       where: {
-        chatId: chatId
+        chatId: chatId,
       },
       select: {
         sender: {
@@ -258,15 +365,18 @@ export class ChatService {
         createdAt: 'asc',
       },
     });
-    let fitlered = messages.filter(async (message) => await !this.isBlocked(userId, message.sender.profile.userId) )
+    let fitlered = messages.filter(
+      async (message) =>
+        await !this.isBlocked(userId, message.sender.profile.userId) && !this.hasBlocked(userId, message.sender.profile.userId),
+    );
     const neededForm = fitlered.map((message) => ({
       isMe: message.sender.profile.userId == userId ? true : false,
       userId: message.sender.profile.userId,
       avatar: message.sender.profile.avatar,
       content: message.body,
     }));
-    console.log( neededForm)
-    return neededForm
+    // console.log( neededForm)
+    return neededForm;
   }
 
   async getChat(userId: number) {

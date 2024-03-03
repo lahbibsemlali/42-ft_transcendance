@@ -11,6 +11,7 @@ import ChatMsg from "./ChatMsg";
 import Cookies from "js-cookie";
 import Popup from "reactjs-popup";
 import Result from "./Result";
+import CreateGroups from "./CreateGroups";
 
 const ChatPage = () => {
   const isLoggedIn = useContext(isLogin);
@@ -19,7 +20,7 @@ const ChatPage = () => {
   const { check, setCheck } = context;
   const [selectchat, setSelectchat] = useState(false);
   const [listChat, setListChat] = useState<ReactElement | null>(null);
-  // const [restMsgs, setrestMsgs] = useState<number>(0);
+  const [newGroup, setNewGroup] = useState(false);
   const [info, setrestMsgs] = useState({
     id: 0,
     isGroup: false,
@@ -40,7 +41,6 @@ const ChatPage = () => {
     isProtected: boolean,
     isMuted: boolean
   ) => {
-    console.log("room name", id);
     setrestMsgs({
       id: id,
       isGroup: isGroup,
@@ -63,7 +63,6 @@ const ChatPage = () => {
             },
           }
         );
-        console.log("zzzzzzz", res.data);
         const listsNew = res.data.map((userslist: any) => (
           <Listchat
             isMuted={userslist.isMuted}
@@ -83,89 +82,32 @@ const ChatPage = () => {
     };
 
     fetchData();
-    // }, [restMsgs]);
-  }, []);
+  }, [newGroup]);
 
-  const [typeGrpup, setTypeGrpup] = useState(1);
-  const [nameGrpup, setNameGrpup] = useState("");
-  const [passGrpup, setPassGrpup] = useState("");
-  const [empty, setEmpty] = useState(false);
-  const inputRef2 = useRef<HTMLInputElement | null>(null);
+  const NewGroupCreated = () => {
+    if (newGroup)
+      setNewGroup(false);
+    else
+      setNewGroup(true);
+  }; 
 
+ 
+  const [btnCraete, setBtnCreate] = useState(false);
+
+  const createGroupOn = () => {
+    if (btnCraete)
+      setBtnCreate(false);
+    else
+      setBtnCreate(true);
+  };
 
   if (isLoggedIn == 2) return <LoginPage />;
-
-  const hideString = () => {
-    if (empty)
-      setEmpty(false);
-  };
-
-  const GroupType = (type: number) => {
-    // console.log(type);
-    setTypeGrpup(type);
-    if (empty)
-      setEmpty(false);
-
-  };
-
-  const createGroup = async () => {
-    console.log('hi');
-    const inputValue = inputRef2.current?.value;
-    if (typeGrpup == 3) {
-      if (inputValue?.length) {
-        if (inputRef2.current)
-          inputRef2.current.value = "";
-      } else {
-        setEmpty(true);
-        // console.log('empty');
-        return ;
-      }
-    }
-    // console.log('tzz');
-    const mytoken = Cookies.get("jwt");
-    const mute = async () => {
-          const res = await axios.post(
-            `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/create_group`,
-            {
-              name: "test",
-              password: passGrpup,
-              status: typeGrpup,
-            },
-            {
-              headers: {
-                Authorization: `bearer ${mytoken}`,
-              },
-            }
-          );
-          console.log("block", res);
-        };
-        await mute();
-  };
 
   return (
     <div>
       <Header />
 
-      <div id="myModal" className="modal">
-        <div className="modal-content">
-          <span className="close">&times;</span>
-          <select style={{ width: "20%", margin: "10px" }} id="cars">
-            <option onClick={() => GroupType(1)} value="volvo">public</option>
-            <option onClick={() => GroupType(2)} value="saab">private</option>
-            <option onClick={() => GroupType(3)} value="opel">protected</option>
-          </select>
-          {empty && <p style={{color: "black"}}>empty</p>}
-          {typeGrpup == 3 && <input
-          onChange={hideString}
-            ref={inputRef2}
-            style={{ padding: "5px", marginBottom: "25px" }}
-            placeholder="PASSWORD"
-            type="text"
-            required
-          />}
-          <button onClick={createGroup} style={{ width: "20%" }}>Create</button>
-        </div>
-      </div>
+        {btnCraete && <CreateGroups NewGroupCreated={NewGroupCreated} crateGroup={createGroupOn} />}
 
       <div className="ChatContainer">
         <div className="barChat">
@@ -176,9 +118,23 @@ const ChatPage = () => {
               type="text"
               className="search"
             />
-            <Result />
+            <div
+              style={{
+                // height: "100px",
+                backgroundColor: "red",
+                width: "200px",
+                position: "absolute",
+                display: "flex",
+                flexDirection: "column-reverse",
+              }}
+            >
+              {/* <Result />
+              <Result /> */}
+            </div>
+            {/* <Result />
+            <Result /> */}
           </div>
-          <button>Creat Group</button>
+          <button onClick={createGroupOn}>Creat Group</button>
         </div>
         <div className="ChatBox">
           <div id="side-bar">{listChat}</div>

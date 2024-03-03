@@ -12,9 +12,6 @@ type Props = {
 };
 
 const LeftMsg = (props: Props) => {
-
-  // isAdmin = true; // to be remove
-
   const [menuClicked, setMenuClicked] = useState(false);
 
   const imgClicked = () => {
@@ -25,12 +22,17 @@ const LeftMsg = (props: Props) => {
   return (
     <div className="leftmsg">
       <div className="div-wrapper">
-        <img
-          onClick={imgClicked}
-          src={props.urlImg}
-        />
+        <img onClick={imgClicked} src={props.urlImg} />
       </div>
-      {menuClicked && <MenuImg isMuted={props.isMuted} isGroup={props.isGroup} isAdmin={props.isAdmin}  idClient={props.idClient} idChat={props.idChat} />}
+      {menuClicked && (
+        <MenuImg
+          isMuted={props.isMuted}
+          isGroup={props.isGroup}
+          isAdmin={props.isAdmin}
+          idClient={props.idClient}
+          idChat={props.idChat}
+        />
+      )}
       <div className="contentleft">{props.msg}</div>
     </div>
   );

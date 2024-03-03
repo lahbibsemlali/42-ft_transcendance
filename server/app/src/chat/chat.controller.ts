@@ -14,6 +14,23 @@ export class ChatController {
     this.chatService.createGroup(user.id, name, password, status);
   }
 
+  @Delete('remove_group')
+  removeGroup(@User() user, @Query('groupId') groupId) {
+    groupId = parseInt(groupId)
+    this.chatService.removeGroup(user.id, groupId);
+  }
+
+  @Post('change_password')
+  changePass(@User() user, @Query('groupId') groupId, @Body('password') password) {
+    this.chatService.changePass(user.id, groupId, password)
+  }
+
+  @Delete('remove_password')
+  removePass(@User() user, @Query('groupId') groupId) {
+    groupId = parseInt(groupId)
+    this.chatService.removePass(user.id, groupId)
+  }
+
   @Post('blockOrUnblock')
   blockOrUnblock(@User() user, @Body() body) {
     const {targetId, block} = body;
@@ -58,9 +75,9 @@ export class ChatController {
     return messages
   }
 
-  @Get('add_to_group')
-  addToGroup(@User() user, @Query('targetId') targetId, @Query('groupId') groupId) {
-    this.chatService.addToGroup(user.id, targetId, groupId)
+  @Post('add_to_group')
+  addToGroup(@User() user, @Query('groupId') groupId, @Body('target') target) {
+    this.chatService.addToGroup(user.id, target, groupId)
   }
 
   @Get('join_group')
