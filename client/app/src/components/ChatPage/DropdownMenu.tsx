@@ -9,6 +9,13 @@ type DropWownProps = {
   isAdmin: boolean;
   isProtected: boolean;
   isMuted: boolean;
+  NewGroupCreated: () => void;
+  openMenu: () => void;
+  modalAddUser: () => void;
+  setID: (param: number) => void;
+
+  // toAdd: string;
+  // groupRemoved: () => void;
 };
 
 const DropdownMenu: React.FC<DropWownProps> = ({
@@ -17,26 +24,60 @@ const DropdownMenu: React.FC<DropWownProps> = ({
   isProtected,
   id,
   isMuted,
+  NewGroupCreated,
+  openMenu,
+  modalAddUser,
+  setID,
+  // toAdd,
 }) => {
 
-  const RemoveGroup = () => {
+  const RemoveGroup = async  () => {
     const mytoken = Cookies.get("jwt") || "";
-    axios.delete(`http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/remove_group?groupId=${id}`,
+    await axios.delete(`http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/remove_group?groupId=${id}`,
     {
       headers: {
         Authorization: `bearer ${mytoken}`,
       }});
+      NewGroupCreated();
+  };
+
+  const AddUser = async  () => {
+    setID(id);
+    modalAddUser();
+    openMenu();
+  };
+
+  const leaveGroup = async () => {
+    const mytoken = Cookies.get("jwt") || "";
+    try {
+      
+      await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/leave_group?groupId=${id}`,
+      {
+        headers: {
+          Authorization: `bearer ${mytoken}`,
+        }});
+      } catch (error) {
+        console.log(error)
+      }
+    openMenu();
+    NewGroupCreated();
+
   };
 
 
   return (
+    <>
+      {/* <div id="myModal" className="modal">
+        <div className="modal-content"></div>
+      </div> */}
     <div className="dropdown-content">
-      {isGroup && !isAdmin && <MenuBtn action={5} str="Leave group" />}
-      {isGroup && isAdmin && <MenuBtn action={6} str="Add User" />}
+      {isGroup && !isAdmin && <MenuBtn onChildClick5={leaveGroup} action={5} str="Leave group" />}
+      {isGroup && isAdmin && <MenuBtn onChildClick6={AddUser} action={6} str="Add User" />}
       {isGroup && isAdmin && <MenuBtn onChildClick7={RemoveGroup} action={7} str="Remove Group" />}
       {isGroup && isAdmin && isProtected && <MenuBtn action={8} str="change password" />}
       {isGroup && isAdmin && isProtected && <MenuBtn action={9} str="remove password" />}
     </div>
+    </>
   );
 };
 

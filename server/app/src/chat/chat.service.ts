@@ -1,7 +1,13 @@
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { join } from 'path';
 import * as bcrypt from 'bcrypt';
+import { Console } from 'console';
 
 const prisma = new PrismaClient();
 
@@ -113,7 +119,9 @@ export class ChatService {
     });
   }
 
-  async kick(targetId: number, chatId: number, mute: boolean) {
+  async kick(userId: number, targetId: number, chatId: number, mute: boolean) {
+    if (targetId == userId)
+      throw new BadRequestException('cant kick your self');
     const chat = await prisma.userChat.delete({
       where: {
         userId_chatId: {
@@ -138,16 +146,50 @@ export class ChatService {
     });
   }
 
+  async promote(userId: number, targetId: number, chatId: number) {
+    console.log(userId, '[]', typeof userId)
+    const userChat = await prisma.userChat.findFirst({
+      where: {
+          userId: userId,
+          chatId: chatId,
+      },
+    });
+    if (!userChat || userChat.role == 'User')
+      throw new UnauthorizedException('user have wrong permissions or not in group')
+
+    const targetChat = await prisma.userChat.findFirst({
+        where: {
+            userId: targetId,
+            chatId: chatId,
+        },
+    });
+
+    if (!targetChat)
+      throw new UnauthorizedException('target not in group')
+
+    await prisma.userChat.update({
+      where: {
+        userId_chatId: {
+          userId: targetId,
+          chatId: chatId,
+        },
+      },
+      data: {
+        role: 'Admin',
+      },
+    });
+  }
+
   async getUserByUsername(username: string) {
     const user = await prisma.profile.findFirst({
-        where: {
-            username: username,
-        }
-    })
-    if (!user)
-        throw new UnauthorizedException('no such user')
-    return user
-}
+      where: {
+        username: username,
+      },
+    });
+    if (!user) throw new UnauthorizedException('no such user');
+    return user;
+  }
+
   async addToGroup(userId: number, target: string, groupId: number) {
     const user = await this.getUserByUsername(target);
     const targetId = user.userId;
@@ -162,7 +204,13 @@ export class ChatService {
         chatId: groupId,
       },
     });
-    if (!userChat) throw new UnauthorizedException('user not in group');
+    const friendChat = await prisma.userChat.findFirst({
+      where: {
+        userId: targetId,
+        chatId: groupId,
+      },
+    });
+    if (friendChat) throw new BadRequestException('user already in group');
     if (userChat.role != 'Owner' && userChat.role != 'Admin')
       throw new UnauthorizedException(
         'user is neither Owner or Admin in this group',
@@ -171,6 +219,30 @@ export class ChatService {
       data: {
         userId: targetId,
         chatId: group.id,
+      },
+    });
+  }
+
+  async leaveGroup(userId: number, groupId: number) {
+    const group = await prisma.chat.findFirst({
+      where: {
+        id: groupId,
+      },
+    });
+    if (!group) throw new BadRequestException('no such group');
+    const userChat = await prisma.userChat.findFirst({
+      where: {
+        userId: userId,
+        chatId: groupId,
+      },
+    });
+    if (!userChat) throw new BadRequestException('user not in group');
+    await prisma.userChat.delete({
+      where: {
+        userId_chatId: {
+          userId: userId,
+          chatId: groupId,
+        },
       },
     });
   }
@@ -199,68 +271,74 @@ export class ChatService {
   async removeGroup(userId: string, groupId: number) {
     const group = await prisma.chat.delete({
       where: {
-        id: groupId
-      }
-    })
+        id: groupId,
+      },
+    });
   }
 
   async changePass(userId: number, groupId: number, password: string) {
     const userChat = await prisma.userChat.findFirst({
       where: {
         userId: userId,
-        chatId: groupId
-      }
-    })
-    if (!userChat)
-      throw new UnauthorizedException('user not in group')
+        chatId: groupId,
+      },
+    });
+    if (!userChat) throw new UnauthorizedException('user not in group');
     if (userChat.role != 'Owner' && userChat.role != 'Admin')
-      throw new UnauthorizedException('user is neither Owner or Admin in this group')
+      throw new UnauthorizedException(
+        'user is neither Owner or Admin in this group',
+      );
     const group = await prisma.chat.findFirst({
       where: {
-        id: groupId
-      }
-    })
-    if (!group || group.status != 'Protected' || password || password.length < 5 )
-      throw new InternalServerErrorException('something wrong')
-    const salt = await bcrypt.genSalt()
-    const hash = await bcrypt.hash(password, salt)
+        id: groupId,
+      },
+    });
+    if (
+      !group ||
+      group.status != 'Protected' ||
+      password ||
+      password.length < 5
+    )
+      throw new InternalServerErrorException('something wrong');
+    const salt = await bcrypt.genSalt();
+    const hash = await bcrypt.hash(password, salt);
     await prisma.chat.update({
       where: {
-        id: groupId
+        id: groupId,
       },
       data: {
-        password: hash
-      }
-    })
+        password: hash,
+      },
+    });
   }
 
   async removePass(userId: number, groupId: number) {
     const userChat = await prisma.userChat.findFirst({
       where: {
         userId: userId,
-        chatId: groupId
-      }
-    })
-    if (!userChat)
-      throw new UnauthorizedException('user not in group')
+        chatId: groupId,
+      },
+    });
+    if (!userChat) throw new UnauthorizedException('user not in group');
     if (userChat.role != 'Owner' && userChat.role != 'Admin')
-      throw new UnauthorizedException('user is neither Owner or Admin in this group')
+      throw new UnauthorizedException(
+        'user is neither Owner or Admin in this group',
+      );
     const group = await prisma.chat.findFirst({
       where: {
-        id: groupId
-      }
-    })
-    if (!group)
-      throw new InternalServerErrorException('something wrong')
+        id: groupId,
+      },
+    });
+    if (!group) throw new InternalServerErrorException('something wrong');
     await prisma.chat.update({
       where: {
-        id: groupId
+        id: groupId,
       },
       data: {
         status: 'Public',
-        password: null
-      }
-    })
+        password: null,
+      },
+    });
   }
 
   async createMessage(userId: number, chatId: number, content: string) {
@@ -282,7 +360,7 @@ export class ChatService {
       !chat[0].chat.isGroup &&
       ((await this.isBlocked(chat[0].userId, chat[1].userId)) ||
         (await this.hasBlocked(chat[0].userId, chat[1].userId)));
-        console.log(isBlocked, "is")
+    console.log(isBlocked, 'is');
     if (!isBlocked) {
       const message = await prisma.message.create({
         data: {
@@ -367,7 +445,8 @@ export class ChatService {
     });
     let fitlered = messages.filter(
       async (message) =>
-        await !this.isBlocked(userId, message.sender.profile.userId) && !this.hasBlocked(userId, message.sender.profile.userId),
+        (await !this.isBlocked(userId, message.sender.profile.userId)) &&
+        !this.hasBlocked(userId, message.sender.profile.userId),
     );
     const neededForm = fitlered.map((message) => ({
       isMe: message.sender.profile.userId == userId ? true : false,
@@ -421,12 +500,24 @@ export class ChatService {
       state: ch.user.profile.state,
       isProtected: ch.chat.status == 'Protected',
       isAdmin: ch.role == 'Admin' || ch.role == 'Owner',
+      isOwner: ch.role == 'Owner',
       isGroup: ch.chat.isGroup,
       lastMessage: ch.chat.lastMessage,
     }));
     return neededForm;
   }
-
+  async getUserRoleInChat(userId: number, chatId: number) {
+    const chat = await prisma.userChat.findFirst({
+      where: {
+        userId: userId,
+        chatId: chatId
+      },
+      select: {
+        role: true
+      }
+    })
+    return chat.role
+  }
   async searchGroups(keyword: string) {
     const matches = await prisma.chat.findMany({
       where: {

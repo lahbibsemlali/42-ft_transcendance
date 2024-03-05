@@ -12,9 +12,16 @@ import Cookies from "js-cookie";
 type Props = {
   id: number;
   isAdmin: boolean;
+  isOwner: boolean;
   isGroup: boolean;
   isProtected: boolean;
   isMuted: boolean;
+  NewGroupCreated: () => void;
+  // toAdd: string;
+  setID: (param: number) => void;
+
+  modalAddUser: () => void;
+  // groupRemoved: () => void;
 };
 
 const ChatMsg = (props: Props) => {
@@ -47,9 +54,9 @@ const ChatMsg = (props: Props) => {
           }
         );
         const spacecrafts = response.data;
-        console.log("msg", spacecrafts)
         const LIstMsg = spacecrafts.map((spacecraft: any) => (
           <GeneratMsg
+          isOwner={props.isOwner}
             isMuted={spacecraft.isMutted}
             isGroup={props.isGroup}
             isMe={spacecraft.isMe}
@@ -108,6 +115,11 @@ const ChatMsg = (props: Props) => {
           </button>
           {openmenu && (
             <DropdownMenu
+              setID={props.setID}
+              modalAddUser={props.modalAddUser}
+              // toAdd={props.toAdd}
+              openMenu={openMenu}
+              NewGroupCreated={props.NewGroupCreated}
               isMuted={props.isMuted}
               id={props.id}
               isAdmin={props.isAdmin}

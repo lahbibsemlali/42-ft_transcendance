@@ -5,10 +5,12 @@ import axios from "axios";
 
 type Props = {
   isAdmin: boolean;
+  isOwner: boolean;
   idClient: number;
   idChat: number;
   isGroup: boolean;
   isMuted: boolean;
+  imgClicked?: () => void;
 };
 
 const MenuImg = (props: Props) => {
@@ -33,7 +35,6 @@ const MenuImg = (props: Props) => {
   }, []);
 
   const BlcokUser = async (bool: boolean) => {
-    console.log(bool, "bool");
     await axios.post(
       `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/blockOrUnblock`,
       {
@@ -48,6 +49,24 @@ const MenuImg = (props: Props) => {
     );
     if (bool) BlockStateChanged(true);
     else BlockStateChanged(false);
+  };
+
+  const addAdmin = async () => {
+    console.log('add admin')
+    await axios.post(
+      `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/promote`,
+      {
+        targetId: props.idClient,
+        chatId: props.idChat,
+      },
+      {
+        headers: {
+          Authorization: `bearer ${mytoken}`,
+        },
+      }
+    );
+    if (props.imgClicked)
+      props.imgClicked();
   };
 
   return (
@@ -68,8 +87,9 @@ const MenuImg = (props: Props) => {
           str="Unblock"
         />
       )}
-      {props.isGroup && props.isAdmin && (
+      {props.isGroup && props.isOwner && (
         <MenuBtn
+          onChildClick2={addAdmin}
           action={2}
           ifMute={true}
           str="add admin"

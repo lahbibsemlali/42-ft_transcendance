@@ -2,6 +2,7 @@ import { useState } from "react";
 import MenuImg from "./MenuImg";
 
 type Props = {
+  isOwner: boolean;
   isAdmin: boolean;
   idClient: number;
   idChat: number;
@@ -26,6 +27,8 @@ const LeftMsg = (props: Props) => {
       </div>
       {menuClicked && (
         <MenuImg
+        isOwner={props.isOwner}
+          imgClicked={imgClicked}
           isMuted={props.isMuted}
           isGroup={props.isGroup}
           isAdmin={props.isAdmin}

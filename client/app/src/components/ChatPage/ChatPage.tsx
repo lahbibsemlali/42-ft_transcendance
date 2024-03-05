@@ -9,9 +9,9 @@ import LoginPage from "../LoginPage/LoginPage";
 import WelcomeChat from "./WelcomeChat";
 import ChatMsg from "./ChatMsg";
 import Cookies from "js-cookie";
-import Popup from "reactjs-popup";
 import Result from "./Result";
 import CreateGroups from "./CreateGroups";
+import AddUser from "./AddUser";
 
 const ChatPage = () => {
   const isLoggedIn = useContext(isLogin);
@@ -27,6 +27,7 @@ const ChatPage = () => {
     isAdmin: false,
     isProtected: false,
     isMuted: false,
+    isOwner: false,
   });
 
   useEffect(() => {
@@ -39,7 +40,8 @@ const ChatPage = () => {
     isGroup: boolean,
     isAdmin: boolean,
     isProtected: boolean,
-    isMuted: boolean
+    isMuted: boolean,
+    isOwner: boolean
   ) => {
     setrestMsgs({
       id: id,
@@ -47,6 +49,7 @@ const ChatPage = () => {
       isAdmin: isAdmin,
       isProtected: isProtected,
       isMuted: isMuted,
+      isOwner: isOwner,
     });
     setSelectchat(true);
   };
@@ -63,8 +66,10 @@ const ChatPage = () => {
             },
           }
         );
+        console.log(res.data)
         const listsNew = res.data.map((userslist: any) => (
           <Listchat
+          isOwner={userslist.isOwner}
             isMuted={userslist.isMuted}
             isAdmin={userslist.isAdmin}
             isGroup={userslist.isGroup}
@@ -78,28 +83,40 @@ const ChatPage = () => {
           />
         ));
         setListChat(listsNew);
-      } catch (error) {}
+      } catch (error) {
+        console.log(error);
+      }
     };
 
     fetchData();
   }, [newGroup]);
 
   const NewGroupCreated = () => {
-    if (newGroup)
-      setNewGroup(false);
-    else
-      setNewGroup(true);
-  }; 
+    setNewGroup(!newGroup);
+    setSelectchat(false);
+  };
 
- 
   const [btnCraete, setBtnCreate] = useState(false);
+  const [btnAdd, setBtnAdd] = useState(false);
+  const [idTarget, setIdTarget] = useState(0);
 
   const createGroupOn = () => {
-    if (btnCraete)
-      setBtnCreate(false);
-    else
-      setBtnCreate(true);
+    setBtnCreate(!btnCraete);
   };
+
+  const ftsetIdTarget = (id: number) => {
+    console.log(id, 'to add2');
+    setIdTarget(id);
+  };
+
+  const openAddUser = () => {
+    // console
+    setBtnAdd(!btnAdd);
+  };
+
+  // const openModalAddUser = () => {
+  //   setBtnAdd(!btnCraete);
+  // };
 
   if (isLoggedIn == 2) return <LoginPage />;
 
@@ -107,7 +124,14 @@ const ChatPage = () => {
     <div>
       <Header />
 
-        {btnCraete && <CreateGroups NewGroupCreated={NewGroupCreated} crateGroup={createGroupOn} />}
+      {btnCraete && (
+        <CreateGroups
+          NewGroupCreated={NewGroupCreated}
+          crateGroup={createGroupOn}
+        />
+      )}
+
+      {btnAdd && <AddUser idTarget={idTarget} handleClick={openAddUser} />}
 
       <div className="ChatContainer">
         <div className="barChat">
@@ -141,6 +165,12 @@ const ChatPage = () => {
           {!selectchat && <WelcomeChat />}
           {selectchat && (
             <ChatMsg
+            isOwner={info.isOwner}
+              setID={ftsetIdTarget}
+              modalAddUser={openAddUser}
+              // toAdd={toAdd}
+              // groupRemoved={groupRemoved}
+              NewGroupCreated={NewGroupCreated}
               isMuted={info.isMuted}
               id={info.id}
               isAdmin={info.isAdmin}

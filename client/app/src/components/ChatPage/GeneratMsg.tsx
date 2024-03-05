@@ -3,6 +3,7 @@ import LeftMsg from './LeftMsg';
 import RightMsg from './RightMsg';
 
 type Props = {
+  isOwner: boolean;
     isAdmin: boolean;
     idClient: number;
     idChat: number;
@@ -21,7 +22,7 @@ const GeneratMsg = (props: Props) => {
     }
   return (
     <>
-        <LeftMsg isMuted={props.isMuted} isGroup={props.isGroup} isAdmin={props.isAdmin} idClient={props.idClient} idChat={props.idChat} urlImg={props.urlImg} msg={props.msg} />
+        <LeftMsg isOwner={props.isOwner} isMuted={props.isMuted} isGroup={props.isGroup} isAdmin={props.isAdmin} idClient={props.idClient} idChat={props.idChat} urlImg={props.urlImg} msg={props.msg} />
     </>
   );
 }

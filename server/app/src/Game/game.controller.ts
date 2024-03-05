@@ -10,6 +10,7 @@ export class GameController {
   @Post(':username')
   GetState(@Param('username') username: string): string {
     return username;
+
   }
 
   // @Post('/GameState')

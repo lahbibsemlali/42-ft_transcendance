@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  Query,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { User } from 'src/user/user.decorator';
@@ -10,78 +21,106 @@ export class ChatController {
 
   @Post('create_group')
   createGroup(@User() user, @Body() body) {
-    const {name, password, status} = body;
+    const { name, password, status } = body;
     this.chatService.createGroup(user.id, name, password, status);
   }
 
   @Delete('remove_group')
   removeGroup(@User() user, @Query('groupId') groupId) {
-    groupId = parseInt(groupId)
+    groupId = parseInt(groupId);
     this.chatService.removeGroup(user.id, groupId);
   }
 
   @Post('change_password')
-  changePass(@User() user, @Query('groupId') groupId, @Body('password') password) {
-    this.chatService.changePass(user.id, groupId, password)
+  changePass(
+    @User() user,
+    @Query('groupId') groupId,
+    @Body('password') password,
+  ) {
+    this.chatService.changePass(user.id, groupId, password);
   }
 
   @Delete('remove_password')
   removePass(@User() user, @Query('groupId') groupId) {
-    groupId = parseInt(groupId)
-    this.chatService.removePass(user.id, groupId)
+    groupId = parseInt(groupId);
+    this.chatService.removePass(user.id, groupId);
   }
 
   @Post('blockOrUnblock')
   blockOrUnblock(@User() user, @Body() body) {
-    const {targetId, block} = body;
+    const { targetId, block } = body;
     this.chatService.blockOrUnblock(user.id, targetId, block);
   }
 
   @Get('isBlocked')
   async isBlocked(@User() user, @Query('targetId') targetId) {
-    targetId = parseInt(targetId)
-    return {isBlocked: await this.chatService.isBlocked(user.id, targetId)};
+    targetId = parseInt(targetId);
+    return { isBlocked: await this.chatService.isBlocked(user.id, targetId) };
   }
 
   @Post('muteOrUnmute')
   muteOrUnmute(@User() user, @Body() body) {
-    const {targetId, chatId, mute} = body;
+    const { targetId, chatId, mute } = body;
     this.chatService.muteOrUnmute(user.id, targetId, chatId, mute);
   }
 
   @Post('kick')
-  kick(@Body() body) {
-    const {targetId, chatId, mute} = body;
-    this.chatService.kick(targetId, chatId, mute);
+  kick(@User() user, @Body() body) {
+    const { targetId, chatId, mute } = body;
+    this.chatService.kick(user.id, targetId, chatId, mute);
   }
 
   @Post('ban')
-  ban(@Body() body) {
-    const {targetId, chatId, mute} = body;
-    this.chatService.ban(targetId, chatId, mute);
+  async ban(@Body() body) {
+    const { targetId, chatId, mute } = body;
+    await this.chatService.ban(targetId, chatId, mute);
   }
 
+  @Post('promote')
+  async promote(@User() user, @Body() body) {
+    const { targetId, chatId } = body;
+    await this.chatService.promote(user.id, targetId, chatId);
+  }
 
   @Get('get_chat')
   getChat(@User() user) {
-    const chat = this.chatService.getChat(user.id)
-    return chat
+    const chat = this.chatService.getChat(user.id);
+    return chat;
   }
 
   @Get('get_messages')
   getMessages(@User() user, @Query('chatId') chatId) {
-    chatId = parseInt(chatId)
-    const messages = this.chatService.getMessages(user.id, chatId)
-    return messages
+    chatId = parseInt(chatId);
+    const messages = this.chatService.getMessages(user.id, chatId);
+    return messages;
+  }
+
+  @Get('get_user_role')
+  async getUserRole(@Query('userId') userId, @Query('groupId') groupId) {
+    userId = parseInt(userId)
+    groupId = parseInt(groupId)
+    const role = await this.chatService.getUserRoleInChat(userId, groupId)
+    return {isAdmin: role == 'Owner' ? 0 : role == 'Admin' ? 1 : 2}
   }
 
   @Post('add_to_group')
-  addToGroup(@User() user, @Query('groupId') groupId, @Body('target') target) {
-    this.chatService.addToGroup(user.id, target, groupId)
+  async addToGroup(
+    @User() user,
+    @Query('groupId') groupId,
+    @Body('target') target,
+  ) {
+    groupId = parseInt(groupId);
+    await this.chatService.addToGroup(user.id, target, groupId);
+  }
+
+  @Get('leave_group')
+  async leaveGroup(@User() user, @Query('groupId') groupId) {
+    groupId = parseInt(groupId);
+    await this.chatService.leaveGroup(user.id, groupId);
   }
 
   @Get('join_group')
   joinGroup(@User() user, @Query('id') groupId, @Query('password') password) {
-    this.chatService.joinGroup(user.id, groupId, password)
+    this.chatService.joinGroup(user.id, groupId, password);
   }
 }
