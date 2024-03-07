@@ -25,6 +25,7 @@ services:
       - .env
     volumes:
         - ./server/app/src/:/app/src
+        - ./server/app/prisma:/app/prisma
     ports:
       - 8000:3000
       - 5555:5555

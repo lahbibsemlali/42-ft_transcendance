@@ -15,7 +15,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
     }
 
     validate(accessToken: string, refreshToken: string, profile: Profile, done: Function) {
-        const user = {username: profile.username, imageLink: profile._json.image.link}
+        const user = {id: profile.id, username: profile.username, email: profile._json.email, imageLink: profile._json.image.link}
         const info = this.userService.loginOrRegister(user)
         done(null, info)
     }

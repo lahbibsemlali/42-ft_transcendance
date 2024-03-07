@@ -4,6 +4,9 @@ import { Response } from 'express';
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { UserService } from 'src/user/user.service';
+import { User } from 'src/user/user.decorator';
+import * as qrcode from 'qrcode';
+import { JwtTwoFaGuard } from 'src/guards/jwt-twofa.guard';
 
 @Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -14,32 +17,45 @@ export class TwoFaController {
     private userService: UserService
   ) {}
  
-  @Post('generate')
   @UseGuards(JwtGuard)
-  async register(@Res() response: Response, @Req() request) {
-    const { url } = await this.twoFaService.generateTwoFaSecrete(request.user);
- 
-    return this.twoFaService.pipeQrCodeStream(response, url);
+  @Get('generate')
+  async register(@Res() res: Response, @User() user) {
+    const url = await this.twoFaService.generateTwoFaSecrete(user.id);
+
+    qrcode.toDataURL(url, (err, qrUrl) => {
+      if (err) {
+          console.error('Error generating QR code:', err);
+          return {qrUrl: 'error'};
+      }
+      console.log('qrcode', qrUrl)
+      res.send({
+        qrUrl: qrUrl
+      })
+    });
   }
 
-  @Post('turn-on:id')
-  async turnTwoFaOn(@Body() { token }, @Param('id') userId) {
-    const isValid = this.twoFaService.isTwoFaValid(token, userId)
+  @UseGuards(JwtGuard)
+  @Post('turn-on')
+  async turnTwoFaOn(@Body('token') token, @User() user) {
+    token = token.toString()
+    const isValid = await this.twoFaService.isTwoFaValid(token, user.id)
+    console.log('hererere ', isValid, typeof token)
     if (!isValid)
       throw new UnauthorizedException('wrong 2fa token')
-    await this.twoFaService.turnTwoFaOn(userId)
+    await this.twoFaService.turnTwoFaOn(user.id)
   }
 
-  @Get('authenticate:id')
-  @UseGuards(JwtGuard)
-  async authenticate(@Body() { token }, @Param('id') userId, @Res() res) {
-    const isValid = this.twoFaService.isTwoFaValid(token, userId)
+  @UseGuards(JwtTwoFaGuard)
+  @Post('authenticate')
+  async authenticate(@Body('token') token, @User() user) {
+    const isValid = await this.twoFaService.isTwoFaValid(token, user.id)
     if (!isValid)
       throw new UnauthorizedException('Wrong 2fa token')
-    const user = await this.userService.getUserById(userId)
-    const payload = {id: userId, isTwoFaEnabled: user.twoFA}
-    const jwtToken = this.authService.generateJwtToken(payload)
-    res.cookie('jwt', jwtToken)
-    res.redirect(`http://${process.env.VITE_DOMAIN}:8000`)
+    const payload = {
+      id: user.id,
+      isTwoFaEnabled: true
+    }
+    const jwtToken = await this.authService.generateJwtToken(payload)
+    return ({jwtToken: jwtToken})
   }
 }

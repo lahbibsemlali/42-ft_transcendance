@@ -90,7 +90,7 @@ export class GameService {
 
   async setResult(userId: number) {
     // console.log("resule ", userId, this.scoorMap.get(userId));
-    await this.userService.setResult(userId, this.scoorMap.get(userId));
+    await this.userService.setResult(userId, this.scoorMap.get(userId), this.clientsMap.get(userId), this.scoorMap.get(this.clientsMap.get(userId)));
   }
 
   async updateStatus(userId: number, state: boolean) {

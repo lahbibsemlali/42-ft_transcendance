@@ -14,17 +14,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
             ?.split('=')[1];
         },
         ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ]),
-      ignoreExpiration: false,
+      ]),      ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRETE,
     });
   }
 
   async validate(payload: any) {
-    const user = await this.userService.getUserById(payload.userId)
+    const user = await this.userService.getUserById(payload.id)
     if (!user.twoFA)
       return payload
-    if (payload.isTwoFaEnabled)
+    if (user.twoFA && payload.isTwoFaEnabled)
       return payload
   }
 }

@@ -3,9 +3,7 @@ import { isLogin, reCheck } from "../Authorization/Authorization";
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-type Props = {};
-
-const LoginPage = (props: Props) => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const isLoggedIn = useContext(isLogin);
   const context = useContext(reCheck);
@@ -16,6 +14,8 @@ const LoginPage = (props: Props) => {
     if (check) setCheck(false);
     else setCheck(true);
   }, []);
+
+
 
   // useEffect(() => {
     if (isLoggedIn == 1) navigate("/");

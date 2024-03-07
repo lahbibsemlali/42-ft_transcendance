@@ -9,8 +9,8 @@ import { Toaster } from 'react-hot-toast';
 ReactDOM.createRoot(document.getElementById("root")!).render(
   // <React.StrictMode>
   <Authorization>
-    <App />
-    <Toaster />
+  <App />
+  <Toaster />
   </Authorization>
   // </React.StrictMode>,
 );
