@@ -7,6 +7,9 @@ type Props = {
   onChildClick6?: () => void;
   onChildClick5?: () => void;
   onChildClick2?: () => void;
+  onChildClick22?: () => void;
+  onChildClick3?: () => void;
+  onChildClick4?: () => void;
 };
 
 const MenuBtn = (props: Props) => {
@@ -16,6 +19,9 @@ const MenuBtn = (props: Props) => {
     if (props.onChildClick6 && props.action == 6) props.onChildClick6();
     if (props.onChildClick5 && props.action == 5) props.onChildClick5();
     if (props.onChildClick2 && props.action == 2) props.onChildClick2();
+    if (props.onChildClick22 && props.action == 22) props.onChildClick22();
+    if (props.onChildClick3 && props.action == 3) props.onChildClick3();
+    if (props.onChildClick4 && props.action == 4) props.onChildClick4();
   };
 
   return (

@@ -114,9 +114,54 @@ const ChatPage = () => {
     setBtnAdd(!btnAdd);
   };
 
+  const [nameGroup, setNmaeGroup] = useState("");
+  const [searchR, setSearchR] = useState<ReactElement | null>(null);
+
+
+  // const searchGroups = () => {
+
+  // };
+
+  // console.log('nameGroup', nameGroup);
+
   // const openModalAddUser = () => {
   //   setBtnAdd(!btnCraete);
   // };
+
+  const setEmptyValue = () => {
+    setNmaeGroup("");
+    setNewGroup(!newGroup);
+  };
+
+  useEffect(() => {
+    const mytoken = Cookies.get("jwt") || "";
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/search?keyword=${nameGroup}`,
+          {
+            headers: {
+              Authorization: `bearer ${mytoken}`,
+            },
+          }
+        );
+        // console.log("|||||||||", res.data.matches)
+        const shearchResult = res.data.matches.map((userslist: any) => (
+          <Result
+            onChildClick={setEmptyValue}
+            idChat={userslist.id}
+            nameGroup={userslist.name}
+            groupType={userslist.state}
+          />
+        ));
+        setSearchR(shearchResult);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (nameGroup.length)
+      fetchData();
+  }, [nameGroup]);
 
   if (isLoggedIn == 2) return <LoginPage />;
 
@@ -137,6 +182,7 @@ const ChatPage = () => {
         <div className="barChat">
           <div className="search-box2">
             <input
+              onChange={(e) => setNmaeGroup(e.target.value)}
               style={{ padding: "10px" }}
               placeholder="SEARCH FOR GROUPS"
               type="text"
@@ -144,7 +190,6 @@ const ChatPage = () => {
             />
             <div
               style={{
-                // height: "100px",
                 backgroundColor: "red",
                 width: "200px",
                 position: "absolute",
@@ -152,11 +197,8 @@ const ChatPage = () => {
                 flexDirection: "column-reverse",
               }}
             >
-              {/* <Result />
-              <Result /> */}
+              {nameGroup.length != 0 && searchR}
             </div>
-            {/* <Result />
-            <Result /> */}
           </div>
           <button onClick={createGroupOn}>Creat Group</button>
         </div>

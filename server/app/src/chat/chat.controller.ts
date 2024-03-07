@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtGuard } from 'src/guards/jwt.guard';
@@ -18,6 +19,14 @@ import { User } from 'src/user/user.decorator';
 @UseGuards(JwtGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
+
+  @Get('search')
+  async search(@User() user, @Query('keyword') keyword) {
+    const matches = await this.chatService.searchGroups(user.id, keyword);
+    console.log(',,,,', matches);
+
+    return {matches: matches}
+  }
 
   @Post('create_group')
   createGroup(@User() user, @Body() body) {
@@ -66,20 +75,26 @@ export class ChatController {
 
   @Post('kick')
   kick(@User() user, @Body() body) {
-    const { targetId, chatId, mute } = body;
-    this.chatService.kick(user.id, targetId, chatId, mute);
+    const { targetId, chatId } = body;
+    this.chatService.kick(user.id, targetId, chatId);
   }
 
   @Post('ban')
   async ban(@Body() body) {
-    const { targetId, chatId, mute } = body;
-    await this.chatService.ban(targetId, chatId, mute);
+    const { targetId, chatId } = body;
+    await this.chatService.ban(targetId, chatId);
   }
 
   @Post('promote')
   async promote(@User() user, @Body() body) {
     const { targetId, chatId } = body;
     await this.chatService.promote(user.id, targetId, chatId);
+  }
+
+  @Post('denote')
+  async denote(@User() user, @Body() body) {
+    const { targetId, chatId } = body;
+    await this.chatService.denote(user.id, targetId, chatId);
   }
 
   @Get('get_chat')
@@ -100,7 +115,7 @@ export class ChatController {
     userId = parseInt(userId)
     groupId = parseInt(groupId)
     const role = await this.chatService.getUserRoleInChat(userId, groupId)
-    return {isAdmin: role == 'Owner' ? 0 : role == 'Admin' ? 1 : 2}
+    return {isAdmin: role == null ? 4 : role == 'Owner' ? 0 : role == 'Admin' ? 1 : 2}
   }
 
   @Post('add_to_group')
@@ -120,7 +135,10 @@ export class ChatController {
   }
 
   @Get('join_group')
-  joinGroup(@User() user, @Query('id') groupId, @Query('password') password) {
-    this.chatService.joinGroup(user.id, groupId, password);
+  async joinGroup(@User() user, @Query('id', ParseIntPipe) groupId, @Query('password') password) {
+    await this.chatService.joinGroup(user.id, groupId, password);
   }
 }
+
+
+

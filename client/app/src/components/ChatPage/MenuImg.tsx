@@ -14,6 +14,7 @@ type Props = {
 };
 
 const MenuImg = (props: Props) => {
+  const [isAdminOrOwner, setisAdminOrOwner] = useState(0);
   const [isBlock, BlockStateChanged] = useState(false);
   const mytoken = Cookies.get("jwt");
 
@@ -30,6 +31,24 @@ const MenuImg = (props: Props) => {
         }
       );
       BlockStateChanged(() => res.data.isBlocked);
+
+      const res2 = await axios.get(
+        `http://${
+          import.meta.env.VITE_DOMAIN
+        }:8000/api/chat/get_user_role?userId=${props.idClient}&groupId=${
+          props.idChat
+        }`,
+        {
+          headers: {
+            Authorization: `bearer ${mytoken}`,
+          },
+        }
+      );
+      setisAdminOrOwner(res2.data.isAdmin);
+      // isAdminOrOwner = res2.data.isAdmin;
+      // console.log('isAdminOrOwner2', isAdminOrOwner)
+
+      // BlockStateChanged(() => res.data.isBlocked);
     };
     isBlocked();
   }, []);
@@ -52,7 +71,6 @@ const MenuImg = (props: Props) => {
   };
 
   const addAdmin = async () => {
-    console.log('add admin')
     await axios.post(
       `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/promote`,
       {
@@ -65,9 +83,58 @@ const MenuImg = (props: Props) => {
         },
       }
     );
-    if (props.imgClicked)
-      props.imgClicked();
+    if (props.imgClicked) props.imgClicked();
   };
+
+  const removeAdmin = async () => {
+    await axios.post(
+      `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/denote`,
+      {
+        targetId: props.idClient,
+        chatId: props.idChat,
+      },
+      {
+        headers: {
+          Authorization: `bearer ${mytoken}`,
+        },
+      }
+    );
+    if (props.imgClicked) props.imgClicked();
+  };
+
+  const kickOut = async () => {
+    await axios.post(
+      `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/kick`,
+      {
+        targetId: props.idClient,
+        chatId: props.idChat,
+      },
+      {
+        headers: {
+          Authorization: `bearer ${mytoken}`,
+        },
+      }
+    );
+    if (props.imgClicked) props.imgClicked();
+  };
+
+  const banUser = async () => {
+    await axios.post(
+      `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/ban`,
+      {
+        targetId: props.idClient,
+        chatId: props.idChat,
+      },
+      {
+        headers: {
+          Authorization: `bearer ${mytoken}`,
+        },
+      }
+    );
+    if (props.imgClicked) props.imgClicked();
+  };
+
+  if (!isAdminOrOwner || isAdminOrOwner == 4) return null;
 
   return (
     <div style={{ margin: "5px" }}>
@@ -87,7 +154,7 @@ const MenuImg = (props: Props) => {
           str="Unblock"
         />
       )}
-      {props.isGroup && props.isOwner && (
+      {props.isGroup && props.isOwner && isAdminOrOwner == 2 && (
         <MenuBtn
           onChildClick2={addAdmin}
           action={2}
@@ -95,19 +162,19 @@ const MenuImg = (props: Props) => {
           str="add admin"
         />
       )}
-      {props.isGroup && props.isAdmin && (
+      {props.isGroup && props.isOwner && isAdminOrOwner == 1 && (
         <MenuBtn
-          action={3}
+          onChildClick22={removeAdmin}
+          action={22}
           ifMute={true}
-          str="kick out"
+          str="remove admin"
         />
       )}
       {props.isGroup && props.isAdmin && (
-        <MenuBtn
-          action={4}
-          ifMute={true}
-          str="Ban"
-        />
+        <MenuBtn onChildClick3={kickOut} action={3} ifMute={true} str="kick out" />
+      )}
+      {props.isGroup && props.isAdmin && (
+        <MenuBtn onChildClick4={banUser} action={4} ifMute={true} str="Ban" />
       )}
     </div>
   );

@@ -19,6 +19,7 @@ export class ChatService {
     password: string,
     status: number,
   ) {
+    console.log('pass', password)
     const salt = await bcrypt.genSalt();
     const hash =
       status == 3 && password && password.length
@@ -119,7 +120,7 @@ export class ChatService {
     });
   }
 
-  async kick(userId: number, targetId: number, chatId: number, mute: boolean) {
+  async kick(userId: number, targetId: number, chatId: number) {
     if (targetId == userId)
       throw new BadRequestException('cant kick your self');
     const chat = await prisma.userChat.delete({
@@ -132,7 +133,7 @@ export class ChatService {
     });
   }
 
-  async ban(targetId: number, chatId: number, mute: boolean) {
+  async ban(targetId: number, chatId: number) {
     await prisma.userChat.update({
       where: {
         userId_chatId: {
@@ -147,25 +148,26 @@ export class ChatService {
   }
 
   async promote(userId: number, targetId: number, chatId: number) {
-    console.log(userId, '[]', typeof userId)
+    console.log(userId, '[]', typeof userId);
     const userChat = await prisma.userChat.findFirst({
       where: {
-          userId: userId,
-          chatId: chatId,
+        userId: userId,
+        chatId: chatId,
       },
     });
     if (!userChat || userChat.role == 'User')
-      throw new UnauthorizedException('user have wrong permissions or not in group')
+      throw new UnauthorizedException(
+        'user have wrong permissions or not in group',
+      );
 
     const targetChat = await prisma.userChat.findFirst({
-        where: {
-            userId: targetId,
-            chatId: chatId,
-        },
+      where: {
+        userId: targetId,
+        chatId: chatId,
+      },
     });
 
-    if (!targetChat)
-      throw new UnauthorizedException('target not in group')
+    if (!targetChat) throw new UnauthorizedException('target not in group');
 
     await prisma.userChat.update({
       where: {
@@ -176,6 +178,41 @@ export class ChatService {
       },
       data: {
         role: 'Admin',
+      },
+    });
+  }
+
+  async denote(userId: number, targetId: number, chatId: number) {
+    console.log(userId, '[]', typeof userId);
+    const userChat = await prisma.userChat.findFirst({
+      where: {
+        userId: userId,
+        chatId: chatId,
+      },
+    });
+    if (!userChat || userChat.role != 'Owner')
+      throw new UnauthorizedException(
+        'user have wrong permissions or not in group',
+      );
+
+    const targetChat = await prisma.userChat.findFirst({
+      where: {
+        userId: targetId,
+        chatId: chatId,
+      },
+    });
+
+    if (!targetChat) throw new UnauthorizedException('target not in group');
+
+    await prisma.userChat.update({
+      where: {
+        userId_chatId: {
+          userId: targetId,
+          chatId: chatId,
+        },
+      },
+      data: {
+        role: 'User',
       },
     });
   }
@@ -256,9 +293,10 @@ export class ChatService {
     if (group.status == 'Private')
       throw new UnauthorizedException('group is private');
     if (group.status == 'Protected') {
-      const unhashed = bcrypt.compare(password, group.password, () => {
-        throw new UnauthorizedException('wrong password to joing group');
-      });
+      const match = await bcrypt.compare(password, group.password);
+      console.log(password, '...', group.password, '...', match)
+      if (!match)
+          throw new UnauthorizedException('wrong password to joing group');
     }
     await prisma.userChat.create({
       data: {
@@ -510,15 +548,17 @@ export class ChatService {
     const chat = await prisma.userChat.findFirst({
       where: {
         userId: userId,
-        chatId: chatId
+        chatId: chatId,
       },
       select: {
-        role: true
-      }
-    })
-    return chat.role
+        role: true,
+        isBanned: true,
+      },
+    });
+    if (!chat || chat.isBanned) return null;
+    return chat.role;
   }
-  async searchGroups(keyword: string) {
+  async searchGroups(userId: number, keyword: string) {
     const matches = await prisma.chat.findMany({
       where: {
         name: {
@@ -535,9 +575,25 @@ export class ChatService {
         ],
       },
       select: {
+        users: {
+          select: {
+            userId: true,
+          },
+        },
+        id: true,
         name: true,
+        status: true,
       },
     });
-    return matches;
+    let filtered = matches.filter((m) => {
+      const is = m.users.some((user) => user.userId === userId);
+      return !is;
+    });
+    const jsonF = filtered.map((match) => ({
+      id: match.id,
+      name: match.name,
+      isProtected: match.status == 'Protected',
+    }));
+    return jsonF;
   }
 }
