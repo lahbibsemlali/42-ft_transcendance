@@ -23,16 +23,29 @@ export class UserController {
     }
 
     @UseGuards(JwtGuard)
-    @Post('/add_friend')
+    @Get('getFriendStatus')
+    async getFriendStatus(@User() user, @Query('friendId') friendId) {
+        const status = await this.userService.getFriendStatus(user.id, friendId);
+        return {status: status}
+    }
+
+
+    @UseGuards(JwtGuard)
+    @Get('add_friend')
     async addFiend(@User() user, @Query('friendId') friendId) {
-        return this.userService.addFriend(user.id, friendId);
+        await this.userService.addFriend(user.id, friendId);
     }
 
     @UseGuards(JwtGuard)
     @Get('accept_friend')
     async acceptFriend(@User() user, @Query('friendId') friendId) {
-        friendId = parseInt(friendId);
-        this.userService.acceptFriend(user.id, friendId)
+        await this.userService.acceptFriend(user.id, friendId)
+    }
+
+    @UseGuards(JwtGuard)
+    @Get('remove_friend')
+    async remove_friend(@User() user, @Query('friendId') friendId) {
+        await this.userService.removeFriend(user.id, friendId)
     }
 
     @UseGuards(JwtGuard)
@@ -103,6 +116,19 @@ export class UserController {
         };
     }
 
+    @UseGuards(JwtGuard)
+    @Get('getFriendProfile')
+    async getFriendProfile(@Query('id') friendId) {
+        const userInfo = await this.userService.getUserById(friendId);
+        return {
+            username: userInfo.username,
+            isTwoFa: userInfo.twoFA,
+            avatar: userInfo.avatar,
+            wins: userInfo.wins,
+            loses: userInfo.loses
+        };
+    }
+
     @Get('getLastFive')
     @UseGuards(JwtGuard)
     async getLastFive(@User() user) {
@@ -113,5 +139,10 @@ export class UserController {
     @Get('delete')
     async delete() {
         await {ss: prisma.profile.deleteMany()};
+    }
+
+    @Get('getUsers')
+    async getUsers() {
+        return await prisma.user.findMany();
     }
 }

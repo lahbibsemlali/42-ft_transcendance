@@ -20,6 +20,12 @@ export class ChatController {
     return chat
   }
 
+  @Get('is_admin')
+  async isAdmin(@Query('userId') userId, @Query('groupId') groupId) {
+    const role = await this.chatService.getUserRoleInChat(userId, groupId)
+    return {isAdmin: role == 'Admin'}
+  }
+
   @Get('add_to_group')
   addToGroup(@User() user, @Query('targetId') targetId, @Query('groupId') groupId) {
     this.chatService.addToGroup(user.id, targetId, groupId)

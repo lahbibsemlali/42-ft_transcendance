@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { join } from 'path';
 import * as bcrypt from 'bcrypt';
@@ -26,6 +26,101 @@ export class ChatService {
       }
     })
   }
+  async removeGroup(userId: string, groupId: number) {
+    const group = await prisma.chat.delete({
+      where: {
+        id: groupId
+      }
+    })
+  }
+
+  async changePass(userId: string, groupId: number, password: string) {
+    const userChat = await prisma.userChat.findFirst({
+      where: {
+        userId: userId,
+        chatId: groupId
+      }
+    })
+    if (!userChat)
+      throw new UnauthorizedException('user not in group')
+    if (userChat.role != 'Owner' && userChat.role != 'Admin')
+      throw new UnauthorizedException('user is neither Owner or Admin in this group')
+    const group = await prisma.chat.findFirst({
+      where: {
+        id: groupId
+      }
+    })
+    if (!group || group.status != 'Protected' || password || password.length < 5 )
+      throw new InternalServerErrorException('something wrong')
+    const salt = await bcrypt.genSalt()
+    const hash = await bcrypt.hash(password, salt)
+    await prisma.chat.update({
+      where: {
+        id: groupId
+      },
+      data: {
+        password: hash
+      }
+    })
+  }
+
+  async removePass(userId: string, groupId: number, password: string) {
+    const userChat = await prisma.userChat.findFirst({
+      where: {
+        userId: userId,
+        chatId: groupId
+      }
+    })
+    if (!userChat)
+      throw new UnauthorizedException('user not in group')
+    if (userChat.role != 'Owner' && userChat.role != 'Admin')
+      throw new UnauthorizedException('user is neither Owner or Admin in this group')
+    const group = await prisma.chat.findFirst({
+      where: {
+        id: groupId
+      }
+    })
+    if (!group || group.status != 'Protected' || password || password.length < 5 )
+      throw new InternalServerErrorException('something wrong')
+    await prisma.chat.update({
+      where: {
+        id: groupId
+      },
+      data: {
+        status: 'Public',
+        password: null
+      }
+    })
+  }
+
+  // async mute(userId: string, groupId: number, time: number) {
+  //   const userChat = await prisma.userChat.findFirst({
+  //     where: {
+  //       userId: userId,
+  //       chatId: groupId
+  //     }
+  //   })
+  //   if (!userChat)
+  //     throw new UnauthorizedException('user not in group')
+  //   if (userChat.role != 'Owner' && userChat.role != 'Admin')
+  //     throw new UnauthorizedException('user is neither Owner or Admin in this group')
+  //   const group = await prisma.chat.findFirst({
+  //     where: {
+  //       id: groupId
+  //     }
+  //   })
+  //   if (!group || group.status != 'Protected' || password || password.length < 5 )
+  //     throw new InternalServerErrorException('something wrong')
+  //   await prisma.chat.update({
+  //     where: {
+  //       id: groupId
+  //     },
+  //     data: {
+  //       status: 'Public',
+  //       password: null
+  //     }
+  //   })
+  // }  
 
   async addToGroup(userId: string, targetId: string, groupId: number) {
     const group = await prisma.chat.findFirst({
@@ -112,6 +207,19 @@ export class ChatService {
     }))
     return neededForm
   }
+
+  async getUserRoleInChat(userId: string, chatId: number) {
+    const chat = await prisma.userChat.findFirst({
+      where: {
+        userId: userId,
+        chatId: chatId
+      },
+      select: {
+        role: true
+      }
+    })
+    return chat.role
+  } 
 
   async getChat(userId: string) {
     const chat = await prisma.userChat.findMany({

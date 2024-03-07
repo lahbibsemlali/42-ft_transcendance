@@ -1,0 +1,32 @@
+
+.status{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 300px;
+    height: 80px;
+    margin: 15px;
+    margin-left: 50px;
+    border-radius: 9px;
+    border: 3px solid #2190E2;
+    background-color: #1C6CA7;
+    position: relative;
+}
+
+.statusAvatar{
+    position: absolute;
+    left: 3%;
+    width: 70px;
+    height: 70px;
+    border-radius: 5px;
+    background-color: aliceblue;
+}
+
+.statusAvatarTwo{
+    position: absolute;
+    right: 3%;
+    width: 70px;
+    height: 70px;
+    border-radius: 5px;
+    background-color: aliceblue;
+}

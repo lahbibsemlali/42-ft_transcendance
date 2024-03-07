@@ -1,0 +1,16 @@
+.Home {
+    /* height: calc(100vh - 5rem);
+    margin: 2.5rem; */
+    background-image: linear-gradient(
+        /* #07264F,
+        #07264F */
+        url("/something.png")
+      );
+    /* background-size: cover;
+    background-position: center;
+    padding: 2.5rem 5rem; */
+  }
+
+h1 {
+  text-align: center;
+}

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient;
@@ -135,11 +135,13 @@ export class UserService {
             throw new UnauthorizedException("no such user or friend")
         const friendship = await prisma.friendship.findFirst({
             where: {
-                friend1Id: userProfile.userId,
-                friend2Id: friendProfile.userId,
                 OR: [{
-                    friend1Id: friendProfile.userId,
-                    friend2Id: userProfile.userId
+                    friend1Id: userId,
+                    friend2Id: friendId,
+                },
+                {
+                    friend1Id: friendId,
+                    friend2Id: userId
                 }]
             }
         })
@@ -152,11 +154,43 @@ export class UserService {
                     friend2Id: friendId
                 }
             })
-
-            return 201
         }
+    }
+
+    async getFriendStatus(userId: string, friendId: string) {
+        const userProfile = await prisma.profile.findFirst({
+            where: {
+                userId: userId
+            }
+        })
+        const friendProfile = await prisma.profile.findFirst({
+            where: {
+                userId: friendId
+            }
+        })
+        if (!userProfile || !friendProfile)
+            throw new UnauthorizedException("no such user or friend")
+        const friendship = await prisma.friendship.findFirst({
+            where: {
+                OR: [{
+                    friend1Id: userId,
+                    friend2Id: friendId,
+                },
+                {
+                    friend1Id: friendId,
+                    friend2Id: userId
+                }]
+            }
+        })
+        console.log(friendship)
+        if (!friendship)
+            return 0
+        else if (friendship.status == 'Pending' && friendship.friend1Id == userId)
+            return 1
+        else if (friendship.status == 'Pending')
+            return 2
         else
-            return 200
+            return 3
     }
 
     async getUserName(userId: string) {
@@ -230,6 +264,32 @@ export class UserService {
         this.createDm(user, friend)
     }
 
+    async removeFriend(userId: string, friendId: string) {
+
+        console.log("------------------------------", typeof userId, typeof friendId)
+        const friendship = await prisma.friendship.findFirst({
+            where: {
+                OR: [
+                    {
+                        friend1Id: userId,
+                        friend2Id: friendId
+                    },
+                    {
+                        friend2Id: userId,
+                        friend1Id: friendId
+                    }
+                ],
+            }
+        })
+        if (!friendship)
+            throw new BadRequestException('no such friendship')
+        await prisma.friendship.delete({
+            where: {
+                id: friendship.id
+            }
+        })
+    }
+
     async setTwoFaSecrete(userId: string, secrete: string) {
         const user = await prisma.profile.findFirst({
             where: {
@@ -284,8 +344,8 @@ export class UserService {
     }
 
     async setResult(userId: string, result: number, oppId: string, opResult: number) {
-        const me = await this.getUserById(oppId);
-        const opp = await this.getUserById(userId);
+        const me = await this.getUserById(userId);
+        const opp = await this.getUserById(oppId);
         await prisma.profile.update({
             where: {
                 userId: userId

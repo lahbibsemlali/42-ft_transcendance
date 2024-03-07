@@ -8,6 +8,7 @@ import SettingsPage from "./components/SettingsPage/SettingsPage";
 import Twofa from "./components/Twofa/Twofa";
 import NotFound from "./components/NotFound/NotFound";
 import FriendsList from "./components/FriendsList/FriendsList";
+import Profile from "./components/Profile/Profile";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/Settings" element={<SettingsPage />} />
           <Route path="/Auth" element={<Twofa />} />
           <Route path="/Friends" element={<FriendsList />} />
+          <Route path="/Profile/:id" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

@@ -74,6 +74,8 @@ model Friendship {
   status    friendStatus @default(Pending)
   friend1   User         @relation(name: "send", fields: [friend1Id], references: [id])
   friend2   User         @relation(name: "receive", fields: [friend2Id], references: [id])
+
+  @@unique([friend1Id, friend2Id])
 }
 
 model Chat {
@@ -96,7 +98,7 @@ model userRole {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   chatId    Int
-  chat      Chat     @relation(fields: [chatId], references: [id])
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Restrict)
   role      Role     @default(User)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -108,7 +110,7 @@ model UserChat {
   user      User     @relation(fields: [userId], references: [id])
 
   chatId    Int
-  chat      Chat     @relation(fields: [chatId], references: [id])
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Restrict)
   
   dmName      String?
   dmImage     String?
@@ -126,6 +128,6 @@ model Message {
   createdAt DateTime @default(now())
   sender    User     @relation(fields: [senderId], references: [id])
   senderId  String
-  chat      Chat     @relation(fields: [chatId], references: [id])
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Restrict)
   chatId    Int
 }
