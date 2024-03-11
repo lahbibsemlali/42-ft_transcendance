@@ -18,6 +18,7 @@
     border-left: 3px solid #2190E2;
     color: white;
     position: relative;
+    align-items: center;
 }
 
 
@@ -35,13 +36,19 @@ h1{
 } 
 
 .more{
-    margin-left: 300px;
+    /* margin-left: 300px; */
+}
+
+.username { 
+    position: absolute;
+    top: 32%;
+    color: yellow;
 }
 
 .avatar{
     position: absolute;
-    top: 5%;
-    left: 10%;
+    top: 12%;
+    /* left: 10%; */
     width: 150px;
     height: 150px;
     border-radius: 20px;

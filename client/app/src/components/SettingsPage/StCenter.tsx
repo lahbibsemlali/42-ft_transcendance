@@ -3,8 +3,7 @@ import styles from "./SettingsPage.module.css";
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Qr from './Qr';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import toast from 'react-hot-toast';
 
 const StCenter = () => {
     let [avatarUrl, setAvatarUrl] = useState('')
@@ -14,6 +13,8 @@ const StCenter = () => {
     let [twoFa, setTwoFa] = useState(false)
     let [changed, setChanged] = useState(false)
     let [error, setError] = useState(false)
+
+    const notify = (msg: string) => toast.error(msg);
 
     useEffect(() => {
       let fetcher = async () => {
@@ -74,8 +75,9 @@ const StCenter = () => {
         setLabel(username)
         setUsername(() => '')
 
-      } catch (err) {
+      } catch (err: any) {
         setError(true)
+        notify(err.response.data.message)
         console.log(err)
       }
     }
@@ -106,9 +108,7 @@ const StCenter = () => {
       }
     }
     
-    const notify = () => toast("data updated successfuly!");
     const updateInfo = async () => {
-      notify();
       console.log(avatar)
       if (username.length)
         await changeUsername(username)

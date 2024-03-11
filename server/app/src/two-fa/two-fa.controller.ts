@@ -56,7 +56,6 @@ export class TwoFaController {
       isTwoFaEnabled: true
     }
     const jwtToken = await this.authService.generateJwtToken(payload)
-    console.log('serial ===', jwtToken)
     return ({jwtToken: jwtToken})
   }
 }

@@ -7,46 +7,76 @@ const socket = socketIOClient(ENDPOINT, { transports: ["websocket"] });
 import { useEffect } from "react";
 import GeneratMsg from "./GeneratMsg";
 import axios from "axios";
+import Cookies from "js-cookie";
 
 type Props = {
-  id: string;
+  id: number;
+  isAdmin: boolean;
+  isOwner: boolean;
+  isGroup: boolean;
+  isProtected: boolean;
+  isMuted: boolean;
+  NewGroupCreated: () => void;
+  // toAdd: string;
+  setID: (param: number) => void;
+
+  modalAddUser: () => void;
+  // groupRemoved: () => void;
 };
-// type
 
 const ChatMsg = (props: Props) => {
   const [openmenu, setOpenMenu] = useState(false);
-  // const [MsgGenerated, setMsgGenerated] = useState<ReactElement | null>(null);
-  const [MsgGenerated, setMsgGenerated] = useState<React.ReactElement<any, string | React.JSXElementConstructor<any>>[] | null>(null);
+  const [newMsg, setnewMsg] = useState(false);
+  const [MsgGenerated, setMsgGenerated] = useState<
+    React.ReactElement<any, string | React.JSXElementConstructor<any>>[] | null
+  >(null);
 
-  
+  socket.on("send msg", () => {
+    if (newMsg)
+      setnewMsg(false);
+    else
+      setnewMsg(true);
+  });
+
   useEffect(() => {
-    console.log("re fetch data");
-    setMsgGenerated(null);
+    const mytoken = Cookies.get("jwt") || "";
+    console.log("re fetch data", props.id);
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://stapi.co/api/v2/rest/spacecraft/search"
+          `http://${
+            import.meta.env.VITE_DOMAIN
+          }:8000/api/chat/get_messages?chatId=${props.id}`,
+          {
+            headers: {
+              Authorization: `bearer ${mytoken}`,
+            },
+          }
         );
-        // const LIstMsg =
-        const spacecrafts = response.data.spacecrafts;
+        const spacecrafts = response.data;
         const LIstMsg = spacecrafts.map((spacecraft: any) => (
           <GeneratMsg
-            isAdmin={true}
-            idClient={21212}
-            idChat={212121}
-            urlImg="https://cdn.intra.42.fr/users/bc6d13d354c50b832542b18db4a7d7ba/lsemlali.jpg"
-            msg={spacecraft.name}
+          isOwner={props.isOwner}
+            isMuted={spacecraft.isMutted}
+            isGroup={props.isGroup}
+            isMe={spacecraft.isMe}
+            isAdmin={props.isAdmin}
+            idClient={spacecraft.userId}
+            idChat={props.id}
+            urlImg={spacecraft.avatar}
+            msg={spacecraft.content}
           />
         ));
         setMsgGenerated(LIstMsg);
-      } catch (error) {}
+      } catch (error) {
+        console.log(error);
+      }
     };
-
     fetchData();
-  }, [props.id]);
+  }, [props.id, newMsg]);
 
   useEffect(() => {
-    socket.emit("join to this chat room", props.id);
+    socket.emit("join to this chat room", props.id.toString());
   }, [props.id]);
 
   function openMenu() {
@@ -68,20 +98,7 @@ const ChatMsg = (props: Props) => {
     if (inputRef.current) {
       inputRef.current.value = "";
     }
-    console.log(inputValue);
-    let MsgGeneratedTmp = MsgGenerated;
-    const newMsg = (
-      <GeneratMsg
-            isAdmin={true}
-            idClient={888888}
-            idChat={212121}
-            urlImg="https://cdn.intra.42.fr/users/bc6d13d354c50b832542b18db4a7d7ba/lsemlali.jpg"
-            msg={inputValue || ""}
-          />
-    );
-
-    const updatedMsgs = MsgGeneratedTmp ? [...MsgGeneratedTmp, newMsg] : [newMsg];
-  setMsgGenerated(updatedMsgs);
+    socket.emit("send msg", inputValue, props.id);
   };
 
   return (
@@ -89,14 +106,27 @@ const ChatMsg = (props: Props) => {
       <div className="chat-msg">
         <div>
           <button className="option-btn" onClick={openMenu}>
-            {!openmenu && (
+            {!openmenu && props.isGroup && (
               <i className="fa-solid fa-square-caret-down threedot"></i>
             )}
-            {openmenu && (
+            {openmenu && props.isGroup && (
               <i className="fa-solid fa-rectangle-xmark threedot"></i>
             )}
           </button>
-          {openmenu && <DropdownMenu ifAdmin={true} wichMenu={3} />}
+          {openmenu && (
+            <DropdownMenu
+              setID={props.setID}
+              modalAddUser={props.modalAddUser}
+              // toAdd={props.toAdd}
+              openMenu={openMenu}
+              NewGroupCreated={props.NewGroupCreated}
+              isMuted={props.isMuted}
+              id={props.id}
+              isAdmin={props.isAdmin}
+              isGroup={props.isGroup}
+              isProtected={props.isProtected}
+            />
+          )}
         </div>
         <div id="chatContainer" className="scrollmsg">
           {MsgGenerated}

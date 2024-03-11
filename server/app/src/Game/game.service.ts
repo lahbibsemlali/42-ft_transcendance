@@ -16,7 +16,7 @@ export class GameService {
   constructor(private userService: UserService) {
     this.nRooms = 0;
   }
-  
+
   getHello(): string {
     return 'Hello from ExampleService!';
   }
@@ -43,7 +43,7 @@ export class GameService {
     if (this.nRooms > 0 && this.nRooms % 2) --this.nRooms;
   }
 
-  setMyMap(key: string, toSet: number): void {
+  setMyMap(key: number, toSet: number): void {
     this.scoorMap.set(key, toSet);
   }
 
@@ -54,8 +54,8 @@ export class GameService {
   setCLientsMap() {
     this.clientsMap.set(this.players[0], this.players[1]);
     this.clientsMap.set(this.players[1], this.players[0]);
-    console.log("players[0]", this.players[0]);
-    console.log("players[1]", this.players[1]);
+    // console.log("players[0]", this.players[0]);
+    // console.log("players[1]", this.players[1]);
   }
 
   getCLientsMap(id: string) {
@@ -70,7 +70,7 @@ export class GameService {
     return this.myRooms.get(key);
   }
 
-  deleteScoor(key: string) {
+  deleteScoor(key: number) {
     this.scoorMap.delete(key);
   }
 
@@ -78,24 +78,32 @@ export class GameService {
     this.myRooms.delete(key);
   }
 
-  saveResult(key: string, result: number): void {
+  saveResult(key: number, result: number): void {
     // console.log(key, result);
     this.setMyMap(key, result);
   }
 
-  async isPlaying(userId: string) {
+  async isPlaying(userId: number) {
     const user = await this.userService.getUserById(userId);
     return user.inGame;
   }
 
-  async setResult(userId: string) {
-    
+  async setResult(userId: number) {
     // console.log("resule ", userId, this.scoorMap.get(userId));
-    console.log(userId, this.scoorMap.get(userId), this.clientsMap.get(userId), this.scoorMap.get(this.clientsMap.get(userId)));
     await this.userService.setResult(userId, this.scoorMap.get(userId), this.clientsMap.get(userId), this.scoorMap.get(this.clientsMap.get(userId)));
   }
 
-  async updateStatus(userId: string, state: boolean) {
+  async updateStatus(userId: number, state: boolean) {
     await this.userService.updateGameState(userId, state);
   }
+
+
+
+
+
+
+
+
+
+  
 }

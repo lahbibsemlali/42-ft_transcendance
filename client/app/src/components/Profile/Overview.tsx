@@ -4,20 +4,25 @@ import axios from "axios"
 import Cookies from "js-cookie"
 const backend = `http://${import.meta.env.VITE_DOMAIN}:8000/api`
 
-function Overview(prop: any){
+function Overview({prop}: any){
     const [wins, setWins] = useState(0)
     const [loses, setLoses] = useState(0)
 
     useEffect(() => {
         const fetcher = async () => {
-            const res = await axios(`${backend}/user/getFriendProfile?id=${prop}`, {
-                headers: {
-                    Authorization: `bearer ${Cookies.get('jwt')}`
-                }
-            })
-            console.log(res.data, '====')
-            setWins(res.data.wins)
-            setLoses(res.data.loses)
+            try {
+                const res = await axios(`${backend}/user/getFriendProfile?id=${prop}`, {
+                    headers: {
+                        Authorization: `bearer ${Cookies.get('jwt')}`
+                    }
+                })
+                console.log(res.data, '====')
+                setWins(res.data.wins)
+                setLoses(res.data.loses)
+            }
+            catch (err) {
+                console.log('err is : ', err)
+            }
         }
         fetcher()
     }, [])

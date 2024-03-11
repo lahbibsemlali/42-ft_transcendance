@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards, Query, ParseIntPipe, Put } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UseInterceptors } from '@nestjs/common';
 import { diskStorage } from 'multer';
@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { PrismaClient } from '@prisma/client';
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { User } from './user.decorator';
+import createUserDto from './createUserDto';
 
 const prisma = new PrismaClient
 
@@ -16,36 +17,48 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Get('search')
-    async search(@Query('keyword') keyword) {
+    async search(@Query('keyword') {username}: createUserDto) {
         return { 
-            matches: await this.userService.searchUser(keyword)
+            matches: await this.userService.searchUser(username)
         }
     }
 
     @UseGuards(JwtGuard)
     @Get('getFriendStatus')
-    async getFriendStatus(@User() user, @Query('friendId') friendId) {
-        const status = await this.userService.getFriendStatus(user.id, friendId);
+    async getFriendStatus(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+        const status = await this.userService.getFriendStatus(user.id, id);
         return {status: status}
     }
 
 
     @UseGuards(JwtGuard)
     @Get('add_friend')
-    async addFiend(@User() user, @Query('friendId') friendId) {
-        await this.userService.addFriend(user.id, friendId);
+    async addFiend(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+        await this.userService.addFriend(user.id, id);
     }
 
     @UseGuards(JwtGuard)
     @Get('accept_friend')
-    async acceptFriend(@User() user, @Query('friendId') friendId) {
-        await this.userService.acceptFriend(user.id, friendId)
+    async acceptFriend(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+        await this.userService.acceptFriend(user.id, id)
     }
 
     @UseGuards(JwtGuard)
     @Get('remove_friend')
-    async remove_friend(@User() user, @Query('friendId') friendId) {
-        await this.userService.removeFriend(user.id, friendId)
+    async remove_friend(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+        await this.userService.removeFriend(user.id, id)
+    }
+
+    @UseGuards(JwtGuard)
+    @Put('block')
+    block(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+      this.userService.block(user.id, id);
+    }
+
+    @UseGuards(JwtGuard)
+    @Put('unBlock')
+    unBlock(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+      this.userService.unBlock(user.id, id);
     }
 
     @UseGuards(JwtGuard)
@@ -91,7 +104,7 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Post('updateUsername')
-    async updateUsername(@User() user, @Body('username') username) {
+    async updateUsername(@User() user, @Body('username') {username}: createUserDto) {
         console.log(username)
         return this.userService.updateUsername(user.id, username);
     }
@@ -118,8 +131,10 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Get('getFriendProfile')
-    async getFriendProfile(@Query('id') friendId) {
-        const userInfo = await this.userService.getUserById(friendId);
+    async getFriendProfile(@Query('id', ParseIntPipe) {id}: createUserDto) {
+        console.log('--------', id)
+        const userInfo = await this.userService.getUserById(id);
+        console.log('frinedId', userInfo)
         return {
             username: userInfo.username,
             isTwoFa: userInfo.twoFA,
@@ -135,6 +150,12 @@ export class UserController {
       return {lastFive: await this.userService.getLastFive(user.id)}
     }
 
+    @Get('getUserLastFive')
+    @UseGuards(JwtGuard)
+    async getUserLastFive(@Query('userId', ParseIntPipe) {id}: createUserDto) {
+      return {lastFive: await this.userService.getLastFive(id)}
+    }
+
     @UseGuards(JwtGuard)
     @Get('delete')
     async delete() {
@@ -144,5 +165,33 @@ export class UserController {
     @Get('getUsers')
     async getUsers() {
         return await prisma.user.findMany();
+    }
+    // ////////////////////////////////////////////////////////////////////////
+
+    @Get('getFriendList')
+    @UseGuards(JwtGuard)
+    async getFriendList(@User() user) {
+        const friends = await this.userService.getUserFriends(user.id)
+        return {friends: friends}
+    }
+
+    @Get('getBlockedFriends')
+    @UseGuards(JwtGuard)
+    async getBlockedFriends(@User() user) {
+        const friends = await this.userService.getBlockedFriends(user.id)
+        return {blocked: friends}
+    }
+
+    @Get('getFriendRequests')
+    @UseGuards(JwtGuard)
+    async getFriendRequests(@User() user) {
+        const requests = await this.userService.getUserFriendRequests(user.id)
+        return {requests: requests}
+    }
+
+    @Get('deleteAll')
+    async deleteAllUsers() {
+        const users = await prisma.user.deleteMany();
+        return users
     }
 }

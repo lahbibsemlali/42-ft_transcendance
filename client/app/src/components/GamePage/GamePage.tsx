@@ -21,11 +21,14 @@ const mytoken = Cookies.get("jwt") || "";
 
 const CheckAuth = async () => {
   try {
-    const res = await axios.get(`http://${import.meta.env.VITE_DOMAIN}:8000/api/auth/checkToken`, {
-      headers: {
-        Authorization: `bearer ${mytoken}`,
-      },
-    });
+    const res = await axios.get(
+      `http://${import.meta.env.VITE_DOMAIN}:8000/api/auth/checkToken`,
+      {
+        headers: {
+          Authorization: `bearer ${mytoken}`,
+        },
+      }
+    );
     if (res.status === 200) return true;
   } catch (error) {
     return false;
@@ -34,15 +37,16 @@ const CheckAuth = async () => {
 // false
 const GetUSerId = async () => {
   try {
-    const res = await axios.get(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getUserId`, {
-      headers: {
-        Authorization: `bearer ${mytoken}`,
-      },
-    });
-    console.log('type is : ', typeof res.data)
-    return res.data.userId;
+    const res = await axios.get(
+      `http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getUserId`,
+      {
+        headers: {
+          Authorization: `bearer ${mytoken}`,
+        },
+      }
+    );
+    return res.data;
   } catch (error) {}
-  return null;
 };
 
 function sketch(p5: P5CanvasInstance) {
@@ -71,26 +75,30 @@ function sketch(p5: P5CanvasInstance) {
 
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden && startGmae && ifGuest) {
-      // is game over
-      socket.emit("is Game Over");
-      socket.emit("please change my ball position");
+    //   // is game over
+    //   socket.emit("is Game Over");
+    //   socket.emit("please change my ball position");
+      socket.emit("back");
     }
-    socket.emit("this is my visibility", document.hidden);
+    if (document.hidden && startGmae && ifGuest)
+      socket.emit("exit");
+
+    // socket.emit("this is my visibility", document.hidden); // emit game over
     // ifHidden = document.hidden;
   });
 
   socket.on("please give me your ball position", () => {
     // if (bool != player && ifGuest) {
-      socket.emit("updateBallPosition", {
-        x: myball.x,
-        y: myball.y,
-        speedX: myball.xSpeed,
-        speedY: myball.ySpeed,
-        w: p5.width,
-        h: p5.height,
-        sp1: scoreP1,
-        sp2: scoreP2,
-      });
+    socket.emit("updateBallPosition", {
+      x: myball.x,
+      y: myball.y,
+      speedX: myball.xSpeed,
+      speedY: myball.ySpeed,
+      w: p5.width,
+      h: p5.height,
+      sp1: scoreP1,
+      sp2: scoreP2,
+    });
     // }
   });
 
@@ -110,7 +118,7 @@ function sketch(p5: P5CanvasInstance) {
   let downPaddle: Paddle;
   let textBtn = "START GAME";
   let ifGuest: boolean;
-  let userId: string;
+  let userId: number;
 
   let textfont: any;
 
@@ -333,6 +341,7 @@ function sketch(p5: P5CanvasInstance) {
     }
 
     update() {
+      console.log(this.x - this.mywidth / 2);
       if (this.isUp) this.y = this.myheight;
       else this.y = p5.height - (p5.height * 20) / 652.4;
       this.x = (p5.width * this.x) / this.ds;
@@ -411,14 +420,11 @@ function sketch(p5: P5CanvasInstance) {
         this.x = p5.width / 2;
         this.y = p5.height / 2;
         if (!player && ifGuest) {
-          // socket.emit("isVisible");
           if (!ifHidden2) socket.emit("please change my ball position");
           else scoreP2++;
         }
         if (player) scoreP2++;
         if (tmpScore != scoreP2) socket.emit("updateScoor", userId, scoreP2);
-
-        // socket.emit("updateResulte", userId);
       }
       if (this.y + this.mywidth / 2 > downPaddle.y + 3) {
         const tmpScore = scoreP1;
@@ -443,6 +449,11 @@ function sketch(p5: P5CanvasInstance) {
       ) {
         this.ySpeed *= -1;
       }
+
+      if (!player && this.y > p5.height / 2)
+        socket.emit("please change my ball position");
+      else if (player && this.y < p5.height / 2)
+        socket.emit("please change my ball position");
 
       this.oldHeight = p5.height;
       this.oldWidth = p5.width;

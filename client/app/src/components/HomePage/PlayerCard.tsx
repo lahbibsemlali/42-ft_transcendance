@@ -8,7 +8,7 @@ const backend = `http://${import.meta.env.VITE_DOMAIN}:8000/api`
 
 function PlayerCard() {
   const [image, setImage] = useState('')
-  // const [image, setImage] = useState('')
+  const [username, setUsername] = useState('')
   // const [image, setImage] = useState('')
 
   useEffect(() => {
@@ -19,15 +19,17 @@ function PlayerCard() {
         }
       })
       setImage(res.data.avatar)
+      setUsername(res.data.username)
     }
     fetcher()
   }, [])
   return (
     <div className={styles.Player}>
-      <h1 className={styles.more}>Player Card</h1>
+      <h1>Player Card</h1>
       <img src={image} alt="Player's avatar" className={styles.avatar} />
+      <h1 className={styles.username}>{username}</h1>
       <Overview />
-      <h2 className={styles.playText}>New Game </h2>
+      {/* <h2 className={styles.playText}>New Game </h2> */}
       <Play />
     </div>
   );

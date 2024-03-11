@@ -1,23 +1,83 @@
 import React from "react";
 import MenuBtn from "./MenuBtn";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 type DropWownProps = {
-  wichMenu: number;
-  ifAdmin: boolean;
+  id: number;
+  isGroup: boolean;
+  isAdmin: boolean;
+  isProtected: boolean;
+  isMuted: boolean;
+  NewGroupCreated: () => void;
+  openMenu: () => void;
+  modalAddUser: () => void;
+  setID: (param: number) => void;
+
+  // toAdd: string;
+  // groupRemoved: () => void;
 };
 
 const DropdownMenu: React.FC<DropWownProps> = ({
-  wichMenu,
-  ifAdmin,
+  isGroup,
+  isAdmin,
+  isProtected,
+  id,
+  isMuted,
+  NewGroupCreated,
+  openMenu,
+  modalAddUser,
+  setID,
+  // toAdd,
 }) => {
+
+  const RemoveGroup = async  () => {
+    const mytoken = Cookies.get("jwt") || "";
+    await axios.delete(`http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/remove_group?groupId=${id}`,
+    {
+      headers: {
+        Authorization: `bearer ${mytoken}`,
+      }});
+      NewGroupCreated();
+  };
+
+  const AddUser = async  () => {
+    setID(id);
+    modalAddUser();
+    openMenu();
+  };
+
+  const leaveGroup = async () => {
+    const mytoken = Cookies.get("jwt") || "";
+    try {
+      
+      await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/leave_group?groupId=${id}`,
+      {
+        headers: {
+          Authorization: `bearer ${mytoken}`,
+        }});
+      } catch (error) {
+        console.log(error)
+      }
+    openMenu();
+    NewGroupCreated();
+
+  };
+
+
   return (
+    <>
+      {/* <div id="myModal" className="modal">
+        <div className="modal-content"></div>
+      </div> */}
     <div className="dropdown-content">
-      {wichMenu == 1 && <MenuBtn str="Mute" />}
-      {wichMenu == 2 || wichMenu == 3 && <MenuBtn str="Leave group" />}
-      {wichMenu == 2 || wichMenu == 3 && <MenuBtn str="Add friend" />}
-      {wichMenu == 3 && ifAdmin && <MenuBtn str="change password" />}
-      {wichMenu == 3 && ifAdmin && <MenuBtn str="remove password" />}
+      {isGroup && !isAdmin && <MenuBtn onChildClick5={leaveGroup} action={5} str="Leave group" />}
+      {isGroup && isAdmin && <MenuBtn onChildClick6={AddUser} action={6} str="Add User" />}
+      {isGroup && isAdmin && <MenuBtn onChildClick7={RemoveGroup} action={7} str="Remove Group" />}
+      {isGroup && isAdmin && isProtected && <MenuBtn action={8} str="change password" />}
+      {isGroup && isAdmin && isProtected && <MenuBtn action={9} str="remove password" />}
     </div>
+    </>
   );
 };
 

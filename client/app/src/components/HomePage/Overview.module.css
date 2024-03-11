@@ -4,7 +4,7 @@
 }
 
 .smallbox {
-  display: flex;
+  /* display: flex; */
   flex-direction: column;
   height: 60px;
   margin: 50px;
@@ -12,7 +12,7 @@
   border-top: 8px solid #2190e2;
   border-bottom: 8px solid #2190e2;
   /* border-left: 8px solid #2190E2; */
-  margin-top: 140px;
+  margin-top: 230px;
   position: relative;
 }
 
@@ -34,7 +34,7 @@
   color: green;
   font-size: xx-large;
   position: absolute;
-  right: 17%;
+  right: 25%;
   bottom: 15%;
   /* font-family: simo; */
 }
@@ -43,7 +43,7 @@
   color: red;
   font-size: xx-large;
   position: absolute;
-  left: 17%;
+  left: 25%;
   bottom: 15%;
   /* font-family: simo; */
 }
@@ -51,7 +51,7 @@
 .textL {
   font-size: xx-large;
   position: absolute;
-  left: 10%;
+  left: 13%;
   bottom: 40%;
   color: red;
   /* font-family: simo; */
@@ -60,7 +60,7 @@
 .textW {
   font-size: xx-large;
   position: absolute;
-  right: 15%;
+  right: 19%;
   bottom: 40%;
   color: green;
   /* font-family: simo; */

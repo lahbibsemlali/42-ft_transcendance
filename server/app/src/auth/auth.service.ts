@@ -7,7 +7,6 @@ const prisma = new PrismaClient
 export class AuthService {
     async generateJwtToken(payload: any, isTwoFa = false) {
         payload.isTwoFaAuthenticated = isTwoFa;
-        console.log('this is payload', payload)
         const token = jwt.sign(payload, process.env.JWT_SECRETE, {expiresIn: "1h"})
         return token;
     }

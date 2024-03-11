@@ -6,12 +6,12 @@ import GameStatus from "./GameStatus";
 import Styles from "./LastGames.module.css";
 const backend = `http://${import.meta.env.VITE_DOMAIN}:8000/api`
 
-function LastGames(prop: any) {
+function LastGames({prop}: {prop: any}) {
   const [lastFive, setLastFive] = useState<{}>([])
 
   useEffect(() => {
     const fetcher = async () => {
-      const res = await axios(`${backend}/user/getFriendProfile?id=${prop}`, {
+      const res = await axios(`${backend}/user/getUserLastFive?userId=${prop}`, {
         headers: {
                 Authorization: `bearer ${Cookies.get('jwt')}`
             }

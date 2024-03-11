@@ -2,17 +2,17 @@ import { useState } from "react";
 import MenuImg from "./MenuImg";
 
 type Props = {
+  isOwner: boolean;
   isAdmin: boolean;
   idClient: number;
   idChat: number;
   urlImg: string;
   msg: string;
+  isGroup: boolean;
+  isMuted: boolean;
 };
 
 const LeftMsg = (props: Props) => {
-
-  // isAdmin = true; // to be remove
-
   const [menuClicked, setMenuClicked] = useState(false);
 
   const imgClicked = () => {
@@ -23,12 +23,19 @@ const LeftMsg = (props: Props) => {
   return (
     <div className="leftmsg">
       <div className="div-wrapper">
-        <img
-          onClick={imgClicked}
-          src={props.urlImg}
-        />
+        <img onClick={imgClicked} src={props.urlImg} />
       </div>
-      {menuClicked && props.isAdmin && <MenuImg idClient={props.idClient} idChat={props.idChat} />}
+      {menuClicked && (
+        <MenuImg
+        isOwner={props.isOwner}
+          imgClicked={imgClicked}
+          isMuted={props.isMuted}
+          isGroup={props.isGroup}
+          isAdmin={props.isAdmin}
+          idClient={props.idClient}
+          idChat={props.idChat}
+        />
+      )}
       <div className="contentleft">{props.msg}</div>
     </div>
   );

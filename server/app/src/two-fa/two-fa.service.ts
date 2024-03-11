@@ -10,7 +10,7 @@ import * as OTPAuth from 'otpauth';
 export class TwoFaService {
     constructor(private userService: UserService) {}
 
-    async generateTwoFaSecrete(userId: string) {
+    async generateTwoFaSecrete(userId: number) {
         const secrete = authenticator.generateSecret();
         console.log('secrete', secrete)
         const username = (await this.userService.getUserById(userId)).username
@@ -26,7 +26,7 @@ export class TwoFaService {
         return url
     }
 
-    async isTwoFaValid(token: string, userId: string) {
+    async isTwoFaValid(token: string, userId: number) {
         const user = await this.userService.getUserById(userId)
         const secrete = user.twoFASecrete;
         console.log('secrete', token)
@@ -43,7 +43,7 @@ export class TwoFaService {
         return isValid
     }
 
-    async turnTwoFaOn(userId: string) {
+    async turnTwoFaOn(userId: number) {
         this.userService.turnOnUserTwoFa(userId)
     }
 }

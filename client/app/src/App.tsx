@@ -7,8 +7,9 @@ import ChatPage from "./components/ChatPage/ChatPage";
 import SettingsPage from "./components/SettingsPage/SettingsPage";
 import Twofa from "./components/Twofa/Twofa";
 import NotFound from "./components/NotFound/NotFound";
-import FriendsList from "./components/FriendsList/FriendsList";
 import Profile from "./components/Profile/Profile";
+import Friends from "./components/Friends/Friends";
+import FriendsList from "./components/Friends/FriendsList";
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
           <Route path="/Chat" element={<ChatPage />} />
           <Route path="/Settings" element={<SettingsPage />} />
           <Route path="/Auth" element={<Twofa />} />
-          <Route path="/Friends" element={<FriendsList />} />
+          <Route path="/friends" element={<FriendsList />} />
           <Route path="/Profile/:id" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

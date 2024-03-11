@@ -4,13 +4,13 @@ import App from "./App.tsx";
 import "./index.css";
 import "./assets/all.min.css";
 import Authorization from "./components/Authorization/Authorization.tsx";
-import { ToastContainer, toast } from 'react-toastify';
+import { Toaster } from 'react-hot-toast';
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   // <React.StrictMode>
   <Authorization>
   <App />
-  <ToastContainer />
+  <Toaster />
   </Authorization>
   // </React.StrictMode>,
 );

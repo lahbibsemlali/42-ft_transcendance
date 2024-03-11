@@ -1,11 +1,11 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient;
 
 @Injectable()
 export class UserService {
-    async getUserById(userId: string) {
+    async getUserById(userId: number) {
         try {
             const user = await prisma.profile.findFirst({
                 where: {
@@ -13,7 +13,7 @@ export class UserService {
                 }
             })
             if (!user)
-                throw new UnauthorizedException('no such user')
+                throw new NotFoundException('no such user')
             return user
         }
         catch (err) {
@@ -21,37 +21,33 @@ export class UserService {
         }
     }
 
-    async createUserProfile(userId: string, username: string, imageLink: string) {
-        const user = await prisma.user.create({
-            data: {
-                id: userId
-            }
-        })
+    async createUserProfile(username: string, email: string, imageLink: string) {
+        const user = await prisma.user.create({data: {}})
         const profile = await prisma.profile.create({
             data: {
                 userId: user.id,
                 username: username,
+                email: email,
                 avatar: imageLink
             }
         })
         return profile
     }
-    async loginOrRegister(userData: {id: string, username: string, imageLink: string}) {
+
+    async loginOrRegister(userData: {id: string, username: string, email: string, imageLink: string}) {
         const profile = await prisma.profile.findFirst({
             where: {
-              userId: userData.id,
+              email: userData.email,
             },
         });
-        if (profile) {
-            console.log("founded >>...")
+        if (profile)
             return {id: profile.userId, isTwoFaEnabled: false}
-        }
         else {
-            const profile = await this.createUserProfile(userData.id, userData.username, userData.imageLink)
+            const profile = await this.createUserProfile(userData.username, userData.email, userData.imageLink)
             return {id: profile.userId, isTwoFaEnabled: false}
         }
     }
-    async updateAvatar(userId: string, location: string) {
+    async updateAvatar(userId: number, location: string) {
         const user = await prisma.profile.findFirst({
             where: {
               userId: userId,
@@ -72,16 +68,20 @@ export class UserService {
             return {status: 404, message: "user not found"};
         }
     }
-
-    async updateUsername(userId: string, username: string) {
+  
+    async updateUsername(userId: number, username: string) {
+        const validUsername: RegExp = /^[0-9A-Za-z]{6,16}$/;
+        if (!validUsername.test(username))
+            throw new BadRequestException('Username must be between 6 and 16 characters, alphanumeric only')
         const user = await prisma.profile.findFirst({
             where: {
               userId: userId,
+              username: username
             },
         });
-        console.log(await prisma.profile.findMany())
-        console.log(user.username, "to new username :: ", username)
-        if (user) {
+        if (user)
+            throw new BadRequestException('username not disponsible')
+        else {
             await prisma.profile.update({
                 where: {
                     userId: userId
@@ -90,14 +90,10 @@ export class UserService {
                     username: username
                 }
             })
-            return {status: 201, message: "username has changed successfully"}
-        }
-        else {
-            return {status: 404, message: "user not found"};
         }
     }
     
-    async updateTwoFa(userId: string, twoFa: boolean) {
+    async updateTwoFa(userId: number, twoFa: boolean) {
         const user = await prisma.profile.findFirst({
             where: {
               userId: userId,
@@ -120,7 +116,7 @@ export class UserService {
         }
     }
 
-    async addFriend(userId: string, friendId: string) {
+    async addFriend(userId: number, friendId: number) {
         const userProfile = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -157,7 +153,7 @@ export class UserService {
         }
     }
 
-    async getFriendStatus(userId: string, friendId: string) {
+    async getFriendStatus(userId: number, friendId: number) {
         const userProfile = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -193,7 +189,7 @@ export class UserService {
             return 3
     }
 
-    async getUserName(userId: string) {
+    async getUserName(userId: number) {
         const name = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -232,7 +228,119 @@ export class UserService {
         })
       }
     
-    async acceptFriend(userId: string, friendId: string) {
+    async getUserFriends(userId: number) {
+        const friendship = await prisma.friendship.findMany({
+            where: {
+                OR: [
+                    {
+                        friend1Id: userId,
+                    },
+                    {
+                        friend2Id: userId,
+                    }
+                ],
+                AND: {
+                    status: 'Accepted'
+                }
+            },
+            select: {
+                friend1Id: true,
+                friend2Id: true,
+                friend1: {
+                    select: {
+                        profile: {
+                            select: {
+                                username: true,
+                                avatar: true
+                            }
+                        }
+                    }
+                },
+                friend2: {
+                    select: {
+                        profile: {
+                            select: {
+                                username: true,
+                                avatar: true
+                            }
+                        }
+                    }
+                },
+            }
+        })
+        console.log(friendship)
+        if (!friendship)
+            throw new NotFoundException('no friends')
+        const friends = friendship.map((friend) => ({
+            id: friend.friend1Id != userId ? friend.friend1Id : friend.friend2Id,
+            username: friend.friend1Id != userId ? friend.friend1.profile.username : friend.friend2.profile.username,
+            avatar: friend.friend1Id != userId ? friend.friend1.profile.avatar : friend.friend2.profile.avatar
+        }))
+        return friends
+    }
+
+    async getUserFriendRequests(userId: number) {
+        const friendship = await prisma.friendship.findMany({
+            where: {
+                friend2Id: userId,
+                status: 'Pending'
+            },
+            select: {
+                friend1Id: true,
+                friend1: {
+                    select: {
+                        profile: {
+                            select: {
+                                username: true,
+                                avatar: true
+                            }
+                        }
+                    }
+                },
+            }
+        })
+        console.log(friendship)
+        if (!friendship)
+            throw new NotFoundException('no friends')
+        const requests = friendship.map((friend) => ({
+            id: friend.friend1Id,
+            username: friend.friend1.profile.username,
+            avatar: friend.friend1.profile.avatar
+        }))
+        return requests
+    }
+
+    async getBlockedFriends(userId: number) {
+        const friendship = await prisma.user.findFirst({
+            where: {
+                id: userId,
+            },
+            select: {
+                blocked: {
+                    select: {
+                        id: true,
+                        profile: {
+                            select: {
+                                username: true,
+                                avatar: true
+                            }
+                        }
+                    }
+                },
+            }
+        })
+        if (!friendship)
+        throw new NotFoundException('no friends')
+        const requests = friendship.blocked.map((friend) => ({
+            id: friend.id,
+            username: friend.profile.username,
+            avatar: friend.profile.avatar
+        }))
+        console.log(requests, "////")
+        return requests
+    }
+
+    async acceptFriend(userId: number, friendId: number) {
 
         console.log("------------------------------", userId, friendId)
         const friendship = await prisma.friendship.findFirst({
@@ -264,7 +372,7 @@ export class UserService {
         this.createDm(user, friend)
     }
 
-    async removeFriend(userId: string, friendId: string) {
+    async removeFriend(userId: number, friendId: number) {
 
         console.log("------------------------------", typeof userId, typeof friendId)
         const friendship = await prisma.friendship.findFirst({
@@ -290,7 +398,54 @@ export class UserService {
         })
     }
 
-    async setTwoFaSecrete(userId: string, secrete: string) {
+    async block(userId: number, targetId: number) {
+        console.log(userId, '________', targetId)
+        await prisma.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                blocked: {
+                    connect: [{ id: targetId }],
+                },
+            },
+        });
+        await prisma.user.update({
+            where: {
+                id: targetId,
+            },
+            data: {
+                blockedBy: {
+                    connect: [{ id: userId }],
+                },
+            },
+        });
+    }
+
+    async unBlock(userId: number, targetId: number) {
+        await prisma.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                blocked: {
+                    disconnect: [{ id: targetId }],
+                },
+            },
+        });
+        await prisma.user.update({
+            where: {
+                id: targetId,
+            },
+            data: {
+                blockedBy: {
+                    disconnect: [{ id: userId }],
+                },
+            },
+        });
+    }
+
+    async setTwoFaSecrete(userId: number, secrete: string) {
         const user = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -308,7 +463,7 @@ export class UserService {
         })
         return {status: 201, message: "2fa is set successfully"}
     }
-    async turnOnUserTwoFa(userId: string) {
+    async turnOnUserTwoFa(userId: number) {
         const user = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -343,7 +498,7 @@ export class UserService {
         return matches
     }
 
-    async setResult(userId: string, result: number, oppId: string, opResult: number) {
+    async setResult(userId: number, result: number, oppId: number, opResult: number) {
         const me = await this.getUserById(userId);
         const opp = await this.getUserById(oppId);
         await prisma.profile.update({
@@ -368,34 +523,34 @@ export class UserService {
         })
     }
 
-
-    async getLastFive(userId: string) {
-    const lastFive = await prisma.profile.findFirst({
-        where: {
-            userId: userId
-        },
-        select: {
-            lastFive: {
-                select: {
-                    pic1: true,
-                    pic2: true,
-                    result: true
-                },
-                orderBy: {
-                    createdAt: 'desc'
+    async getLastFive(userId: number) {
+        const lastFive = await prisma.profile.findFirst({
+            where: {
+                userId: userId
+            },
+            select: {
+                lastFive: {
+                    select: {
+                        pic1: true,
+                        pic2: true,
+                        result: true
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
                 }
             }
-        }
-        
-    })
-    return lastFive.lastFive
+            
+        })
+        if (!lastFive)
+            throw new NotFoundException('user not found')
+        return lastFive.lastFive
     }
 
-
-    async updateGameState(id: string, state: boolean) {
+    async updateGameState(userId: number, state: boolean) {
         await prisma.profile.update({
             where: {
-                userId: id
+                userId: userId
             },
             data: {
                 inGame: state

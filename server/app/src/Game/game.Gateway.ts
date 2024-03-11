@@ -8,14 +8,16 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
+import { ChatService } from 'src/chat/chat.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/guards/jwt.guard';
 
+@UseGuards(JwtGuard)
 @WebSocketGateway()
 export class GameGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly gameService: GameService) {}
+  constructor(private readonly gameService: GameService, private readonly chatservice: ChatService) {}
   @WebSocketServer() server: Server;
 
   private ball = {
@@ -42,7 +44,7 @@ export class GameGateway
   handleDisconnect(client: Socket) {}
 
   @SubscribeMessage('waiting')
-  async handleWaitingEvent(client: Socket, idUser: string) {
+  async handleWaitingEvent(client: Socket, idUser: number) {
     await this.gameService.updateStatus(idUser, false);
 
     let roomArray;
@@ -54,9 +56,9 @@ export class GameGateway
       roomArray = Array.from(client.rooms);
       this.gameService.setRoomsMap(client.id, roomArray[roomArray.length - 1]);
       if (this.gameService.getNRooms() % 2 != 0)
-        this.gameService.players[0] = idUser;
+        this.gameService.players[0] = client.id;
       if (this.gameService.getNRooms() % 2 == 0) {
-        this.gameService.players[1] = idUser;
+        this.gameService.players[1] = client.id;
         //set clients map
         this.gameService.setCLientsMap();
         this.server.to(roomArray[1]).emit('startgame');
@@ -130,12 +132,12 @@ export class GameGateway
   }
 
   @SubscribeMessage('updateResulte') // game over
-  async getResulte(client: Socket, userId: string) {
-    await this.gameService.setResult(userId);
+  async getResulte(client: Socket, userId: number) {
     this.gameService.deleteCLientsMap(
       this.gameService.getCLientsMap(client.id),
     );
     this.gameService.deleteCLientsMap(client.id);
+    await this.gameService.setResult(userId);
     await this.gameService.updateStatus(userId, false);
     client.leave(this.gameService.getRoomName(client.id));
     this.gameService.deleteRoomName(client.id);
@@ -165,20 +167,34 @@ export class GameGateway
   isGameOver(client: Socket, data: number) {
     console.log('is Game Over');
     if (this.gameService.getCLientsMap(client.id) === undefined) {
-      // console.log("YES");
       this.server.to(client.id).emit('Game Over');
     }
   }
 
+  @SubscribeMessage('exit')
+  GameOver(client: Socket, data: number) {
+    client.to(this.gameService.getRoomName(client.id)).emit('winer');
+  }
 
-
-  
-
-
+  @SubscribeMessage('back')
+  GameOverlos(client: Socket, data: number) {
+    this.server.to(client.id).emit('Game Over');
+  }
 
   /////////////// CHAT EVENTS
   @SubscribeMessage('join to this chat room')
   joinToRoom(client: Socket, id: string) {
-    console.log(id);
+    client.join(id)
+  }
+
+  @SubscribeMessage('send msg')
+  sendMsg(client: Socket, data) {
+    let nameRoom = data[1];
+    // const isMUtted = await this.chatservice.isBlocked(client['user'].id, nameRoom)
+    // if (!isMUtted)
+    console.log(data[0])
+      this.chatservice.createMessage(client['user'].id, data[1], data[0]);
+    console.log("data[1]", data[0]);
+    this.server.to(nameRoom.toString()).emit('send msg');
   }
 }
