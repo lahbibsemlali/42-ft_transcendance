@@ -11,13 +11,16 @@ function LastGames({prop}: {prop: any}) {
 
   useEffect(() => {
     const fetcher = async () => {
-      const res = await axios(`${backend}/user/getUserLastFive?userId=${prop}`, {
-        headers: {
-                Authorization: `bearer ${Cookies.get('jwt')}`
-            }
-        })
-        console.log(res.data, '====')
-        setLastFive(() => res.data.lastFive)
+      try {
+        const res = await axios(`${backend}/user/getUserLastFive?id=${prop}`, {
+          headers: {
+                  Authorization: `bearer ${Cookies.get('jwt')}`
+              }
+          })
+          setLastFive(() => res.data.lastFive)
+      } catch (err) {
+        console.log(prop, 'last err', err.response.data.message)
+      }
     }
     fetcher()
 }, [])

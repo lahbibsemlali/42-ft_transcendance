@@ -70,9 +70,10 @@ export class UserService {
     }
   
     async updateUsername(userId: number, username: string) {
-        const validUsername: RegExp = /^[0-9A-Za-z]{6,16}$/;
-        if (!validUsername.test(username))
-            throw new BadRequestException('Username must be between 6 and 16 characters, alphanumeric only')
+        // const validUsername: RegExp = /^[0-9A-Za-z]{6,16}$/;
+        // console.log(validUsername.test(username))
+        // if (!validUsername.test(username))
+        //     throw new BadRequestException('Username must be between 6 and 16 characters, alphanumeric only')
         const user = await prisma.profile.findFirst({
             where: {
               userId: userId,

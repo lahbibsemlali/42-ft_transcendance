@@ -12,7 +12,6 @@ const StCenter = () => {
     let [label, setLabel] = useState('')
     let [twoFa, setTwoFa] = useState(false)
     let [changed, setChanged] = useState(false)
-    let [error, setError] = useState(false)
 
     const notify = (msg: string) => toast.error(msg);
 
@@ -76,9 +75,8 @@ const StCenter = () => {
         setUsername(() => '')
 
       } catch (err: any) {
-        setError(true)
+        console.log('hola error: ', err.response.data)
         notify(err.response.data.message)
-        console.log(err)
       }
     }
   
@@ -148,7 +146,7 @@ const StCenter = () => {
         <input placeholder={label} type="text" className={styles.Sbox_input1} onChange={stateUsername} value={username}/>
         <h1> TWO FACTOR AUTHENTICATION </h1>
         <input className={styles.toggle} type="checkbox" onChange={stateTwoFa} checked={twoFa}/>
-        <button className={styles.Sbox_button2} onClick={updateInfo}> UPDATE </button>
+        <button className={styles.Sbox_button2} type='button' onClick={updateInfo}> UPDATE </button>
     </>
     )
 }

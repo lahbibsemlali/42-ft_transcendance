@@ -10,16 +10,15 @@ function AddFriend({prop}: {prop: string}){
     useEffect(() => {
       const fetcher = async () => {
         try {
-            const res = await axios(`${backend}/user/getFriendStatus?friendId=${prop}`, {
+            const res = await axios(`${backend}/user/getFriendStatus?id=${prop}`, {
               headers: {
                 Authorization: `bearer ${Cookies.get('jwt')}`
               }
             })
-            console.log(res.data)
             setStatus(res.data.status)
           }
           catch (err) {
-            console.error(prop)
+            console.error(err.response.data.message)
           }
       }
       fetcher()

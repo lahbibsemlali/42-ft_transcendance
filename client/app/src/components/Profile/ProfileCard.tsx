@@ -22,12 +22,11 @@ function ProfileCard({prop}: {prop: any}) {
         setUsername(res.data.username)
       }
       catch (err) {
-        console.log('error', err)
+        console.log('error profile', err.response.data.message)
       }
     }
     fetcher()
   }, [])
-  console.log('profile is ', image)
   return (
     <div className={styles.Player}>
       <h1 className={styles.more}>Player Card</h1>

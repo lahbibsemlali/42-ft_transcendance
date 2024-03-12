@@ -11,13 +11,17 @@ function Achievement({prop}: {prop: any}){
 
     useEffect(() => {
         const fetcher = async () => {
-            const res = await axios(`${backend}/user/getFriendProfile?id=${prop}`, {
-                headers: {
-                    Authorization: `bearer ${Cookies.get('jwt')}`
-                }
-            })
-            console.log(res.data, '====')
-            setWins(res.data.wins)
+            try {
+                const res = await axios(`${backend}/user/getFriendProfile?id=${prop}`, {
+                    headers: {
+                        Authorization: `bearer ${Cookies.get('jwt')}`
+                    }
+                })
+                setWins(res.data.wins)
+            }
+            catch (err) {
+                console.log('ach err is ', err.response.data.message)
+            }
         }
         fetcher()
     }, [])

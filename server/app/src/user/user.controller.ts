@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards, Query, ParseIntPipe, Put } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards, Query, ParseIntPipe, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UseInterceptors } from '@nestjs/common';
 import { diskStorage } from 'multer';
@@ -7,7 +7,7 @@ import { UserService } from './user.service';
 import { PrismaClient } from '@prisma/client';
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { User } from './user.decorator';
-import createUserDto from './createUserDto';
+import UsernameDto from './dtos/usernameDto';
 
 const prisma = new PrismaClient
 
@@ -17,15 +17,15 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Get('search')
-    async search(@Query('keyword') {username}: createUserDto) {
+    async search(@Query() usernameDto: UsernameDto) {
         return { 
-            matches: await this.userService.searchUser(username)
+            matches: await this.userService.searchUser(usernameDto.username)
         }
     }
 
     @UseGuards(JwtGuard)
     @Get('getFriendStatus')
-    async getFriendStatus(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+    async getFriendStatus(@User() user, @Query('id', ParseIntPipe) id: number) {
         const status = await this.userService.getFriendStatus(user.id, id);
         return {status: status}
     }
@@ -33,31 +33,31 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Get('add_friend')
-    async addFiend(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+    async addFiend(@User() user, @Query('id', ParseIntPipe) id: number) {
         await this.userService.addFriend(user.id, id);
     }
 
     @UseGuards(JwtGuard)
     @Get('accept_friend')
-    async acceptFriend(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+    async acceptFriend(@User() user, @Query('id', ParseIntPipe) id: number) {
         await this.userService.acceptFriend(user.id, id)
     }
 
     @UseGuards(JwtGuard)
     @Get('remove_friend')
-    async remove_friend(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+    async remove_friend(@User() user, @Query('id', ParseIntPipe) id: number) {
         await this.userService.removeFriend(user.id, id)
     }
 
     @UseGuards(JwtGuard)
     @Put('block')
-    block(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+    block(@User() user, @Query('id', ParseIntPipe) id: number) {
       this.userService.block(user.id, id);
     }
 
     @UseGuards(JwtGuard)
     @Put('unBlock')
-    unBlock(@User() user, @Query('friendId', ParseIntPipe) {id}: createUserDto) {
+    unBlock(@User() user, @Query('id', ParseIntPipe) id: number) {
       this.userService.unBlock(user.id, id);
     }
 
@@ -104,15 +104,15 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Post('updateUsername')
-    async updateUsername(@User() user, @Body('username') {username}: createUserDto) {
-        console.log(username)
-        return this.userService.updateUsername(user.id, username);
+    async updateUsername(@User() user, @Body() usernameDto: UsernameDto) {
+        console.log('username is', usernameDto.username)
+        return this.userService.updateUsername(user.id, usernameDto.username);
     }
 
     @UseGuards(JwtGuard)
     @Post('updateTwoFa')
     async updateTwoFa(@User() user, @Body('twoFa') twoFa) {
-        console.log(twoFa)
+        console.log('twofa', twoFa)
         return this.userService.updateTwoFa(user.id, twoFa);
     }
 
@@ -131,8 +131,8 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Get('getFriendProfile')
-    async getFriendProfile(@Query('id', ParseIntPipe) {id}: createUserDto) {
-        console.log('--------', id)
+    async getFriendProfile(@Query('id', ParseIntPipe) id: number) {
+        console.log('--------', typeof id)
         const userInfo = await this.userService.getUserById(id);
         console.log('frinedId', userInfo)
         return {
@@ -152,7 +152,8 @@ export class UserController {
 
     @Get('getUserLastFive')
     @UseGuards(JwtGuard)
-    async getUserLastFive(@Query('userId', ParseIntPipe) {id}: createUserDto) {
+    async getUserLastFive(@Query('id') id: number) {
+        console.log(id, '.......')
       return {lastFive: await this.userService.getLastFive(id)}
     }
 
