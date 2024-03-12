@@ -3,6 +3,7 @@ import styles from "./SettingsPage.module.css";
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import Qr from './Qr';
+import toast from 'react-hot-toast';
 
 const StCenter = () => {
     let [avatarUrl, setAvatarUrl] = useState('')
@@ -11,7 +12,8 @@ const StCenter = () => {
     let [label, setLabel] = useState('')
     let [twoFa, setTwoFa] = useState(false)
     let [changed, setChanged] = useState(false)
-    let [error, setError] = useState(false)
+
+    const notify = (msg: string) => toast.error(msg);
 
     useEffect(() => {
       let fetcher = async () => {
@@ -72,9 +74,9 @@ const StCenter = () => {
         setLabel(username)
         setUsername(() => '')
 
-      } catch (err) {
-        setError(true)
-        console.log(err)
+      } catch (err: any) {
+        console.log('hola error: ', err.response.data)
+        notify(err.response.data.message)
       }
     }
   
@@ -144,7 +146,7 @@ const StCenter = () => {
         <input placeholder={label} type="text" className={styles.Sbox_input1} onChange={stateUsername} value={username}/>
         <h1> TWO FACTOR AUTHENTICATION </h1>
         <input className={styles.toggle} type="checkbox" onChange={stateTwoFa} checked={twoFa}/>
-        <button className={styles.Sbox_button2} onClick={updateInfo}> UPDATE </button>
+        <button className={styles.Sbox_button2} type='button' onClick={updateInfo}> UPDATE </button>
     </>
     )
 }

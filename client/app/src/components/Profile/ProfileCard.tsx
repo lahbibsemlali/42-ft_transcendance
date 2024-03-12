@@ -10,8 +10,6 @@ const backend = `http://${import.meta.env.VITE_DOMAIN}:8000/api`
 function ProfileCard({prop}: {prop: any}) {
   const [image, setImage] = useState('')
   const [username, setUsername] = useState('')
-  // const [image, setImage] = useState('')
-  // const [image, setImage] = useState('')
   useEffect(() => {
     const fetcher = async () => {
       try {
@@ -24,12 +22,11 @@ function ProfileCard({prop}: {prop: any}) {
         setUsername(res.data.username)
       }
       catch (err) {
-        console.log('error', err)
+        console.log('error profile', err.response.data.message)
       }
     }
     fetcher()
   }, [])
-  console.log('profile is ', image)
   return (
     <div className={styles.Player}>
       <h1 className={styles.more}>Player Card</h1>

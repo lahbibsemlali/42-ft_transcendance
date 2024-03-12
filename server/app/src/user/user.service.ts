@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient;
@@ -6,19 +6,14 @@ const prisma = new PrismaClient;
 @Injectable()
 export class UserService {
     async getUserById(userId: number) {
-        try {
-            const user = await prisma.profile.findFirst({
-                where: {
-                    userId: userId,
-                }
-            })
-            if (!user)
-                throw new UnauthorizedException('no such user')
-            return user
-        }
-        catch (err) {
-            console.log('err: ', err)
-        }
+        const user = await prisma.profile.findFirst({
+            where: {
+                userId: userId,
+            }
+        })
+        if (!user)
+            throw new NotFoundException('no such user')
+        return user
     }
 
     async createUserProfile(username: string, email: string, imageLink: string) {
@@ -68,16 +63,21 @@ export class UserService {
             return {status: 404, message: "user not found"};
         }
     }
-
+  
     async updateUsername(userId: number, username: string) {
+        // const validUsername: RegExp = /^[0-9A-Za-z]{6,16}$/;
+        // console.log(validUsername.test(username))
+        // if (!validUsername.test(username))
+        //     throw new BadRequestException('Username must be between 6 and 16 characters, alphanumeric only')
         const user = await prisma.profile.findFirst({
             where: {
               userId: userId,
+              username: username
             },
         });
-        console.log(await prisma.profile.findMany())
-        console.log(user.username, "to new username :: ", username)
-        if (user) {
+        if (user)
+            throw new BadRequestException('username not disponsible')
+        else {
             await prisma.profile.update({
                 where: {
                     userId: userId
@@ -86,10 +86,6 @@ export class UserService {
                     username: username
                 }
             })
-            return {status: 201, message: "username has changed successfully"}
-        }
-        else {
-            return {status: 404, message: "user not found"};
         }
     }
     
@@ -117,6 +113,9 @@ export class UserService {
     }
 
     async addFriend(userId: number, friendId: number) {
+        console.log(await this.checkBlock(userId, friendId))
+        if (await this.checkBlock(userId, friendId))
+            throw new BadRequestException('there is a block between users')
         const userProfile = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -228,9 +227,151 @@ export class UserService {
         })
       }
     
-    async acceptFriend(userId: number, friendId: number) {
+    async getUserFriends(userId: number) {
+        const friendship = await prisma.friendship.findMany({
+            where: {
+                OR: [
+                    {
+                        friend1Id: userId,
+                    },
+                    {
+                        friend2Id: userId,
+                    }
+                ],
+                AND: {
+                    status: 'Accepted'
+                }
+            },
+            select: {
+                friend1Id: true,
+                friend2Id: true,
+                friend1: {
+                    select: {
+                        profile: {
+                            select: {
+                                username: true,
+                                avatar: true
+                            }
+                        }
+                    }
+                },
+                friend2: {
+                    select: {
+                        profile: {
+                            select: {
+                                username: true,
+                                avatar: true
+                            }
+                        }
+                    }
+                },
+            }
+        })
+        console.log(friendship)
+        if (!friendship)
+            throw new NotFoundException('no friends')
+        const friends = friendship.map((friend) => ({
+            id: friend.friend1Id != userId ? friend.friend1Id : friend.friend2Id,
+            username: friend.friend1Id != userId ? friend.friend1.profile.username : friend.friend2.profile.username,
+            avatar: friend.friend1Id != userId ? friend.friend1.profile.avatar : friend.friend2.profile.avatar
+        }))
+        return friends
+    }
 
-        console.log("------------------------------", userId, friendId)
+    async getUserFriendRequests(userId: number) {
+        const friendship = await prisma.friendship.findMany({
+            where: {
+                friend2Id: userId,
+                status: 'Pending'
+            },
+            select: {
+                friend1Id: true,
+                friend1: {
+                    select: {
+                        profile: {
+                            select: {
+                                username: true,
+                                avatar: true
+                            }
+                        }
+                    }
+                },
+            }
+        })
+        console.log(friendship)
+        if (!friendship)
+            throw new NotFoundException('no friends')
+        const requests = friendship.map((friend) => ({
+            id: friend.friend1Id,
+            username: friend.friend1.profile.username,
+            avatar: friend.friend1.profile.avatar
+        }))
+        return requests
+    }
+
+    async getBlockedFriends(userId: number) {
+        const user = await prisma.user.findFirst({
+            where: {
+                id: userId,
+            },
+            select: {
+                blocked: {
+                    select: {
+                        id: true,
+                        profile: {
+                            select: {
+                                username: true,
+                                avatar: true
+                            }
+                        }
+                    }
+                },
+            }
+        })
+        if (!user)
+            throw new NotFoundException('no friends')
+        const blocked = user.blocked.map((friend) => ({
+            id: friend.id,
+            username: friend.profile.username,
+            avatar: friend.profile.avatar
+        }))
+        console.log(user.blocked, "////")
+        return blocked
+    }
+
+    async checkBlock(userId: number, targetId: number) {
+        const user = await prisma.user.findFirst({
+            where: {
+                id: userId,
+            },
+            select: {
+                blocked: {
+                    select: {
+                        id: true
+                    }
+                },
+                blockedBy: {
+                    select: {
+                        id: true
+                    }
+                }
+            }
+        })
+        if (!user)
+            throw new NotFoundException('no user found')
+        const isBlocked = user.blockedBy.find((b) => b.id === targetId)
+        const hasBlocked = user.blocked.find((b) => b.id === targetId)
+        console.log(isBlocked, ',,,', hasBlocked)
+        if (isBlocked)
+            return true
+        else if (hasBlocked)
+            return true
+        return false
+    }
+
+    async acceptFriend(userId: number, friendId: number) {
+        if (this.checkBlock(userId, friendId))
+            throw new BadRequestException('there is a block between users')
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -261,8 +402,6 @@ export class UserService {
     }
 
     async removeFriend(userId: number, friendId: number) {
-
-        console.log("------------------------------", typeof userId, typeof friendId)
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -284,6 +423,74 @@ export class UserService {
                 id: friendship.id
             }
         })
+    }
+
+    async isThereFriendship(userId: number, friendId: number) {
+        const friendship = await prisma.friendship.findFirst({
+            where: {
+                OR: [
+                    {
+                        friend1Id: userId,
+                        friend2Id: friendId
+                    },
+                    {
+                        friend2Id: userId,
+                        friend1Id: friendId
+                    }
+                ],
+            }
+        })
+        if (!friendship)
+            return false
+        return true
+    }
+
+    async block(userId: number, targetId: number) {
+        if (await this.isThereFriendship(userId, targetId))
+            this.removeFriend(userId, targetId)
+        await prisma.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                blocked: {
+                    connect: [{ id: targetId }],
+                },
+            },
+        });
+        await prisma.user.update({
+            where: {
+                id: targetId,
+            },
+            data: {
+                blockedBy: {
+                    connect: [{ id: userId }],
+                },
+            },
+        });
+    }
+
+    async unBlock(userId: number, targetId: number) {
+        await prisma.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                blocked: {
+                    disconnect: [{ id: targetId }],
+                },
+            },
+        });
+        await prisma.user.update({
+            where: {
+                id: targetId,
+            },
+            data: {
+                blockedBy: {
+                    disconnect: [{ id: userId }],
+                },
+            },
+        });
     }
 
     async setTwoFaSecrete(userId: number, secrete: string) {
@@ -364,29 +571,29 @@ export class UserService {
         })
     }
 
-
     async getLastFive(userId: number) {
-    const lastFive = await prisma.profile.findFirst({
-        where: {
-            userId: userId
-        },
-        select: {
-            lastFive: {
-                select: {
-                    pic1: true,
-                    pic2: true,
-                    result: true
-                },
-                orderBy: {
-                    createdAt: 'desc'
+        const lastFive = await prisma.profile.findFirst({
+            where: {
+                userId: userId
+            },
+            select: {
+                lastFive: {
+                    select: {
+                        pic1: true,
+                        pic2: true,
+                        result: true
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
                 }
             }
-        }
-        
-    })
-    return lastFive.lastFive
+            
+        })
+        if (!lastFive)
+            throw new NotFoundException('user not found')
+        return lastFive.lastFive
     }
-
 
     async updateGameState(userId: number, state: boolean) {
         await prisma.profile.update({

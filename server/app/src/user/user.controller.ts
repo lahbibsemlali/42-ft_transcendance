@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards, Query, ParseIntPipe, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UseInterceptors } from '@nestjs/common';
 import { diskStorage } from 'multer';
@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { PrismaClient } from '@prisma/client';
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { User } from './user.decorator';
+import UsernameDto from './dtos/usernameDto';
 
 const prisma = new PrismaClient
 
@@ -16,37 +17,49 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Get('search')
-    async search(@Query('keyword') keyword) {
+    async search(@Query() usernameDto: UsernameDto) {
         return { 
-            matches: await this.userService.searchUser(keyword)
+            matches: await this.userService.searchUser(usernameDto.username)
         }
     }
 
     @UseGuards(JwtGuard)
     @Get('getFriendStatus')
-    async getFriendStatus(@User() user, @Query('friendId') friendId) {
-        const status = await this.userService.getFriendStatus(user.id, friendId);
+    async getFriendStatus(@User() user, @Query('id', ParseIntPipe) id: number) {
+        const status = await this.userService.getFriendStatus(user.id, id);
         return {status: status}
     }
 
 
-    
     @UseGuards(JwtGuard)
     @Get('add_friend')
-    async addFiend(@User() user, @Query('friendId') friendId) {
-        await this.userService.addFriend(user.id, friendId);
+    async addFiend(@User() user, @Query('id', ParseIntPipe) id: number) {
+        console.log(user.id, '0000', id)
+        await this.userService.addFriend(user.id, id);
     }
 
     @UseGuards(JwtGuard)
     @Get('accept_friend')
-    async acceptFriend(@User() user, @Query('friendId') friendId) {
-        await this.userService.acceptFriend(user.id, friendId)
+    async acceptFriend(@User() user, @Query('id', ParseIntPipe) id: number) {
+        await this.userService.acceptFriend(user.id, id)
     }
 
     @UseGuards(JwtGuard)
     @Get('remove_friend')
-    async remove_friend(@User() user, @Query('friendId') friendId) {
-        await this.userService.removeFriend(user.id, friendId)
+    async remove_friend(@User() user, @Query('id', ParseIntPipe) id: number) {
+        await this.userService.removeFriend(user.id, id)
+    }
+
+    @UseGuards(JwtGuard)
+    @Put('block')
+    async block(@User() user, @Query('id', ParseIntPipe) id: number) {
+      await this.userService.block(user.id, id);
+    }
+
+    @UseGuards(JwtGuard)
+    @Put('unBlock')
+    unBlock(@User() user, @Query('id', ParseIntPipe) id: number) {
+      this.userService.unBlock(user.id, id);
     }
 
     @UseGuards(JwtGuard)
@@ -92,15 +105,15 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Post('updateUsername')
-    async updateUsername(@User() user, @Body('username') username) {
-        console.log(username)
-        return this.userService.updateUsername(user.id, username);
+    async updateUsername(@User() user, @Body() usernameDto: UsernameDto) {
+        console.log('username is', usernameDto.username)
+        return this.userService.updateUsername(user.id, usernameDto.username);
     }
 
     @UseGuards(JwtGuard)
     @Post('updateTwoFa')
     async updateTwoFa(@User() user, @Body('twoFa') twoFa) {
-        console.log(twoFa)
+        console.log('twofa', twoFa)
         return this.userService.updateTwoFa(user.id, twoFa);
     }
 
@@ -118,9 +131,20 @@ export class UserController {
     }
 
     @UseGuards(JwtGuard)
+    @Get('isBlocked')
+    async isBlocked(@User() user, @Query('id', ParseIntPipe) id: number) {
+        await this.userService.getUserById(id)
+        if (user.id == id || await this.userService.checkBlock(user.id, id))
+            return {isBlocked: true}
+        return {isBlocked: false}
+    }
+
+    @UseGuards(JwtGuard)
     @Get('getFriendProfile')
-    async getFriendProfile(@Query('id', ParseIntPipe) friendId) {
-        const userInfo = await this.userService.getUserById(friendId);
+    async getFriendProfile(@User() user, @Query('id', ParseIntPipe) id: number) {
+        const userInfo = await this.userService.getUserById(id);
+        if (await this.userService.checkBlock(user.id, id))
+            throw new BadRequestException('user is blocked by target')
         return {
             username: userInfo.username,
             isTwoFa: userInfo.twoFA,
@@ -136,6 +160,13 @@ export class UserController {
       return {lastFive: await this.userService.getLastFive(user.id)}
     }
 
+    @Get('getUserLastFive')
+    @UseGuards(JwtGuard)
+    async getUserLastFive(@Query('id') id: number) {
+        console.log(id, '.......')
+      return {lastFive: await this.userService.getLastFive(id)}
+    }
+
     @UseGuards(JwtGuard)
     @Get('delete')
     async delete() {
@@ -146,21 +177,28 @@ export class UserController {
     async getUsers() {
         return await prisma.user.findMany();
     }
-
     // ////////////////////////////////////////////////////////////////////////
 
-    // @Get('getUserAvatar')
-    // async getUserAvatar(@Query('userId') userId) {
-    //     const userdata = await prisma.profile.findFirst({
-    //         where: {
-    //             userId: userId.parseInt
-    //         },
-    //         select: {
-    //             avatar: true,
-    //         }
-    //     })
-    //     return {image: userdata.avatar}
-    // }
+    @Get('getFriendList')
+    @UseGuards(JwtGuard)
+    async getFriendList(@User() user) {
+        const friends = await this.userService.getUserFriends(user.id)
+        return {friends: friends}
+    }
+
+    @Get('getBlockedFriends')
+    @UseGuards(JwtGuard)
+    async getBlockedFriends(@User() user) {
+        const friends = await this.userService.getBlockedFriends(user.id)
+        return {blocked: friends}
+    }
+
+    @Get('getFriendRequests')
+    @UseGuards(JwtGuard)
+    async getFriendRequests(@User() user) {
+        const requests = await this.userService.getUserFriendRequests(user.id)
+        return {requests: requests}
+    }
 
     @Get('deleteAll')
     async deleteAllUsers() {

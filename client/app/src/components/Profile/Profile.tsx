@@ -5,6 +5,10 @@ import Header from "../Header/Header";
 import styles from "./Profile.module.css";
 import BoxContainer from "./BoxContainer";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import Cookies from "js-cookie";
+import NotFound from "../NotFound/NotFound";
+const backend = `http://${import.meta.env.VITE_DOMAIN}:8000/api`
 
 const Profile = () => {
   const { id } = useParams() 
@@ -16,11 +20,25 @@ const Profile = () => {
   const { check, setCheck } = context;
 
   useEffect(() => {
-    if (check) setCheck(false);
-    else setCheck(true);
+    const fetcher = async () => {
+      try {
+        const res = await axios(`${backend}/user/isBlocked?id=${id}`, {
+          headers: {
+            Authorization: `bearer ${Cookies.get('jwt')}`
+          }
+        })
+        setCheck(res.data.isBlocked)
+      }
+      catch (err) {
+        setCheck(true)
+        console.log('error profile', err.response.data.message)
+      }
+    }
+    fetcher()
   }, []);
 
   if (isLoggedIn == 2) return <LoginPage />;
+  if (check) return <NotFound/>
 
   return (
     <div>

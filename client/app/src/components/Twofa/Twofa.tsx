@@ -1,6 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import styles from "./Twofa.module.css"
+import loginStyle from "../LoginPage/Login.module.css"
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, redirect } from 'react-router-dom';
 
@@ -29,16 +30,15 @@ function Twofa(){
         }
     }
     return (
-        <div className={styles.fo}>
-            {red && <Navigate to="/"/>}
-            <div>
-                <span> Two-Factor Verification </span>
-                <p> Please enter 2FA code </p>
+        <div className={loginStyle.loginBox}>
+            <div className={styles.fo}>
+                {red && <Navigate to="/"/>}
+                <h2> Please enter 2FA code </h2>
+                <div className={styles.codeInput}>
+                <input placeholder="" type="text" maxLength={6} onChange={e => input.current = e.target.value}/>
+                </div>
+                <button className={styles.Pass_verify} onClick={checkToken}>Verify</button>
             </div>
-            <div className={styles.codeInput}>
-            <input placeholder="" type="text" maxLength={6} onChange={e => input.current = e.target.value}/>
-            </div>
-            <button className={styles.Pass_verify} onClick={checkToken}>Verify</button>
         </div>
     );
 }

@@ -9,7 +9,7 @@ function BlockFriend({prop}: {prop: string}){
     // const [image, setImage] = useState('')
     const blockFriend = async () => {
       try {
-        await axios(`${backend}/user/block_friend?friendId=${prop}`, {
+        await axios.put(`${backend}/user/block?id=${prop}`, {}, {
           headers: {
             Authorization: `bearer ${Cookies.get('jwt')}`
           }

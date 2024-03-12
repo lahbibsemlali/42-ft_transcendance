@@ -1,0 +1,209 @@
+.containerList{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;   
+}
+@media (max-width: 768px) {
+    .containerList {
+      flex-direction: column; /* Change to column layout on smaller screens */
+    }
+  }
+.blockBox{
+    display: flex;
+    flex-direction: column;
+    width: 500px;
+    height: 650px;
+    margin: 10px;
+    /* margin: 1px auto 0; */
+    /* margin-left: 100px; */
+    box-sizing: border-box;
+    background-color: #07264F;
+    border-radius: 10px;
+    border: 2px solid #2190E2;
+    border-right: 2px solid #07264F;
+    border-left: 2px solid #07264F;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+.listul{
+    display: flex;
+    flex-direction: column;
+    width: 600px;
+    height: 650px;
+    margin: 10px;
+    /* margin: 1px auto 0; */
+    margin-left: 150px;
+    box-sizing: border-box;
+    background-color: #07264F;
+    border-radius: 10px;
+    border: 2px solid #2190E2;
+    border-right: 2px solid #07264F;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.listul h1, .blockBox h1{
+    text-align: center;
+}
+
+.listul li , .blockBox li{
+    display: flex;
+    justify-content:space-between;
+    align-items:end;
+    background: aliceblue;
+    color: white;
+    padding: 30px;
+    margin: 5px;
+    margin-right: 35px;
+    border-radius: 10px;
+}
+
+/* .listul li:nth-child(3n + 1){
+    background: #023e8a;
+} */
+
+.listul li:nth-child(2n + 1),
+.blockBox li:nth-child(2n + 1){
+    background:   #0096c7;
+}
+
+.listul li:nth-child(2n + 2),
+.blockBox li:nth-child(2n + 2){
+    background: #0077b6;
+}
+
+
+/* .listul li:nth-child(3n + 1){
+    background: #03045e;
+} */
+
+.listul li:hover ,
+.blockBox li:hover{
+    transform: scale(1.08);
+}
+
+.listul li span,
+.blockBox li span{
+    font-family: simo;
+    /* font-family: sans-serif; */
+    font-size: x-large;
+}
+
+.friendImg{
+    width: 50px;
+    height: 50px;
+    border-radius: 7px;
+    background-color: antiquewhite;
+}
+
+.requestBox{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 500px;
+    height: 650px;
+    margin: 10px;
+    /* margin-left: 10px; */
+    box-sizing: border-box;
+    background-color: #07264F;
+    border-radius: 10px;
+    border: 2px solid #2190E2;
+    border-left: 2px solid #07264F;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.containerList p{
+    text-align: center;
+    margin: 100px;
+    font-size: large;
+    color:aqua;
+}
+
+.listul button, .blockBox button{
+    font-family: simo;
+    color: white;
+    background-color: #FF004D;
+    width: 80px;
+    height: 50px;
+    border-radius: 7px;
+    border-color: transparent;
+}
+
+.requestBox li{
+    display: flex;
+    justify-content:space-between;
+    /* align-items:end; */
+    background: aliceblue;
+    position: relative;
+    color: white;
+    width: 400px;
+    height: 150px;
+    margin: 5px;
+    margin-right: 30px;
+    border-radius: 10px;
+    background-color: #0077b6;
+}
+.requestBox li img{
+    width: 100px;
+    height: 100px;
+    background-color: antiquewhite;
+    margin: 5px;
+}
+
+.requestBox li span{
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    font-size: large;
+}
+
+
+.buttonAccept{
+    /* position: absolute; */
+    font-family: simo;
+    font-size:medium;
+    color: white;
+    margin: 40px;
+    width: 100px;
+    height: 50px;
+    background-color: green;
+    border-radius: 7px;
+    border-color: transparent;
+}
+
+.buttonIgnore{
+    font-family: simo;
+    font-size: medium;
+    color: white;
+    margin: 40px;
+    margin-left: 10px;
+    width: 100px;
+    height: 50px;
+    background-color:#FF004D;
+    border-radius: 7px;
+    border-color: transparent;
+}
+
+.buttonIgnore:hover {
+    color: #ffffff;
+    background: red;
+    border: 1px solid #00e1ff;
+    box-shadow: 0 0 5px #00e1ff,
+                0 0 20px #00e1ff,
+                0 0 50px #00e1ff,
+                0 0 100px #00e1ff;
+}
+
+.buttonAccept:hover {
+    color: #ffffff;
+    background: green;
+    border: 1px solid #00e1ff;
+    box-shadow: 0 0 5px #00e1ff,
+                0 0 20px #00e1ff,
+                0 0 50px #00e1ff,
+                0 0 100px #00e1ff;
+}
+
