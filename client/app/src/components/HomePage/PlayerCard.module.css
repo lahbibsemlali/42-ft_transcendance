@@ -7,7 +7,8 @@
 
 
  .Player{
-    flex: 1 1 200px;
+    display: flex;
+    flex-direction: column;
     background-color: #07264F;
     height: 700px;
     width: 600px;
@@ -35,7 +36,7 @@ h1{
 } 
 
 .more{
-    margin-left: 300px;
+    /* margin-left: 300px; */
 }
 
 .username { 
@@ -43,7 +44,6 @@ h1{
     top: 32%;
     color: yellow;
 }
-
 
 .avatar{
     position: absolute;

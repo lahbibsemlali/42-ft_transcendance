@@ -6,19 +6,14 @@ const prisma = new PrismaClient;
 @Injectable()
 export class UserService {
     async getUserById(userId: number) {
-        try {
-            const user = await prisma.profile.findFirst({
-                where: {
-                    userId: userId,
-                }
-            })
-            if (!user)
-                throw new NotFoundException('no such user')
-            return user
-        }
-        catch (err) {
-            console.log('err: ', err)
-        }
+        const user = await prisma.profile.findFirst({
+            where: {
+                userId: userId,
+            }
+        })
+        if (!user)
+            throw new NotFoundException('no such user')
+        return user
     }
 
     async createUserProfile(username: string, email: string, imageLink: string) {
@@ -312,7 +307,7 @@ export class UserService {
     }
 
     async getBlockedFriends(userId: number) {
-        const friendship = await prisma.user.findFirst({
+        const user = await prisma.user.findFirst({
             where: {
                 id: userId,
             },
@@ -330,20 +325,37 @@ export class UserService {
                 },
             }
         })
-        if (!friendship)
-        throw new NotFoundException('no friends')
-        const requests = friendship.blocked.map((friend) => ({
+        if (!user)
+            throw new NotFoundException('no friends')
+        const blocked = user.blocked.map((friend) => ({
             id: friend.id,
             username: friend.profile.username,
             avatar: friend.profile.avatar
         }))
-        console.log(requests, "////")
-        return requests
+        console.log(user.blocked, "////")
+        return blocked
+    }
+
+    async checkIfBlckedBy(userId: number, targetId: number) {
+        const user = await prisma.user.findFirst({
+            where: {
+                id: userId,
+            },
+            select: {
+                blockedBy: {
+                    select: {
+                        id: true
+                    }
+                },
+            }
+        })
+        if (!user)
+            throw new NotFoundException('no user found')
+        const isBlockedBy = user.blockedBy.find((b) => b.id === targetId)
+        return isBlockedBy
     }
 
     async acceptFriend(userId: number, friendId: number) {
-
-        console.log("------------------------------", userId, friendId)
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -374,8 +386,6 @@ export class UserService {
     }
 
     async removeFriend(userId: number, friendId: number) {
-
-        console.log("------------------------------", typeof userId, typeof friendId)
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -399,8 +409,29 @@ export class UserService {
         })
     }
 
+    async isThereFriendship(userId: number, friendId: number) {
+        const friendship = await prisma.friendship.findFirst({
+            where: {
+                OR: [
+                    {
+                        friend1Id: userId,
+                        friend2Id: friendId
+                    },
+                    {
+                        friend2Id: userId,
+                        friend1Id: friendId
+                    }
+                ],
+            }
+        })
+        if (!friendship)
+            return false
+        return true
+    }
+
     async block(userId: number, targetId: number) {
-        console.log(userId, '________', targetId)
+        if (await this.isThereFriendship(userId, targetId))
+            this.removeFriend(userId, targetId)
         await prisma.user.update({
             where: {
                 id: userId,

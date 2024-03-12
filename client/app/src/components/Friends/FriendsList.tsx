@@ -8,50 +8,74 @@ function FriendsList(){
     const[Friends, setFriends] = useState([]);
     const[requests, setRequests] = useState([]);
     const[blocked, setBlocked] = useState([]);
-
+    const[changed, setChanged] = useState(false);
+    
     useEffect(() => {
         const fetcher = async () => {
-            const res = await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getFriendList`, {
-                headers: {
-                    Authorization: `bearer ${Cookies.get('jwt')}`
-                }
-            })
-            setFriends(res.data.friends);
-            const res2 = await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getFriendRequests`, {
-                headers: {
-                    Authorization: `bearer ${Cookies.get('jwt')}`
-                }
-            })
-            setRequests(res2.data.requests)
-            const res3 = await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getBlockedFriends`, {
-                headers: {
-                    Authorization: `bearer ${Cookies.get('jwt')}`
-                }
-            })
-            console.log(res3.data.blocked)
-            setBlocked(res3.data.blocked)
+            try {
+                const res = await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getFriendList`, {
+                    headers: {
+                        Authorization: `bearer ${Cookies.get('jwt')}`
+                    }
+                })
+                setFriends(() => res.data.friends);
+                const res2 = await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getFriendRequests`, {
+                    headers: {
+                        Authorization: `bearer ${Cookies.get('jwt')}`
+                    }
+                })
+                setRequests(() => res2.data.requests)
+                const res3 = await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/getBlockedFriends`, {
+                    headers: {
+                        Authorization: `bearer ${Cookies.get('jwt')}`
+                    }
+                })
+                console.log(res3.data.blocked)
+                setBlocked(() => res3.data.blocked)
+            } catch (err) {
+                console.log('err is ', err.response.data)
+            }
         }
         fetcher()
-    }, [])
-    const removeFriend = async (index: any) =>{
+        setChanged(() => false)
+    }, [changed])
+
+    const acceptFriend = async (id: number) => {
         try {
-            await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/remove_friend?friendId=${index}`, {
+          await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/accept_friend?id=${id}`, {
+            headers: {
+              Authorization: `bearer ${Cookies.get('jwt')}`
+            }
+          })
+        }
+        catch (err) {
+          console.error(err)
+        }
+        setChanged(() => true)
+    }
+
+    const removeFriend = async (index: number) =>{
+        try {
+            await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/remove_friend?id=${index}`, {
                 headers: {
                     Authorization: `bearer ${Cookies.get('jwt')}`
                 }                
             })
         }
         catch (err) {}
+        setChanged(() => true)
     }
+
     const unblockFriend = async (index: any) =>{
         try {
-            await axios.put(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/unBlock?friendId=${index}`, {}, {
+            await axios.put(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/unBlock?id=${index}`, {}, {
                 headers: {
                     Authorization: `bearer ${Cookies.get('jwt')}`
                 }                
             })
         }
         catch (err) {}
+        setChanged(() => true)
     }
     return(
         <div>
@@ -77,7 +101,7 @@ function FriendsList(){
                     <ul className={styles.blockBox}>
                         <h1>Blocked Friends </h1>
                         {blocked.length < 1 ? (
-                            <p>No friends found yet 🚫👥</p>
+                            <p>No blocked friends 🚫👥</p>
                         ) :
                         blocked.map((Friend: any, index) => (
                             <li key={index}>
@@ -95,12 +119,12 @@ function FriendsList(){
                         {requests.length < 1 ? (
                             <p>No friend requests 🚫👥</p>
                         ) :
-                        requests.map((request: any) => (
+                        requests.map((friend: any) => (
                             <li>
-                                <img src={request.avatar} className={styles.friendImg}/>
-                                <span>{request.username}</span>
-                                <button className={styles.buttonAccept}>Accept</button>
-                                <button  className={styles.buttonIgnore}>Ignore</button>
+                                <img src={friend.avatar} className={styles.friendImg}/>
+                                <span>{friend.username}</span>
+                                <button className={styles.buttonAccept} onClick={() => acceptFriend(friend.id)}>Accept</button>
+                                <button  className={styles.buttonIgnore} onClick={() => removeFriend(friend.id)}>Ignore</button>
                             </li>
                         ))}
                     </ul>

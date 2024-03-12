@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 function AddFriend({prop}: {prop: string}){
     const [status, setStatus] = useState(0)
+    const [changed, setChanged] = useState(false)
     // const [image, setImage] = useState('')
     useEffect(() => {
       const fetcher = async () => {
@@ -22,11 +23,12 @@ function AddFriend({prop}: {prop: string}){
           }
       }
       fetcher()
-    }, [])
+      setChanged(() => false)
+    }, [changed])
 
     const addFriend = async () => {
       try {
-        await axios(`${backend}/user/add_friend?friendId=${prop}`, {
+        await axios(`${backend}/user/add_friend?id=${prop}`, {
           headers: {
             Authorization: `bearer ${Cookies.get('jwt')}`
           }
@@ -39,7 +41,7 @@ function AddFriend({prop}: {prop: string}){
 
     const acceptFriend = async () => {
       try {
-        await axios(`${backend}/user/accept_friend?friendId=${prop}`, {
+        await axios(`${backend}/user/accept_friend?id=${prop}`, {
           headers: {
             Authorization: `bearer ${Cookies.get('jwt')}`
           }
@@ -52,7 +54,7 @@ function AddFriend({prop}: {prop: string}){
 
     const RemoveFriend = async () => {
       try {
-        await axios(`${backend}/user/remove_friend?friendId=${prop}`, {
+        await axios(`${backend}/user/remove_friend?id=${prop}`, {
           headers: {
             Authorization: `bearer ${Cookies.get('jwt')}`
           }
@@ -64,6 +66,7 @@ function AddFriend({prop}: {prop: string}){
     }
 
     const handleFriendship = () => {
+      setChanged(() => true)
       if (status != 1)
         status == 0 ? addFriend() : status == 2 ? acceptFriend() : RemoveFriend(); 
     }
