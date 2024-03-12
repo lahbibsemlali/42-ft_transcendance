@@ -103,7 +103,7 @@ model userRole {
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   chatId    Int
-  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Restrict)
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
   role      Role     @default(User)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -115,7 +115,7 @@ model UserChat {
   user      User     @relation(fields: [userId], references: [id])
 
   chatId    Int
-  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Restrict)
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
   
   dmName      String?
   dmImage     String?
@@ -136,5 +136,5 @@ model Message {
   senderId  Int
   sender    User     @relation(fields: [senderId], references: [id])
   chatId    Int
-  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Restrict)
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }

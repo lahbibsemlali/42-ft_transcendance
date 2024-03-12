@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import MenuBtn from "./MenuBtn";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { Navigate, redirect } from "react-router-dom";
+// imort redirect
+// import Profile from "../Profile/Profile";
 
 type Props = {
   isAdmin: boolean;
@@ -134,10 +137,45 @@ const MenuImg = (props: Props) => {
     if (props.imgClicked) props.imgClicked();
   };
 
+  const mute = async () => {
+    await axios.post(
+      `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/mute`,
+      {
+        targetId: props.idClient,
+        chatId: props.idChat,
+      },
+      {
+        headers: {
+          Authorization: `bearer ${mytoken}`,
+        },
+      }
+    );
+    if (props.imgClicked) props.imgClicked();
+  };
+
+  const [viewP, setviewP] = useState(false);
+
+  const viewProfile = () => {
+    setviewP(true);
+    // console.log('sdsds')
+    // <Navigate to='/' />
+    // return redirect("/");
+  };
+
   if (!isAdminOrOwner || isAdminOrOwner == 4) return null;
 
   return (
+    <>
+    {viewP && <Navigate to={`/profile/${props.idClient.toString()}`} />}
     <div style={{ margin: "5px" }}>
+      {/* {isAdminOrOwner == 2 && ( */}
+        <MenuBtn
+          onChildClick2={viewProfile}
+          action={2}
+          ifMute={true}
+          str="Profile"
+        />
+      {/* )} */}
       {!props.isGroup && !isBlock && (
         <MenuBtn
           action={1}
@@ -171,12 +209,21 @@ const MenuImg = (props: Props) => {
         />
       )}
       {props.isGroup && props.isAdmin && (
-        <MenuBtn onChildClick3={kickOut} action={3} ifMute={true} str="kick out" />
+        <MenuBtn onChildClick3={mute} action={3} ifMute={true} str="mute 24h" />
+      )}
+      {props.isGroup && props.isAdmin && (
+        <MenuBtn
+          onChildClick3={kickOut}
+          action={3}
+          ifMute={true}
+          str="kick out"
+        />
       )}
       {props.isGroup && props.isAdmin && (
         <MenuBtn onChildClick4={banUser} action={4} ifMute={true} str="Ban" />
       )}
     </div>
+    </>
   );
 };
 

@@ -1,4 +1,6 @@
 import React, { useRef } from "react";
+import { Link } from "react-router-dom";
+// import GamePage from "../GamePage/GamePage";
 import DropdownMenu from "./DropdownMenu";
 import { useState } from "react";
 import socketIOClient from "socket.io-client";
@@ -21,6 +23,7 @@ type Props = {
   setID: (param: number) => void;
 
   modalAddUser: () => void;
+  openUpdatePass: () => void;
   // groupRemoved: () => void;
 };
 
@@ -32,10 +35,8 @@ const ChatMsg = (props: Props) => {
   >(null);
 
   socket.on("send msg", () => {
-    if (newMsg)
-      setnewMsg(false);
-    else
-      setnewMsg(true);
+    if (newMsg) setnewMsg(false);
+    else setnewMsg(true);
   });
 
   useEffect(() => {
@@ -56,7 +57,7 @@ const ChatMsg = (props: Props) => {
         const spacecrafts = response.data;
         const LIstMsg = spacecrafts.map((spacecraft: any) => (
           <GeneratMsg
-          isOwner={props.isOwner}
+            isOwner={props.isOwner}
             isMuted={spacecraft.isMutted}
             isGroup={props.isGroup}
             isMe={spacecraft.isMe}
@@ -101,6 +102,10 @@ const ChatMsg = (props: Props) => {
     socket.emit("send msg", inputValue, props.id);
   };
 
+  const sendToPlay = () => {
+    socket.emit('customRoom', '2');
+  };
+
   return (
     <div className="chat-window">
       <div className="chat-msg">
@@ -115,6 +120,8 @@ const ChatMsg = (props: Props) => {
           </button>
           {openmenu && (
             <DropdownMenu
+              isOwner={props.isOwner}
+              openUpdatePass={props.openUpdatePass}
               setID={props.setID}
               modalAddUser={props.modalAddUser}
               // toAdd={props.toAdd}
@@ -145,6 +152,13 @@ const ChatMsg = (props: Props) => {
           <button onClick={handleButtonClick} className="btnsend2">
             <i className="fa-solid fa-paper-plane sendicon"></i>
           </button>
+        </div>
+        <div className="btnsend">
+          <Link to="/Game?CustomRoom=1">
+          <button onClick={sendToPlay} className="btnsend2">
+            <i className="fa-solid fa-play sendicon"></i>
+          </button>
+          </Link>
         </div>
       </div>
     </div>

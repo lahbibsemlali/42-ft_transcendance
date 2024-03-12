@@ -1,6 +1,10 @@
 {
   "dependencies": {
     "react-hot-toast": "^2.4.1",
+<<<<<<< HEAD
+=======
+    "react-router-dom": "^6.22.3",
+>>>>>>> main
     "toaster": "^0.1.2"
   }
 }

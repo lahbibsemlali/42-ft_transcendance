@@ -8,17 +8,23 @@ type Props = {
   nameGroup: string;
   groupType: string;
   onChildClick: () => void;
+  setID: (param: number) => void;
+  handleClick: () => void;
+  isProtected: boolean;
 };
 
 const Result = (props: Props) => {
-
   const joinGroup = async () => {
-    const mytoken = Cookies.get("jwt");
+    // console.log("xxxxxxxxxxxxxxxxxx", props.isProtected);
+    props.onChildClick();
+    if (props.isProtected) {
+      props.setID(props.idChat);
+      props.handleClick();
+    } else {
+      const mytoken = Cookies.get("jwt");
     try {
       const res = await axios.get(
-        `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/join_group?id=${
-          props.idChat
-        }&password=dndd`,
+        `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/join_group?id=${props.idChat}`,
         {
           headers: {
             Authorization: `bearer ${mytoken}`,
@@ -27,10 +33,9 @@ const Result = (props: Props) => {
       );
     toast.success("joined");
   } catch (error) {
-    toast.error('wrong password')
+    toast.error('error')
   }
-
-    props.onChildClick();
+    }
   };
 
   return (

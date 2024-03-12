@@ -93,7 +93,7 @@ export class ChatService {
     userId: number,
     targetId: number,
     chatId: number
-    ) {
+  ) {
     await prisma.userChat.update({
       where: {
         userId_chatId: {
@@ -324,7 +324,7 @@ export class ChatService {
     if (!userChat) throw new UnauthorizedException('user not in group');
     if (userChat.role != 'Owner')
       throw new UnauthorizedException(
-        'user is not Owner of group',
+        'user is neither Owner or Admin in this group',
       );
     const group = await prisma.chat.findFirst({
       where: {
@@ -334,7 +334,7 @@ export class ChatService {
     if (
       !group ||
       group.status != 'Protected' ||
-      password
+      !password
     )
       throw new InternalServerErrorException('something wrong');
     const salt = await bcrypt.genSalt();
@@ -357,7 +357,7 @@ export class ChatService {
       },
     });
     if (!userChat) throw new UnauthorizedException('user not in group');
-    if (userChat.role != 'Owner')
+    if (userChat.role != 'Owner' && userChat.role != 'Admin')
       throw new UnauthorizedException(
         'user is neither Owner or Admin in this group',
       );
@@ -424,7 +424,6 @@ export class ChatService {
       });
     }
   }
-
   async isBlocked(f1Id: number, f2Id: number) {
     if (f1Id == f2Id) return false;
     console.log(f1Id, '--------', f2Id);

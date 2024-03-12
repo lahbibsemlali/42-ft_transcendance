@@ -8,7 +8,6 @@ import SettingsPage from "./components/SettingsPage/SettingsPage";
 import Twofa from "./components/Twofa/Twofa";
 import NotFound from "./components/NotFound/NotFound";
 import Profile from "./components/Profile/Profile";
-import Friends from "./components/Friends/Friends";
 import FriendsList from "./components/Friends/FriendsList";
 
 function App() {

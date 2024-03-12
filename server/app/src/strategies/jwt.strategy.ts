@@ -3,18 +3,22 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserService } from 'src/user/user.service';
 
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(private userService: UserService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request) => {
-          return request?.handshake?.headers?.cookie?.split(';')
+          // console.log(request.handshake.headers)
+          return request?.handshake?.headers?.cookie
+            ?.split(';')
             .find((cookie) => cookie.trim().startsWith('jwt='))
             ?.split('=')[1];
         },
         ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ]),      ignoreExpiration: false,
+      ]),
+      ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRETE,
     });
   }
