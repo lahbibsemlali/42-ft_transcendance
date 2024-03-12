@@ -113,6 +113,9 @@ export class UserService {
     }
 
     async addFriend(userId: number, friendId: number) {
+        console.log(await this.checkBlock(userId, friendId))
+        if (await this.checkBlock(userId, friendId))
+            throw new BadRequestException('there is a block between users')
         const userProfile = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -336,26 +339,39 @@ export class UserService {
         return blocked
     }
 
-    async checkIfBlckedBy(userId: number, targetId: number) {
+    async checkBlock(userId: number, targetId: number) {
         const user = await prisma.user.findFirst({
             where: {
                 id: userId,
             },
             select: {
-                blockedBy: {
+                blocked: {
                     select: {
                         id: true
                     }
                 },
+                blockedBy: {
+                    select: {
+                        id: true
+                    }
+                }
             }
         })
         if (!user)
             throw new NotFoundException('no user found')
-        const isBlockedBy = user.blockedBy.find((b) => b.id === targetId)
-        return isBlockedBy
+        const isBlocked = user.blockedBy.find((b) => b.id === targetId)
+        const hasBlocked = user.blocked.find((b) => b.id === targetId)
+        console.log(isBlocked, ',,,', hasBlocked)
+        if (isBlocked)
+            return true
+        else if (hasBlocked)
+            return true
+        return false
     }
 
     async acceptFriend(userId: number, friendId: number) {
+        if (this.checkBlock(userId, friendId))
+            throw new BadRequestException('there is a block between users')
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [

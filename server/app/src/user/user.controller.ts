@@ -134,7 +134,7 @@ export class UserController {
     @Get('isBlocked')
     async isBlocked(@User() user, @Query('id', ParseIntPipe) id: number) {
         await this.userService.getUserById(id)
-        if (user.id == id || await this.userService.checkIfBlckedBy(user.id, id))
+        if (user.id == id || await this.userService.checkBlock(user.id, id))
             return {isBlocked: true}
         return {isBlocked: false}
     }
@@ -143,7 +143,7 @@ export class UserController {
     @Get('getFriendProfile')
     async getFriendProfile(@User() user, @Query('id', ParseIntPipe) id: number) {
         const userInfo = await this.userService.getUserById(id);
-        if (await this.userService.checkIfBlckedBy(user.id, id))
+        if (await this.userService.checkBlock(user.id, id))
             throw new BadRequestException('user is blocked by target')
         return {
             username: userInfo.username,
