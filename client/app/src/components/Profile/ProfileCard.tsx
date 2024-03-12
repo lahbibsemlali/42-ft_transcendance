@@ -14,20 +14,26 @@ function ProfileCard({prop}: {prop: any}) {
   // const [image, setImage] = useState('')
   useEffect(() => {
     const fetcher = async () => {
-      const res = await axios(`${backend}/user/getFriendProfile?id=${prop}`, {
-        headers: {
-          Authorization: `bearer ${Cookies.get('jwt')}`
-        }
-      })
-      setImage(res.data.avatar)
-      setUsername(res.data.username)
+      try {
+        const res = await axios(`${backend}/user/getFriendProfile?id=${prop}`, {
+          headers: {
+            Authorization: `bearer ${Cookies.get('jwt')}`
+          }
+        })
+        setImage(res.data.avatar)
+        setUsername(res.data.username)
+      }
+      catch (err) {
+        console.log('error', err)
+      }
     }
     fetcher()
   }, [])
-  console.log()
+  console.log('profile is ', image)
   return (
     <div className={styles.Player}>
-      <h1 className={styles.more}>{username}</h1>
+      <h1 className={styles.more}>Player Card</h1>
+      <h1 className={styles.username}>{username}</h1>
       <img src={image} alt="Player's avatar" className={styles.avatar} />
       <Overview prop={prop}/>
       <AddFriend prop={prop}/>

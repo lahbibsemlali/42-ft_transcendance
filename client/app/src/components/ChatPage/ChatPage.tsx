@@ -12,6 +12,8 @@ import Cookies from "js-cookie";
 import Result from "./Result";
 import CreateGroups from "./CreateGroups";
 import AddUser from "./AddUser";
+import JoinGroup from "./JoinGroup";
+import RestPass from "./RestPass";
 
 const ChatPage = () => {
   const isLoggedIn = useContext(isLogin);
@@ -66,7 +68,7 @@ const ChatPage = () => {
             },
           }
         );
-        console.log(res.data)
+        // console.log(res.data)
         const listsNew = res.data.map((userslist: any) => (
           <Listchat
           isOwner={userslist.isOwner}
@@ -98,6 +100,8 @@ const ChatPage = () => {
 
   const [btnCraete, setBtnCreate] = useState(false);
   const [btnAdd, setBtnAdd] = useState(false);
+  const [modalpass, setmodalpass] = useState(false);
+  const [modalupdate, setmodalUpdate] = useState(false);
   const [idTarget, setIdTarget] = useState(0);
 
   const createGroupOn = () => {
@@ -105,7 +109,7 @@ const ChatPage = () => {
   };
 
   const ftsetIdTarget = (id: number) => {
-    console.log(id, 'to add2');
+    // console.log(id, 'to add2');
     setIdTarget(id);
   };
 
@@ -133,6 +137,14 @@ const ChatPage = () => {
     setNewGroup(!newGroup);
   };
 
+  const openEnterPass = () => {
+    setmodalpass(!modalpass);
+  };
+
+  const openUpdatePass = () => {
+    setmodalUpdate(!modalupdate);
+  };
+
   useEffect(() => {
     const mytoken = Cookies.get("jwt") || "";
     const fetchData = async () => {
@@ -148,6 +160,9 @@ const ChatPage = () => {
         // console.log("|||||||||", res.data.matches)
         const shearchResult = res.data.matches.map((userslist: any) => (
           <Result
+          isProtected={userslist.isProtected}
+          handleClick={openEnterPass}
+            setID={ftsetIdTarget}
             onChildClick={setEmptyValue}
             idChat={userslist.id}
             nameGroup={userslist.name}
@@ -178,6 +193,10 @@ const ChatPage = () => {
 
       {btnAdd && <AddUser idTarget={idTarget} handleClick={openAddUser} />}
 
+        {modalpass && <JoinGroup NewGroupCreated={NewGroupCreated} idTarget={idTarget} handleClick={openEnterPass}/>}
+
+        {modalupdate && <RestPass openUpdatePass={openUpdatePass} idTarget={idTarget} />}
+
       <div className="ChatContainer">
         <div className="barChat">
           <div className="search-box2">
@@ -207,7 +226,8 @@ const ChatPage = () => {
           {!selectchat && <WelcomeChat />}
           {selectchat && (
             <ChatMsg
-            isOwner={info.isOwner}
+              openUpdatePass={openUpdatePass}
+              isOwner={info.isOwner}
               setID={ftsetIdTarget}
               modalAddUser={openAddUser}
               // toAdd={toAdd}

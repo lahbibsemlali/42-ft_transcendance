@@ -19,7 +19,6 @@ function BlockFriend({prop}: {prop: string}){
         console.error(prop)
       }
     }
-
     return <div>
         <button className={styles.PlayButton} onClick={blockFriend}> Block </button>
     </div>

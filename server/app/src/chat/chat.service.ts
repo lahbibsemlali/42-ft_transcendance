@@ -89,13 +89,11 @@ export class ChatService {
     }
   }
 
-  async muteOrUnmute(
+  async mute(
     userId: number,
     targetId: number,
-    chatId: number,
-    mute: boolean,
+    chatId: number
   ) {
-    // console.log(userId, chatId, 'mute is :', mute);
     await prisma.userChat.update({
       where: {
         userId_chatId: {
@@ -104,20 +102,22 @@ export class ChatService {
         },
       },
       data: {
-        isMutted: mute,
+        isMutted: true,
       },
     });
-    await prisma.userChat.update({
-      where: {
-        userId_chatId: {
-          userId: userId,
-          chatId: chatId,
+    setTimeout(async () => {
+      await prisma.userChat.update({
+        where: {
+          userId_chatId: {
+            userId: targetId,
+            chatId: chatId,
+          },
         },
-      },
-      data: {
-        isMutted: mute,
-      },
-    });
+        data: {
+          isMutted: false,
+        },
+      });
+    }, 20 * 1000);
   }
 
   async kick(userId: number, targetId: number, chatId: number) {
@@ -322,7 +322,7 @@ export class ChatService {
       },
     });
     if (!userChat) throw new UnauthorizedException('user not in group');
-    if (userChat.role != 'Owner' && userChat.role != 'Admin')
+    if (userChat.role != 'Owner')
       throw new UnauthorizedException(
         'user is neither Owner or Admin in this group',
       );
@@ -334,8 +334,7 @@ export class ChatService {
     if (
       !group ||
       group.status != 'Protected' ||
-      password ||
-      password.length < 5
+      !password
     )
       throw new InternalServerErrorException('something wrong');
     const salt = await bcrypt.genSalt();
@@ -380,11 +379,27 @@ export class ChatService {
   }
 
   async createMessage(userId: number, chatId: number, content: string) {
+    const userChat = await prisma.userChat.findFirst({
+      where: {
+        userId: userId,
+        chatId: chatId
+      },
+      select: {
+        isMutted: true,
+        chat: {
+          select: {
+            isGroup: true,
+          },
+        },
+      },
+    });
+    
     const chat = await prisma.userChat.findMany({
       where: {
         chatId: chatId,
       },
       select: {
+        isMutted: true,
         chat: {
           select: {
             isGroup: true,
@@ -394,13 +409,13 @@ export class ChatService {
       },
     });
 
-    const isBlocked =
-      !chat[0].chat.isGroup &&
+    const isBlocked = !chat[0].chat.isGroup &&
       ((await this.isBlocked(chat[0].userId, chat[1].userId)) ||
-        (await this.hasBlocked(chat[0].userId, chat[1].userId)));
+        (await this.hasBlocked(chat[0].userId, chat[1].userId))) ||
+        userChat.isMutted;
     console.log(isBlocked, 'is');
     if (!isBlocked) {
-      const message = await prisma.message.create({
+      await prisma.message.create({
         data: {
           senderId: userId,
           chatId: chatId,
@@ -409,7 +424,6 @@ export class ChatService {
       });
     }
   }
-
   async isBlocked(f1Id: number, f2Id: number) {
     if (f1Id == f2Id) return false;
     console.log(f1Id, '--------', f2Id);

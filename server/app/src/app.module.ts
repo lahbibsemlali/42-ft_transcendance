@@ -5,7 +5,7 @@ import { TwoFaService } from './two-fa/two-fa.service';
 import { TwoFaController } from './two-fa/two-fa.controller';
 import { GameGateway } from './Game/game.Gateway';
 import { GameService } from './Game/game.service';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TwoFaModule } from './two-fa/two-fa.module';
 import { ChatModule } from './chat/chat.module';
 
@@ -16,6 +16,6 @@ import { ChatModule } from './chat/chat.module';
     TwoFaModule,
     ChatModule
   ],
-  providers: [GameService, GameGateway],
+  providers: [GameService, GameGateway, JwtService],
 })
 export class AppModule {}

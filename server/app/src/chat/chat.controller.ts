@@ -23,7 +23,7 @@ export class ChatController {
   @Get('search')
   async search(@User() user, @Query('keyword') keyword) {
     const matches = await this.chatService.searchGroups(user.id, keyword);
-    console.log(',,,,', matches);
+    // console.log(',,,,', matches);
 
     return {matches: matches}
   }
@@ -46,6 +46,7 @@ export class ChatController {
     @Query('groupId') groupId,
     @Body('password') password,
   ) {
+    groupId = parseInt(groupId);
     this.chatService.changePass(user.id, groupId, password);
   }
 
@@ -67,10 +68,10 @@ export class ChatController {
     return { isBlocked: await this.chatService.isBlocked(user.id, targetId) };
   }
 
-  @Post('muteOrUnmute')
+  @Post('mute')
   muteOrUnmute(@User() user, @Body() body) {
-    const { targetId, chatId, mute } = body;
-    this.chatService.muteOrUnmute(user.id, targetId, chatId, mute);
+    const { targetId, chatId } = body;
+    this.chatService.mute(user.id, targetId, chatId);
   }
 
   @Post('kick')

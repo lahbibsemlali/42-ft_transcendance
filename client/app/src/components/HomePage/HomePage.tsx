@@ -4,8 +4,50 @@ import LoginPage from "../LoginPage/LoginPage";
 import Header from "../Header/Header";
 import styles from "./HomePage.module.css";
 import BoxContainer from "./BoxContainer";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+
+import socketIOClient from "socket.io-client";
+const ENDPOINT = `http://${import.meta.env.VITE_DOMAIN}:8000`;
+import Cookies from "js-cookie";
+let mytoken = Cookies.get("jwt") || "";
+const socket = socketIOClient(ENDPOINT, {
+  transports: ["websocket"],
+  query: {
+    token: mytoken,
+  },
+  transportOptions: {
+    extraHeaders: {
+      Authorization: `Bearer ${mytoken}`,
+    },
+  },
+});
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
+ 
+
+  useEffect(() => {
+
+  const handleClick = (idUser: string) => {
+    navigate(`/Game`);
+  };
+
+    socket.on("customRoom", (idUser: string) => {
+      toast((t) => (
+        <span>
+          SOME ONE INVITE YOU TO PLAY
+          <button onClick={() => {
+            toast.dismiss(t.id)
+            handleClick(idUser)
+            }}>PLAY</button>
+        </span>
+      ));
+    });
+  }, []);
+
+
   const isLoggedIn = useContext(isLogin);
   const context = useContext(reCheck);
   if (!context || !context.setCheck) {
@@ -24,7 +66,9 @@ const HomePage = () => {
     <div>
       <Header />
       <div className={styles.Home}>
-        <div><BoxContainer/></div>
+        <div>
+          <BoxContainer />
+        </div>
       </div>
     </div>
   );

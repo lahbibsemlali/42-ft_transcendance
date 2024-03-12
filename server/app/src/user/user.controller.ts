@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Param, Req, Res, UploadedFile, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UseInterceptors } from '@nestjs/common';
 import { diskStorage } from 'multer';
@@ -30,6 +30,7 @@ export class UserController {
     }
 
 
+    
     @UseGuards(JwtGuard)
     @Get('add_friend')
     async addFiend(@User() user, @Query('friendId') friendId) {
@@ -118,7 +119,7 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Get('getFriendProfile')
-    async getFriendProfile(@Query('id') friendId) {
+    async getFriendProfile(@Query('id', ParseIntPipe) friendId) {
         const userInfo = await this.userService.getUserById(friendId);
         return {
             username: userInfo.username,
