@@ -57,21 +57,16 @@ export class UserService {
                     avatar: location
                 }
             })
-            return {status: 201, message: "avatar uploaded successfully"}
         }
         else {
-            return {status: 404, message: "user not found"};
+            throw new NotFoundException('no such user')
         }
     }
   
     async updateUsername(userId: number, username: string) {
-        // const validUsername: RegExp = /^[0-9A-Za-z]{6,16}$/;
-        // console.log(validUsername.test(username))
-        // if (!validUsername.test(username))
-        //     throw new BadRequestException('Username must be between 6 and 16 characters, alphanumeric only')
+        await this.getUserById(userId)
         const user = await prisma.profile.findFirst({
             where: {
-              userId: userId,
               username: username
             },
         });
@@ -90,44 +85,22 @@ export class UserService {
     }
     
     async updateTwoFa(userId: number, twoFa: boolean) {
-        const user = await prisma.profile.findFirst({
+        const user = await this.getUserById(userId)
+        await prisma.profile.update({
             where: {
-              userId: userId,
+                userId: userId
             },
-        });
-        console.log(user.twoFA, "to new username :: ", twoFa)
-        if (user) {
-            await prisma.profile.update({
-                where: {
-                    userId: userId
-                },
-                data: {
-                    twoFA: twoFa
-                }
-            })
-            return {status: 201, message: "twoFa has changed successfully"}
-        }
-        else {
-            return {status: 404, message: "twoFa not found"};
-        }
+            data: {
+                twoFA: twoFa
+            }
+        })
     }
 
     async addFriend(userId: number, friendId: number) {
-        console.log(await this.checkBlock(userId, friendId))
+        await this.getUserById(userId)
+        await this.getUserById(friendId)
         if (await this.checkBlock(userId, friendId))
             throw new BadRequestException('there is a block between users')
-        const userProfile = await prisma.profile.findFirst({
-            where: {
-                userId: userId
-            }
-        })
-        const friendProfile = await prisma.profile.findFirst({
-            where: {
-                userId: friendId
-            }
-        })
-        if (!userProfile || !friendProfile)
-            throw new UnauthorizedException("no such user or friend")
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [{
@@ -151,18 +124,8 @@ export class UserService {
     }
 
     async getFriendStatus(userId: number, friendId: number) {
-        const userProfile = await prisma.profile.findFirst({
-            where: {
-                userId: userId
-            }
-        })
-        const friendProfile = await prisma.profile.findFirst({
-            where: {
-                userId: friendId
-            }
-        })
-        if (!userProfile || !friendProfile)
-            throw new UnauthorizedException("no such user or friend")
+        await this.getUserById(userId)
+        await this.getUserById(friendId)
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [{
@@ -175,7 +138,6 @@ export class UserService {
                 }]
             }
         })
-        console.log(friendship)
         if (!friendship)
             return 0
         else if (friendship.status == 'Pending' && friendship.friend1Id == userId)
@@ -187,6 +149,7 @@ export class UserService {
     }
 
     async getUserName(userId: number) {
+        await this.getUserById(userId)
         const name = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -199,6 +162,8 @@ export class UserService {
     }
 
     async createDm(user: any, friend: any) {
+        await this.getUserById(user.id)
+        await this.getUserById(friend.id)
         const dms = await prisma.chat.findMany({
             where: {
                 isGroup: false
@@ -214,7 +179,6 @@ export class UserService {
         })
         const filtered = dms.filter((dm) => dm.users.some((usr) => usr.userId == user.id) && dm.users.some((usr) => usr.userId == friend.id))
         if (!filtered.length) {
-            console.log('-ffffffffffffffffffffffffffffffffffffff-')
             const chat = await prisma.chat.create({
             data: {
                 name: friend.username,
@@ -243,6 +207,7 @@ export class UserService {
       }
     
     async getUserFriends(userId: number) {
+        await this.getUserById(userId)
         const friendship = await prisma.friendship.findMany({
             where: {
                 OR: [
@@ -294,6 +259,7 @@ export class UserService {
     }
 
     async getUserFriendRequests(userId: number) {
+        await this.getUserById(userId)
         const friendship = await prisma.friendship.findMany({
             where: {
                 friend2Id: userId,
@@ -315,7 +281,7 @@ export class UserService {
         })
         console.log(friendship)
         if (!friendship)
-            throw new NotFoundException('no friends')
+            throw new NotFoundException('no friend requests')
         const requests = friendship.map((friend) => ({
             id: friend.friend1Id,
             username: friend.friend1.profile.username,
@@ -325,6 +291,7 @@ export class UserService {
     }
 
     async getBlockedFriends(userId: number) {
+        await this.getUserById(userId)
         const user = await prisma.user.findFirst({
             where: {
                 id: userId,
@@ -344,17 +311,18 @@ export class UserService {
             }
         })
         if (!user)
-            throw new NotFoundException('no friends')
+            throw new NotFoundException('no blocked friends')
         const blocked = user.blocked.map((friend) => ({
             id: friend.id,
             username: friend.profile.username,
             avatar: friend.profile.avatar
         }))
-        console.log(user.blocked, "////")
         return blocked
     }
 
     async checkBlock(userId: number, targetId: number) {
+        await this.getUserById(userId)
+        await this.getUserById(targetId)
         const user = await prisma.user.findFirst({
             where: {
                 id: userId,
@@ -387,10 +355,8 @@ export class UserService {
     }
 
     async acceptFriend(userId: number, friendId: number) {
-        console.log('this is ', await this.checkBlock(userId, friendId))
         if (await this.checkBlock(userId, friendId))
             throw new BadRequestException('there is a block between users')
-        console.log('i am here')
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -421,6 +387,8 @@ export class UserService {
     }
 
     async removeFriend(userId: number, friendId: number) {
+        await this.getUserById(userId)
+        await this.getUserById(friendId)
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -445,6 +413,8 @@ export class UserService {
     }
 
     async isThereFriendship(userId: number, friendId: number) {
+        await this.getUserById(userId)
+        await this.getUserById(friendId)
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -490,6 +460,8 @@ export class UserService {
     }
 
     async unBlock(userId: number, targetId: number) {
+        await this.getUserById(userId)
+        await this.getUserById(targetId)
         await prisma.user.update({
             where: {
                 id: userId,
@@ -513,13 +485,7 @@ export class UserService {
     }
 
     async setTwoFaSecrete(userId: number, secrete: string) {
-        const user = await prisma.profile.findFirst({
-            where: {
-                userId: userId
-            }
-        })
-        if (!user)
-            throw new UnauthorizedException("no such user");
+        await this.getUserById(userId)
         await prisma.profile.update({
             where: {
                 userId: userId
@@ -528,16 +494,9 @@ export class UserService {
                 twoFASecrete: secrete
             }
         })
-        return {status: 201, message: "2fa is set successfully"}
     }
     async turnOnUserTwoFa(userId: number) {
-        const user = await prisma.profile.findFirst({
-            where: {
-                userId: userId
-            }
-        })
-        if (!user)
-            throw new UnauthorizedException("no such user");
+        await this.getUserById(userId)
         await prisma.profile.update({
             where: {
                 userId: userId
@@ -546,11 +505,9 @@ export class UserService {
                 twoFA: true,
             }
         })
-        return {status: 201, message: "2fa is set successfully"}
     }
 
     async searchUser(keyword: string) {
-        console.log(keyword, '***', typeof keyword)
         const matches = await prisma.profile.findMany({
             where: {
                 username: {
@@ -583,9 +540,9 @@ export class UserService {
     }
 
     async setResult(userId: number, result: number, oppId: number, opResult: number) {
-        this.removeIfMoreThanFive();
         const me = await this.getUserById(userId);
         const opp = await this.getUserById(oppId);
+        this.removeIfMoreThanFive();
         await prisma.profile.update({
             where: {
                 userId: userId
@@ -609,6 +566,7 @@ export class UserService {
     }
 
     async getLastFive(userId: number) {
+        await this.getUserById(userId)
         const lastFive = await prisma.profile.findFirst({
             where: {
                 userId: userId
@@ -633,6 +591,7 @@ export class UserService {
     }
 
     async updateGameState(userId: number, state: boolean) {
+        await this.getUserById(userId)
         await prisma.profile.update({
             where: {
                 userId: userId
