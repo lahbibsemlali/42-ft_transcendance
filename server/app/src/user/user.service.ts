@@ -36,10 +36,10 @@ export class UserService {
             },
         });
         if (profile)
-            return {id: profile.userId, isTwoFaEnabled: false}
+            return {id: profile.userId, firstTime: false, isTwoFaEnabled: false}
         else {
             const profile = await this.createUserProfile(userData.username, userData.email, userData.imageLink)
-            return {id: profile.userId, isTwoFaEnabled: false}
+            return {id: profile.userId, firstTime: true, isTwoFaEnabled: false}
         }
     }
     async updateAvatar(userId: number, location: string) {

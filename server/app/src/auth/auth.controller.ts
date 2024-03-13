@@ -21,11 +21,12 @@ export class AuthController {
   async consL(@Req() req, @Res() res) {
     const payload = req.user;
     const token = await this.authService.generateJwtToken(payload);
-    const user = await this.userService.getUserById(payload.id)
-    
+    const user = await this.userService.getUserById(payload.id);
     res.cookie('jwt', token);
+    if (payload.firstTime)
+      return res.redirect(`http://${process.env.VITE_DOMAIN}:5000/settings`);
     if (user.twoFA)
-      return res.redirect(`http://${process.env.VITE_DOMAIN}:5000/auth`)
+      return res.redirect(`http://${process.env.VITE_DOMAIN}:5000/auth`);
     return res.redirect(`http://${process.env.VITE_DOMAIN}:5000/`);
   }
 
