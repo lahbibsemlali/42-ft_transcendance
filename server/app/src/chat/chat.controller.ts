@@ -14,6 +14,7 @@ import {
 import { ChatService } from './chat.service';
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { User } from 'src/user/user.decorator';
+import SearchDto from 'src/user/dtos/searchDto';
 
 @Controller('chat')
 @UseGuards(JwtGuard)
@@ -21,10 +22,8 @@ export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   @Get('search')
-  async search(@User() user, @Query('keyword') keyword) {
-    const matches = await this.chatService.searchGroups(user.id, keyword);
-    // console.log(',,,,', matches);
-
+  async search(@User() user, @Query() searchDto: SearchDto) {
+    const matches = await this.chatService.searchGroups(user.id, searchDto.keyword);
     return {matches: matches}
   }
 
@@ -35,8 +34,7 @@ export class ChatController {
   }
 
   @Delete('remove_group')
-  removeGroup(@User() user, @Query('groupId') groupId) {
-    groupId = parseInt(groupId);
+  removeGroup(@User() user, @Query('groupId', ParseIntPipe) groupId: number) {
     this.chatService.removeGroup(user.id, groupId);
   }
 

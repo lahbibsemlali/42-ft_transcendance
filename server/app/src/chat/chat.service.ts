@@ -7,7 +7,6 @@ import {
 import { PrismaClient } from '@prisma/client';
 import { join } from 'path';
 import * as bcrypt from 'bcrypt';
-import { Console } from 'console';
 
 const prisma = new PrismaClient();
 
@@ -19,7 +18,6 @@ export class ChatService {
     password: string,
     status: number,
   ) {
-    console.log('pass', password)
     const salt = await bcrypt.genSalt();
     const hash =
       status == 3 && password && password.length
