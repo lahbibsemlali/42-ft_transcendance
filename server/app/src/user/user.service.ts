@@ -525,6 +525,7 @@ export class UserService {
 
     async removeIfMoreThanFive() {
         const gamesCount = await prisma.game.count();
+        console.log(gamesCount, ',,,...')
         if (gamesCount >= 5) {
             const oldestGame = await prisma.game.findFirst({
                 orderBy: {
@@ -542,7 +543,7 @@ export class UserService {
     async setResult(userId: number, result: number, oppId: number, opResult: number) {
         const me = await this.getUserById(userId);
         const opp = await this.getUserById(oppId);
-        this.removeIfMoreThanFive();
+        await this.removeIfMoreThanFive();
         await prisma.profile.update({
             where: {
                 userId: userId
