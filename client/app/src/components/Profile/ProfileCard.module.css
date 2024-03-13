@@ -54,3 +54,15 @@ h1{
     border-radius: 20px;
     background-color: aliceblue;
 }
+
+.onlineI {
+    position: absolute;
+    top: 41%;
+    left: 42%;
+}
+
+.onlineI h1 {
+    position: absolute;
+    font-size: 20px;
+    top: -28px;
+}

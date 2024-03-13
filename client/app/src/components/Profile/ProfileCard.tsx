@@ -5,6 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import AddFriend from "./AddFriend.tsx";
 import BlockFriend from "./Block.tsx";
+import Online from "./Online.tsx";
 const backend = `http://${import.meta.env.VITE_DOMAIN}:8000/api`
 
 function ProfileCard({prop}: {prop: any}) {
@@ -29,6 +30,10 @@ function ProfileCard({prop}: {prop: any}) {
   }, [])
   return (
     <div className={styles.Player}>
+      <div className={styles.onlineI}>
+        <Online/>
+        <h1>online</h1>
+      </div>
       <h1 className={styles.more}>Player Card</h1>
       <h1 className={styles.username}>{username}</h1>
       <img src={image} alt="Player's avatar" className={styles.avatar} />
