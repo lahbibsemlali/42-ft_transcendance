@@ -361,17 +361,21 @@ export class UserService {
             throw new NotFoundException('no user found')
         const isBlocked = user.blockedBy.find((b) => b.id === targetId)
         const hasBlocked = user.blocked.find((b) => b.id === targetId)
+        if (isBlocked) {
+            return true
+        }
+        else if (hasBlocked) {
+            return true
+        }
         console.log(isBlocked, ',,,', hasBlocked)
-        if (isBlocked)
-            return true
-        else if (hasBlocked)
-            return true
         return false
     }
 
     async acceptFriend(userId: number, friendId: number) {
-        if (this.checkBlock(userId, friendId))
+        console.log('this is ', await this.checkBlock(userId, friendId))
+        if (await this.checkBlock(userId, friendId))
             throw new BadRequestException('there is a block between users')
+        console.log('i am here')
         const friendship = await prisma.friendship.findFirst({
             where: {
                 OR: [
@@ -531,6 +535,7 @@ export class UserService {
     }
 
     async searchUser(keyword: string) {
+        console.log(keyword, '***', typeof keyword)
         const matches = await prisma.profile.findMany({
             where: {
                 username: {
@@ -539,10 +544,10 @@ export class UserService {
             },
             select: {
                 userId: true,
-                username: true
+                username: true,
+                avatar: true
             }
         })
-        console.log(keyword, '==========++', matches)
         return matches
     }
 

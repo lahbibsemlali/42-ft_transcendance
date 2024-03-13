@@ -37,6 +37,8 @@ function AddFriend({prop}: {prop: string}){
       catch (err) {
         console.error(prop)
       }
+      setChanged(() => true)
+
     }
 
     const acceptFriend = async () => {
@@ -50,6 +52,8 @@ function AddFriend({prop}: {prop: string}){
       catch (err) {
         console.error(prop)
       }
+      setChanged(() => true)
+
     }
 
     const RemoveFriend = async () => {
@@ -63,17 +67,19 @@ function AddFriend({prop}: {prop: string}){
       catch (err) {
         console.error(prop)
       }
+      setChanged(() => true)
     }
 
     const handleFriendship = () => {
-      setChanged(() => true)
       if (status != 1)
         status == 0 ? addFriend() : status == 2 ? acceptFriend() : RemoveFriend(); 
     }
-
-    return <div>
+    console.log(changed, '----')
+    return (
+      <div>
         <button className={styles.PlayButton} onClick={handleFriendship}> {status == 0 ? "Add Friend" : status == 1 ? "Pending" : status == 2 ? "Accept As Friend" : "Destroy Friendship"} </button>
-    </div>
+      </div>
+      )
 }
 
 export default AddFriend

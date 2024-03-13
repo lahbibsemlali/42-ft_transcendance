@@ -49,7 +49,7 @@ function FriendsList(){
           })
         }
         catch (err) {
-          console.error(err)
+          console.error(err.response.data.message)
         }
         setChanged(() => true)
     }

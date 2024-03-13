@@ -17,9 +17,9 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Get('search')
-    async search(@Query() usernameDto: UsernameDto) {
+    async search(@Query('keyword') keyword: string) {
         return { 
-            matches: await this.userService.searchUser(usernameDto.username)
+            matches: await this.userService.searchUser(keyword)
         }
     }
 
