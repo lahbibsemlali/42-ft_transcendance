@@ -6,15 +6,6 @@ import Cookies from "js-cookie";
 
 const Header = () => {
   const [matches, setMatches] = useState([])
-  const [error, setError] = useState(null);
-  const testUsers = [
-    { userId: 1, username: "Simo" , Img: "/Avatar.jpeg"},
-    { userId: 2, username: "Lahbib" , Img:"/Avatar.jpeg"},
-    { userId: 3, username: "Hossein" , Img:"/Avatar.jpeg"},
-    { userId: 4, username: "Ali" , Img:"/Avatar.jpeg"},
-    { userId: 5, username: "kaabi" , Img:"/Avatar.jpeg"},
-  ];
-  
 
   const handleChange = async (e: any) => {
     const searchTerm: string = e.target.value;
@@ -26,17 +17,13 @@ const Header = () => {
             }
           })
           setMatches(() => res.data.matches);
-          console.log(res.data.matches)
-          // setMatches(filteredUsers);
-          setError(null);
       }
       else{
         setMatches([]);
       }
     }
-    catch(error){
+    catch(error: any){
       console.error("Error fetching data:", error.response.data.message);
-      setError("Error fetching data. Please try again.");
       setMatches([]);
     }
   }
@@ -51,9 +38,8 @@ const Header = () => {
           onChange={handleChange}
           className="search"
         />
-        {error && <p className="error-message" style={{color:"red"}}>{error}</p>}
         <ul className="searchList">
-            {matches.map((user) => (
+            {matches.map((user: any) => (
               <Link to={`/profile/${user.userId}`}>
                   <li key={user.userId}>
                     <img src={user.avatar}></img>

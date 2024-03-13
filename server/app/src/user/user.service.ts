@@ -141,8 +141,6 @@ export class UserService {
             }
         })
         if (!friendship) {
-            console.log(userId, "----------------------------", friendId)
-
             await prisma.friendship.create({
                 data: {
                     friend1Id: userId,
@@ -201,30 +199,47 @@ export class UserService {
     }
 
     async createDm(user: any, friend: any) {
-        const chat = await prisma.chat.create({
-          data: {
-            name: friend.username,
-            image: friend.avatar,
-          }
-        })
-    
-        await prisma.userChat.create({
-          data: {
-              userId: user.userId,
-              chatId: chat.id,
-              dmName: friend.username,
-              dmImage: friend.avatar
-          }
-        })
-
-        await prisma.userChat.create({
-            data: {
-                userId: friend.userId,
-                chatId: chat.id,
-                dmName: user.username,
-                dmImage: user.avatar
+        const dms = await prisma.chat.findMany({
+            where: {
+                isGroup: false
+            },
+            select: {
+                isGroup: true,
+                users: {
+                    select: {
+                        userId: true
+                    }
+                }
             }
         })
+        const filtered = dms.filter((dm) => dm.users.some((usr) => usr.userId == user.id) && dm.users.some((usr) => usr.userId == friend.id))
+        if (!filtered.length) {
+            console.log('-ffffffffffffffffffffffffffffffffffffff-')
+            const chat = await prisma.chat.create({
+            data: {
+                name: friend.username,
+                image: friend.avatar,
+            }
+            })
+        
+            await prisma.userChat.create({
+            data: {
+                userId: user.userId,
+                chatId: chat.id,
+                dmName: friend.username,
+                dmImage: friend.avatar
+            }
+            })
+
+            await prisma.userChat.create({
+                data: {
+                    userId: friend.userId,
+                    chatId: chat.id,
+                    dmName: user.username,
+                    dmImage: user.avatar
+                }
+            })
+        }
       }
     
     async getUserFriends(userId: number) {
@@ -551,7 +566,24 @@ export class UserService {
         return matches
     }
 
+    async removeIfMoreThanFive() {
+        const gamesCount = await prisma.game.count();
+        if (gamesCount >= 5) {
+            const oldestGame = await prisma.game.findFirst({
+                orderBy: {
+                    createdAt: 'asc'
+                }
+            });
+            await prisma.game.delete({
+                where: {
+                    id: oldestGame.id
+                }
+            });
+        }
+    }
+
     async setResult(userId: number, result: number, oppId: number, opResult: number) {
+        this.removeIfMoreThanFive();
         const me = await this.getUserById(userId);
         const opp = await this.getUserById(oppId);
         await prisma.profile.update({

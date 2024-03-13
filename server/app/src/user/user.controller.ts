@@ -8,6 +8,7 @@ import { PrismaClient } from '@prisma/client';
 import { JwtGuard } from 'src/guards/jwt.guard';
 import { User } from './user.decorator';
 import UsernameDto from './dtos/usernameDto';
+import SearchDto from './dtos/searchDto';
 
 const prisma = new PrismaClient
 
@@ -17,9 +18,9 @@ export class UserController {
 
     @UseGuards(JwtGuard)
     @Get('search')
-    async search(@Query('keyword') keyword: string) {
+    async search(@Query() searchDto: SearchDto) {
         return { 
-            matches: await this.userService.searchUser(keyword)
+            matches: await this.userService.searchUser(searchDto.keyword)
         }
     }
 
