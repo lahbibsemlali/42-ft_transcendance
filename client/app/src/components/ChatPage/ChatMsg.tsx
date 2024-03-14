@@ -10,6 +10,8 @@ import { useEffect } from "react";
 import GeneratMsg from "./GeneratMsg";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
+
 
 type Props = {
   id: number;
@@ -103,8 +105,17 @@ const ChatMsg = (props: Props) => {
   };
 
   const sendToPlay = () => {
+    // fetch id user
     socket.emit('customRoom', '2');
   };
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    socket.on("accepted", (roomName: string, idUser2: string) => {
+      navigate(`/Game?CustomRoom=1&roomName=${roomName}&idUser2=${idUser2}&witchplayer=1`);
+    });
+  }, []);
 
   return (
     <div className="chat-window">
@@ -154,11 +165,9 @@ const ChatMsg = (props: Props) => {
           </button>
         </div>
         <div className="btnsend">
-          <Link to="/Game?CustomRoom=1">
           <button onClick={sendToPlay} className="btnsend2">
             <i className="fa-solid fa-play sendicon"></i>
           </button>
-          </Link>
         </div>
       </div>
     </div>

@@ -223,10 +223,10 @@ export class GameService {
   }
 
   async setResult(userId: number) {
-    console.log('1', userId)
-    console.log('2', this.getScoorPlayer(userId))
-    console.log('3', this.getClientsId(userId))
-    console.log('4', this.getScoorPlayer(this.getClientsId(userId)))
+    // console.log('1', userId)
+    // console.log('2', this.getScoorPlayer(userId))
+    // console.log('3', this.getClientsId(userId))
+    // console.log('4', this.getScoorPlayer(this.getClientsId(userId)))
     await this.userService.setResult(userId, this.getScoorPlayer(userId), this.getClientsId(userId), this.getScoorPlayer(this.getClientsId(userId)));
   }
 
@@ -242,7 +242,7 @@ export class GameService {
     await this.userService.updateGameState(userId, state);
   }
   async incrementState(userId: number) {
-    const user = this.userService.getUserById(userId)
+    const user = await this.userService.getUserById(userId)
 
     await prisma.profile.update({
         where: {
@@ -257,18 +257,32 @@ export class GameService {
 }
 
 async decrementState(userId: number) {
-    const user = this.userService.getUserById(userId)
+    const user = await this.userService.getUserById(userId)
 
-    await prisma.profile.update({
-        where: {
-            userId: userId
-        },
-        data: {
-            state: {
-                decrement: 1
-            }
-        }
-    })
+    if (await this.getState(userId) > 0) {
+      await prisma.profile.update({
+          where: {
+              userId: userId
+          },
+          data: {
+              state: {
+                  decrement: 1
+              }
+          }
+      })
+    }
 }
 
+
+async getState(userId: number) {
+  const user = await prisma.profile.findFirst({
+    where: {
+      userId: userId
+    },
+    select: {
+      state: true
+    }
+  })
+  return user.state
+}
 }

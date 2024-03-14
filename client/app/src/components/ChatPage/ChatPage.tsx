@@ -68,7 +68,7 @@ const ChatPage = () => {
             },
           }
         );
-        // console.log(res.data)
+        console.log('vxvxv', res.data)
         const listsNew = res.data.map((userslist: any) => (
           <Listchat
           isOwner={userslist.isOwner}
