@@ -60,7 +60,8 @@ export class GameGateway
       }
     } catch (error) {}
     client.join(user?.id.toString());
-    await this.gameService.incrementState(user?.id);
+    if (user && user.id)
+      await this.gameService.incrementState(user?.id);
 
     console.log(user?.id, await this.gameService.getState(user?.id));
 
@@ -89,7 +90,8 @@ export class GameGateway
       this.gameService.deleteClientsId(user.id);
       // this.gameService.deleteScoorPlayer(user.id);
     }
-    await this.gameService.decrementState(user?.id);
+    if (user && user.id)
+      await this.gameService.decrementState(user?.id);
     console.log(user?.id, await this.gameService.getState(user?.id));
     // console.log('discon', client?.id, user?.id);
   }

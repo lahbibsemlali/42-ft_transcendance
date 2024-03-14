@@ -58,10 +58,9 @@ const MenuImg = (props: Props) => {
 
   const BlcokUser = async (bool: boolean) => {
     await axios.post(
-      `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/blockOrUnblock`,
+      `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/blockOrUnblock?targetId=${props.idClient}`,
       {
-        targetId: props.idClient,
-        block: bool,
+        block: bool
       },
       {
         headers: {

@@ -508,6 +508,35 @@ export class ChatService {
     return neededForm;
   }
 
+  async getUserState(userId: number, chatId: number) {
+    const chat = await prisma.chat.findFirst({
+      where: {
+        id: chatId,
+        isGroup: false
+      },
+      select: {
+        users: {
+          select: {
+            userId: true,
+            user: {
+              select: {
+                profile: {
+                  select: {
+                    state: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (chat)
+      return chat.users.filter((user) => user.userId != userId)[0].user.profile.state;
+    return 0
+  }
+
   async getChat(userId: number) {
     const chat = await prisma.userChat.findMany({
       where: {
@@ -515,15 +544,6 @@ export class ChatService {
         isBanned: false,
       },
       select: {
-        user: {
-          select: {
-            profile: {
-              select: {
-                state: true,
-              },
-            },
-          },
-        },
         chat: {
           select: {
             id: true,
@@ -543,11 +563,11 @@ export class ChatService {
         updatedAt: 'desc',
       },
     });
-    const neededForm = chat.map((ch) => ({
+    const neededForm = chat.map(async (ch) => ({
       id: ch.chat.id,
       name: ch.chat.isGroup ? ch.chat.name : ch.dmName,
       image: ch.chat.isGroup ? ch.chat.image : ch.dmImage,
-      state: ch.user.profile.state,
+      state: await this.getUserState(userId, ch.chat.id),
       isProtected: ch.chat.status == 'Protected',
       isAdmin: ch.role == 'Admin' || ch.role == 'Owner',
       isOwner: ch.role == 'Owner',
@@ -556,6 +576,7 @@ export class ChatService {
     }));
     return neededForm;
   }
+  
   async getUserRoleInChat(userId: number, chatId: number) {
     const chat = await prisma.userChat.findFirst({
       where: {
