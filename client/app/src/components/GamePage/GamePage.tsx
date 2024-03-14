@@ -73,13 +73,10 @@ function sketch(p5: P5CanvasInstance) {
     myball = new Ball();
     upPaddle = new Paddle(true);
     downPaddle = new Paddle(false);
-    // if (isCustomRoom !== '1' && witchplayer == '1')
+    if (isCustomRoom !== '1')
       createBtn();
-    // else
-    // {
-    //   // console.log('runCustomRoom', customName, idUser2)
-    //   socket.emit('runCustomRoom', customName, idUser2, witchplayer);
-    // }
+    else
+      socket.emit('runCustomRoom', customName, idUser2, witchplayer);
   };
 
   p5.draw = () => {
@@ -134,6 +131,7 @@ function sketch(p5: P5CanvasInstance) {
             nameRoom: RoomName,
           });
         }
+        console.log('updateResulteupdateResulte')
         drawText2();
         setToDefault();
       }
@@ -261,11 +259,13 @@ function sketch(p5: P5CanvasInstance) {
   });
 
   socket.on("room created", (nameRoom: string) => {
+    console.log('room created', nameRoom)
     RoomName = nameRoom;
     inRoom = true;
   });
 
   socket.on("start game", () => {
+    console.log('start game')
     Play = true;
   });
 

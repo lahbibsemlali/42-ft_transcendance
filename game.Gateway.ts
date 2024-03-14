@@ -60,7 +60,8 @@ export class GameGateway
       }
     } catch (error) {}
     client.join(user?.id.toString());
-    await this.gameService.incrementState(user?.id);
+    if (user && user.id)
+      await this.gameService.incrementState(user?.id);
 
     console.log(user?.id, await this.gameService.getState(user?.id));
 
@@ -89,18 +90,21 @@ export class GameGateway
       this.gameService.deleteClientsId(user.id);
       // this.gameService.deleteScoorPlayer(user.id);
     }
-    await this.gameService.decrementState(user?.id);
+    if (user && user.id)
+      await this.gameService.decrementState(user?.id);
     console.log(user?.id, await this.gameService.getState(user?.id));
     // console.log('discon', client?.id, user?.id);
   }
 
+
+
   @SubscribeMessage('waiting')
   async getRoom(client: Socket) {
     const UserId = client['user'].id;
-    // await this.gameService.updateStatus(UserId, false);
+    await this.gameService.updateStatus(UserId, false);
     const ifPlay = await this.gameService.isPlaying(UserId);
     if (!ifPlay) {
-      await this.gameService.updateStatus(UserId, true);
+      // await this.gameService.updateStatus(UserId, true);
       this.gameService.setScoorPlayers(UserId);
       const nameRoom = this.gameService.createRooms();
       client.join(nameRoom);
@@ -127,19 +131,19 @@ export class GameGateway
       this.gameService.setScoorPlayers(UserId);
       // const nameRoom = this.gameService.createRooms();
       client.join(data[0]);
-      this.server.to(client.id).emit('room created', data[0]);
+      this.server.to(data[0]).emit('room created', data[0]);
       this.gameService.setSocketsInGame(client.id, data[0]);
       // if (this.gameService.getNRooms() % 2 != 0)
-      this.gameService.players[0] = UserId;
+      if (data[2] != '1')
+        this.gameService.players[0] = UserId;
       console.log('this.gameService.players[0]', UserId);
       // if (this.gameService.getNRooms() % 2 == 0) {
-      this.gameService.players[1] = parseInt(data[1]);
-      this.server.to(data[0]).emit('start game');
-      if (data[2] == '1') {
-        console.log('witchplayer');
+        if (data[2] == '1') {
+        this.gameService.players[1] = parseInt(data[1]);
+        this.server.to(data[0]).emit('start game');
         client.to(data[0]).emit('witchplayer');
+        this.gameService.setClientsId();
       }
-      this.gameService.setClientsId();
       // }
     } else this.server.to(client.id).emit('in game');
   }
