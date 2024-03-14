@@ -241,9 +241,11 @@ export class GameService {
   async updateStatus(userId: number, state: boolean) {
     await this.userService.updateGameState(userId, state);
   }
+  
   async incrementState(userId: number) {
     const user = await this.userService.getUserById(userId)
 
+    console.log('userid,     ', userId, user)
     await prisma.profile.update({
         where: {
             userId: userId
