@@ -9,7 +9,6 @@ export default class BodyDto {
     @IsString()
     name: string
 
-    @IsNotEmpty()
     @IsString()
     password: string
 }

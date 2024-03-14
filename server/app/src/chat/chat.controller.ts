@@ -34,6 +34,7 @@ export class ChatController {
 
   @Post('create_group')
   createGroup(@User() user, @Body() body: BodyDto) {
+    console.log(body)
     this.chatService.createGroup(user.id, body.name, body.password, body.status);
   }
 
@@ -79,9 +80,9 @@ export class ChatController {
   }
 
   @Post('ban')
-  async ban(@Body() body: IdDto) {
+  async ban(@User() user, @Body() body: IdDto) {
     const { targetId, chatId } = body;
-    await this.chatService.ban(targetId, chatId);
+    await this.chatService.ban(user.id, targetId, chatId);
   }
 
   @Post('promote')

@@ -32,7 +32,7 @@ const CreateGroups: React.FC<CreateTYpe> = ({ crateGroup, NewGroupCreated }) => 
         `http://${import.meta.env.VITE_DOMAIN}:8000/api/chat/create_group`,
         {
           name: inputValue3,
-          password: inputValue,
+          password: inputValue === undefined ? '' : inputValue,
           status: typeGrpup,
         },
         {
