@@ -563,7 +563,7 @@ export class ChatService {
         updatedAt: 'desc',
       },
     });
-    const neededForm = chat.map(async (ch) => ({
+    const neededForm = Promise.all( await chat.map(async (ch) => ({
       id: ch.chat.id,
       name: ch.chat.isGroup ? ch.chat.name : ch.dmName,
       image: ch.chat.isGroup ? ch.chat.image : ch.dmImage,
@@ -573,7 +573,7 @@ export class ChatService {
       isOwner: ch.role == 'Owner',
       isGroup: ch.chat.isGroup,
       lastMessage: ch.chat.lastMessage,
-    }));
+    })));
     return neededForm;
   }
   
