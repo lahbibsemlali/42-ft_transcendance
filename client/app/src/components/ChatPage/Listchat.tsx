@@ -42,7 +42,7 @@ const Listchat: React.FC<ListchatProps> = ({
     <div className="listchat" onClick={handleClick}>
       <div className="imgchat">
         <img
-          src={url}
+          src="/group5.jpeg"
           style={{
             maxWidth: "100%",
             maxHeight: "100%",

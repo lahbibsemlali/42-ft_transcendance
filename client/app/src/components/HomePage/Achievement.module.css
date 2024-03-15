@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     background-color: #07264F;
-    /* -ms-flex-align: center; */
     height: 700px;
     width: 400px;
     border-radius: 30px;
@@ -10,4 +9,9 @@
     border-top: 3px solid #2190E2;
     color: white;
     align-items: center;
+    /* justify-content: center; */
+}
+
+.boxA h1{
+    text-align: center;
 }

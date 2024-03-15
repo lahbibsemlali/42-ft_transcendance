@@ -22,13 +22,6 @@
 }
 
 
-h1{
-    text-align: right;
-    margin: 25px;
-    /* font-family: simo; */
-
-}
-
 .playText{
     text-align: center;
     margin-top: 0%;
@@ -37,18 +30,19 @@ h1{
 
 .more{
     /* margin-left: 300px; */
+    /* position: absolute; */
+    /* margin-left: 300px; */
 }
 
 .username { 
     position: absolute;
     top: 32%;
-    color: yellow;
+    color: white;
 }
 
 .avatar{
     position: absolute;
     top: 12%;
-    /* left: 10%; */
     width: 150px;
     height: 150px;
     border-radius: 20px;

@@ -56,12 +56,14 @@ const Header = () => {
         <Link to="/Chat">
           <i className="fa-solid fa-comments awsomeCss"></i>
         </Link>
-        <i className="fa-solid fa-bell awsomeCss"></i>
+        <Link to="/friends">
+          <i className="fa-solid fa-user-group awsomeCss"></i>
+        </Link>
         <Link to="/Settings">
           <i className="fa-solid fa-gear awsomeCss"></i>
         </Link>
         <Link to="/">
-          <i className="fa-solid fa-right-from-bracket awsomeCss"></i>
+          <i className="fa-solid fa-house awsomeCss"></i>
         </Link>
       </div>
     </div>
