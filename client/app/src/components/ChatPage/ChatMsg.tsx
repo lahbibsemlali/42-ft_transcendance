@@ -10,6 +10,7 @@ import GeneratMsg from "./GeneratMsg";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import SendToPlay from "./SendToPlay";
 
 
 type Props = {
@@ -158,11 +159,7 @@ const ChatMsg = (props: Props) => {
             <i className="fa-solid fa-paper-plane sendicon"></i>
           </button>
         </div>
-        <div className="btnsend">
-          <button onClick={sendToPlay} className="btnsend2">
-            <i className="fa-solid fa-play sendicon"></i>
-          </button>
-        </div>
+            {!props.isGroup && <SendToPlay sendToPlay={sendToPlay} />}
       </div>
     </div>
   );
