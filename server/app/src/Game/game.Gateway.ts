@@ -47,6 +47,7 @@ export class GameGateway
     nameRoom: '',
   };
 
+
   afterInit(server: Server) {}
 
   async handleConnection(client, ...args: any[]) {
@@ -88,11 +89,13 @@ export class GameGateway
       this.gameService.deleteSocketsInGame(client.id);
       this.gameService.deleteClientsId(user.id);
       // this.gameService.deleteScoorPlayer(user.id);
+      client.to(this.gameService.getPlayerRoom(client.id)).emit('done');
     }
     if (user && user.id) await this.gameService.decrementState(user?.id);
     // console.log(user?.id, await this.gameService.getState(user?.id));
     // // console.log('discon', client?.id, user?.id);
   }
+
 
   @SubscribeMessage('waiting')
   async getRoom(client: Socket) {
@@ -120,6 +123,7 @@ export class GameGateway
   
 
 
+
   @SubscribeMessage('runCustomRoom')
   async generatCustomRoom(client: Socket, data) {
     // client.join(data[0]);
@@ -128,21 +132,26 @@ export class GameGateway
     const ifPlay = await this.gameService.isPlaying(UserId);
     if (!ifPlay) {
       this.gameService.setScoorPlayers(UserId);
+      this.gameService.setScoorPlayers(parseInt(data[1]));
       client.join(data[0]);
       this.server.to(data[0]).emit('room created', data[0]);
       this.gameService.setSocketsInGame(client.id, data[0]);
-      if (data[2] != '1') this.gameService.players[0] = UserId;
+      // if (data[2] != '1') 
+        this.gameService.players[0] = UserId;
       // console.log('this.gameService.players[0]', UserId);
-      if (data[2] == '1') {
-        console.log('run custom room', client['user'].id);
+      // if (data[2] == '1') {
+        // console.log('run custom room', client['user'].id);
         this.gameService.players[1] = parseInt(data[1]);
+        console.log('to set', UserId, parseInt(data[1]))
+        console.log('to set2', this.gameService.players[0], this.gameService.players[1])
         this.server.to(data[0]).emit('start game');
         client.to(data[0]).emit('witchplayer');
         this.gameService.setClientsId();
-      }
+      // }
     } else this.server.to(client.id).emit('in game');
-    // console.log('client.rooms', client.rooms);
+    // console.log('runCustomRoom', UserId, client.rooms);
   }
+  /home/zero/toPush2/client/app/src/components/GamePage/GamePage.tsx
 
   @SubscribeMessage('updateBallPosition')
   updateBallPosition(
@@ -192,6 +201,8 @@ export class GameGateway
   @SubscribeMessage('updateResulte') // game over
   async getResulte(client: Socket, data: { nameRoom: string; bool: boolean }) {
     // console.log('update scoor', 'nameRoom', data.nameRoom, 'bool', data.bool);
+    console.log('update scoor', client.id, client['user'].id);
+
     if (
       this.gameService.isSocketInGame(client.id) &&
       this.gameService.getPlayerRoom(client.id) === data.nameRoom
@@ -201,6 +212,7 @@ export class GameGateway
         this.gameService.decrementNRooms();
       await this.gameService.updateStatus(client['user'].id, false);
       if (this.gameService.getClientsId(client['user'].id) !== undefined) {
+        console.log('setResult')
         if (data.bool) this.gameService.setResult(client['user'].id);
         else this.gameService.setResult2(client['user'].id);
       }
@@ -208,7 +220,10 @@ export class GameGateway
       this.gameService.deleteClientsId(client['user'].id);
       // this.gameService.deleteScoorPlayer(client['user'].id);
     }
+    this.server.to(data.nameRoom).emit('done');
   }
+
+  
 
   @SubscribeMessage('updateScoor')
   updateScoor(client: Socket, nameRoom: string) {
@@ -232,6 +247,8 @@ export class GameGateway
       await this.gameService.updateStatus(client['user'].id, false);
       if (this.gameService.getClientsId(client['user'].id) !== undefined)
         this.gameService.setResult3(client['user'].id);
+      // this.server.to(client.id).emit('done');
+      client.to(this.gameService.getPlayerRoom(client.id)).emit('done');
     }
   }
 
@@ -242,6 +259,7 @@ export class GameGateway
       this.server.to(client.id).emit('Game Over');
       this.gameService.deleteSocketsInGame(client.id);
       this.gameService.deleteClientsId(client['user'].id);
+      this.server.to(client.id).emit('done');
     }
   }
 
@@ -250,7 +268,7 @@ export class GameGateway
     const ifPlay = await this.gameService.isPlaying(client['user'].id);
     if (!ifPlay) {
       const room = idUser + client['user'].id.toString() + 'custom';
-      client.join(room);
+      // client.join(room);
       this.server
         .to(idUser)
         .emit('customRoom', client['user'].id.toString(), room, idUser);
@@ -264,15 +282,22 @@ export class GameGateway
     const ifPlay = await this.gameService.isPlaying(client['user'].id);
     if (!ifPlay) {
       const room = client['user'].id.toString() + idUser + 'custom';
-      client.join(room);
-      this.server.to(room);
-      this.server.to(idUser).emit('accepted', room, idUser);
+      // client.join(room);
+      // this.server.to(room);
+      this.server.to(idUser).emit('accepted', room, client['user'].id.toString());
 
       // // console.log(client['user'].id.toString(), client.rooms)
     }
     // console.log('accepted', client.rooms)
 
     // // console.log('idUser', idUser)
+  }
+
+  @SubscribeMessage('joinMe')
+  joinMe(client: Socket, roomName: string) {
+    client.join(roomName);
+    this.gameService.setSocketsInGame(client.id, roomName);
+    // console.log('joinMe', client['user'].id, client.rooms);
   }
 
   /////////////// CHAT EVENTS

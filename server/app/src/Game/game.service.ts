@@ -76,6 +76,7 @@ export class GameService {
   }
 
   setClientsId() {
+    console.log('setClientsId', this.players[0], this.players[1])
     this.clientsId.set(this.players[0], this.players[1]);
     this.clientsId.set(this.players[1], this.players[0]);
   }
@@ -110,10 +111,10 @@ export class GameService {
   }
 
   async setResult(userId: number) {
-    // console.log('1', userId)
-    // console.log('2', this.getScoorPlayer(userId))
-    // console.log('3', this.getClientsId(userId))
-    // console.log('4', this.getScoorPlayer(this.getClientsId(userId)))
+    console.log('1', userId)
+    console.log('2', this.getScoorPlayer(userId))
+    console.log('3', this.getClientsId(userId))
+    console.log('4', this.getScoorPlayer(this.getClientsId(userId)))
     await this.userService.setResult(
       userId,
       this.getScoorPlayer(userId),

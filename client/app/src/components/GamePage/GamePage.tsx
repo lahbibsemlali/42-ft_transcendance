@@ -3,8 +3,14 @@ import socketIOClient from "socket.io-client";
 import Cookies from "js-cookie";
 import axios from "axios";
 // import { useLocation } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 // import Header from "../Header/Header";
+import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+// import { usehis }
+// import { useHistory } from 'react-router-dom';
+
 
 const ENDPOINT = `http://${import.meta.env.VITE_DOMAIN}:8000`;
 let mytoken = Cookies.get("jwt") || "";
@@ -23,6 +29,7 @@ let isCustomRoom: string;
 let customName: string;
 let idUser2: string;
 let witchplayer: string;
+let setGameOverPointer: React.Dispatch<React.SetStateAction<boolean>>;
 
 function sketch(p5: P5CanvasInstance) {
   let canvaWidth: number;
@@ -68,13 +75,13 @@ function sketch(p5: P5CanvasInstance) {
   socket.on("room created", (nameRoom: string) => {
     RoomName = nameRoom;
     inRoom = true;
-    console.log('room created', 'inRoom', inRoom)
+    // console.log('room created', nameRoom)
 
   });
 
   socket.on("start game", () => {
     Play = true;
-    console.log('start game', 'Play', Play)
+    // console.log('start game', 'Play', Play)
   });
 
   socket.on("in game", () => {
@@ -82,14 +89,27 @@ function sketch(p5: P5CanvasInstance) {
   });
 
   socket.on("witchplayer", () => {
-    console.log('witchplayer')
+    // console.log('witchplayer')
     player = true;
+  });
+
+  socket.on("done", () => {
+    // console.log('witchplayer')
+    // player = true;
+    toast(toDisplayText, {
+      icon: '👏',
+    });
+    setGameOverPointer(true);
   });
 
   socket.on("winer", () => {
     socket.emit("updateResulte", {nameRoom: RoomName, bool: false});
     ifWin = true;
     toDisplayText = "WINNER";
+    // toast(toDisplayText, {
+    //   icon: '👏',
+    // });
+    // setGameOverPointer(true);
     // // console.log("winner");
   });
 
@@ -113,13 +133,17 @@ function sketch(p5: P5CanvasInstance) {
     downPaddle = new Paddle(false);
     if (isCustomRoom !== '1')
       createBtn();
-    else
+    else if (witchplayer === '1') {
+      console.log('idUser2', idUser2)
       socket.emit('runCustomRoom', customName, idUser2, witchplayer);
+    }
+    else
+      socket.emit('joinMe', customName);
   };
 
-  let i = 1;
+  // let i = 1;
   p5.draw = () => {
-    console.log('how')
+    // console.log('how')
 // console.log('i', i)
 
     p5.background(p5.color(34, 71, 113));
@@ -135,7 +159,7 @@ function sketch(p5: P5CanvasInstance) {
 // i++;
       if (Play && inRoom && !isPlaying && ifGuest && !ifWin && !isGameOver) {
     // console.log('xaxaxa', scoreUP, scoreDOWN)
-    console.log('draw')
+    // console.log('draw')
 
       if (scoreUP != 5 && scoreDOWN != 5) {
         drawText();
@@ -185,8 +209,13 @@ function sketch(p5: P5CanvasInstance) {
             nameRoom: RoomName,
           });
         }
-        // // console.log('updateResulteupdateResulte')
-        drawText2();
+        // toast(toDisplayText, {
+        //   icon: '👏',
+        // });
+        // setGameOver(true);
+        // setGameOverPointer(true);
+        // console.log('updateResulteupdateResulte', toDisplayText)
+        // drawText2();
         setToDefault();
       }
     } else if (inRoom && !isPlaying && ifGuest && !ifWin && !isGameOver) {
@@ -199,13 +228,23 @@ function sketch(p5: P5CanvasInstance) {
     } else if (ifGuest && ifWin && !isGameOver) {
       toDisplayText = "win";
       // button.remove();
-      drawText2();
+      // toast(toDisplayText, {
+      //   icon: '👏',
+      // });
+      // setGameOverPointer(true);
+
+      // drawText2();
       setToDefault();
     } else if (ifGuest && isGameOver) {
       toDisplayText = "game over";
-      drawText2();
+      // toast(toDisplayText, {
+      //   icon: '👏',
+      // });
+      // setGameOverPointer(true);
+
+      // drawText2();
       setToDefault();
-    } else if (!ifGuest) runBot();
+    }
   };
 
   function setToDefault() {
@@ -222,16 +261,13 @@ function sketch(p5: P5CanvasInstance) {
   }
 
   function drawText2() {
+    console.log('toDisplayText', toDisplayText)
     p5.textSize((p5.width * 50) / 466);
     p5.fill(p5.color(28, 108, 167));
     p5.textAlign(p5.CENTER);
     p5.text(toDisplayText, p5.width / 2, p5.height / 2);
   }
 
-  function runBot() {
-    
-    
-  }
 
   p5.keyPressed = () => {
     if (p5.keyCode === p5.LEFT_ARROW) {
@@ -499,8 +535,22 @@ function sketch(p5: P5CanvasInstance) {
 }
 
 const GamePage = () => {
-  console.log('game called')
+    // const location = useLocation();
   const location = useLocation();
+
+
+  useEffect(() => {
+    // This function will be called whenever the location (route) changes
+    console.log("Route changed to:", location.pathname);
+    // You can perform any actions or logic here based on the route change
+  }, [location]);
+
+
+  const navigate = useNavigate();
+const [gameOver, setGameOver] = useState(false);
+setGameOverPointer = setGameOver;
+
+  console.log('game called')
   const queryParams = new URLSearchParams(location.search);
   isCustomRoom = queryParams.get('CustomRoom') || '0';
   customName = queryParams.get('roomName') || '';
@@ -508,6 +558,7 @@ const GamePage = () => {
   witchplayer = queryParams.get('witchplayer') || '';
   return (
     <div>
+      {gameOver && <Navigate to="/"/>}
       <div
         style={{
           display: "flex",

@@ -543,15 +543,32 @@ export class UserService {
     return matches;
   }
 
-  async removeIfMoreThanFive() {
-    const gamesCount = await prisma.game.count();
-    // console.log(gamesCount, ',,,...')
+  async removeIfMoreThanFive(userId: number) {
+    const profile = await prisma.profile.findFirst({
+      where: {userId: userId},
+      select: {
+        lastFive: {
+          select: {
+            id: true
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
+      }
+    });
+    if (!profile)
+      return
+    const gamesCount = profile.lastFive.length
     if (gamesCount >= 5) {
       const oldestGame = await prisma.game.findFirst({
-        orderBy: {
-          createdAt: 'asc',
-        },
+        where: {
+          id: profile.lastFive[gamesCount - 1].id
+        }
       });
+      if (!oldestGame)
+        return
+      console.log(oldestGame, gamesCount)
       await prisma.game.delete({
         where: {
           id: oldestGame.id,
@@ -559,6 +576,9 @@ export class UserService {
       });
     }
   }
+
+
+
 
   async setResult(
     userId: number,
@@ -568,7 +588,7 @@ export class UserService {
   ) {
     const me = await this.getUserById(userId);
     const opp = await this.getUserById(oppId);
-    await this.removeIfMoreThanFive();
+    await this.removeIfMoreThanFive(userId);
     await prisma.profile.update({
       where: {
         userId: userId,
