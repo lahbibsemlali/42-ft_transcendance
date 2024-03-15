@@ -42,7 +42,7 @@ h1{
 .username { 
     position: absolute;
     top: 32%;
-    color: yellow;
+    color: white;
 }
 
 .avatar{
@@ -57,8 +57,8 @@ h1{
 
 .onlineI {
     position: absolute;
-    top: 41%;
-    left: 42%;
+    top: 40%;
+    right: 55%;
 }
 
 .onlineI h1 {

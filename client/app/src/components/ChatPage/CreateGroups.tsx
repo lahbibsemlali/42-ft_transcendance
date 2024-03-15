@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import toast from "react-hot-toast";
+import "./ChatPage.css";
+import "./ChatPage.css";
 
 type CreateTYpe = {
   crateGroup?: () => void;
@@ -66,18 +68,19 @@ const CreateGroups: React.FC<CreateTYpe> = ({ crateGroup, NewGroupCreated }) => 
 
   return (
     <div id="myModal" className="modal">
-      <div className="modal-content">
-        <span onClick={handleClick} className="close">
+      <div className="modal-content" style={{backgroundColor:"#224771" , border:"#224771", borderRadius:"10px"}}>
+        <span onClick={handleClick} className="close" style={{margin:"10px"}}>
           &times;
         </span>
         <input
           ref={inputRef3}
-          style={{ padding: "5px", marginBottom: "5px" }}
+          style={{ width:"250px", padding: "10px", marginBottom: "10px" , backgroundColor:"#2190e2",border:"#2190e2", borderRadius:"10px", fontFamily:"simo"}}
           placeholder="NAME"
           type="text"
           maxLength={7}
+          className="search"
         />
-        <select style={{ width: "20%", margin: "10px" }} id="cars">
+        <select style={{ width: "25%", textAlign:"center",margin: "10px" , backgroundColor:"#2190e2", borderRadius:"5px", border:"#2190e2", fontFamily:"simo", color:"white"}} id="cars">
           <option onClick={() => GroupType(1)} value="volvo">
             public
           </option>
@@ -96,7 +99,7 @@ const CreateGroups: React.FC<CreateTYpe> = ({ crateGroup, NewGroupCreated }) => 
             type="text"
           />
         )}
-        <button onClick={createGroup} style={{ width: "20%" }}>
+        <button onClick={createGroup} style={{ width: "25%" , backgroundColor:"#2190e2", borderRadius:"5px", border:"#2190e2", fontFamily:"simo", color:"white"}}>
           Create
         </button>
       </div>

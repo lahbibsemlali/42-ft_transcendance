@@ -219,7 +219,7 @@ const ChatPage = () => {
               {nameGroup.length != 0 && searchR}
             </div>
           </div>
-          <button onClick={createGroupOn}>Creat Group</button>
+          <button onClick={createGroupOn} className="plus-button"></button>
         </div>
         <div className="ChatBox">
           <div id="side-bar">{listChat}</div>

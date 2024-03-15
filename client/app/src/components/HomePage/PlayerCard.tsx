@@ -27,7 +27,7 @@ function PlayerCard() {
     <div className={styles.Player}>
       <h1 className={styles.more}>Player Card</h1>
       <img src={image} alt="Player's avatar" className={styles.avatar} />
-      <h1 className={styles.username}>{username}</h1>
+      <h2 className={styles.username}>{username}</h2>
       <Overview />
       {/* <h2 className={styles.playText}>New Game </h2> */}
       <Play />

@@ -35,7 +35,7 @@ function ProfileCard({prop}: {prop: any}) {
         <h1>online</h1>
       </div>
       <h1 className={styles.more}>Player Card</h1>
-      <h1 className={styles.username}>{username}</h1>
+      <h2 className={styles.username}>{username}</h2>
       <img src={image} alt="Player's avatar" className={styles.avatar} />
       <Overview prop={prop}/>
       <AddFriend prop={prop}/>

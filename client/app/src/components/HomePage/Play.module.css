@@ -16,3 +16,12 @@
     border-right: 3px solid #2190E2;
     font-family: simo;
 }
+
+.PlayButton:hover,:focus {
+    background: #00eeff;
+    border: 1px solid #00e1ff;
+    box-shadow: 0 0 5px #00e1ff,
+                0 0 20px #00e1ff,
+                0 0 50px #00e1ff,
+                0 0 100px #00e1ff;
+}
