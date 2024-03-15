@@ -1,47 +1,13 @@
 import axios from 'axios';
-// import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie';
-import { Navigate } from 'react-router-dom';
-
-// const Qr = () => {
-//     let [qrUrl, setQrUrl] = useState('')
-
-//     useEffect(() => {
-//         let fetcher = async () => {
-//         await axios(`http://${import.meta.env.VITE_DOMAIN}:8000/api/2fa/generate`, {
-//             headers: {
-//             Authorization: `bearer ${Cookies.get('jwt')}`
-//             }
-//         })
-//         .then((res) => {
-//             // console.log("qrcode:??", res.data.qrUrl)
-//             setQrUrl(() => res.data.qrUrl)
-//             // setAvatarUrl(() => res.data.qrUrl)
-//             return res
-//         })
-//         }
-//         fetcher();
-//     }, [])
-//     // console.log('url qr ar: ', qrUrl)
-//     return (
-//     <>
-//         <img src={qrUrl}></img>
-//         <input type='text'></input>
-//     </>
-//     )
-// }
-
-// export default Qr
-
-
-
 import { useEffect, useState } from "react"
 import styles from "./Qr.module.css"
+import toast from "react-hot-toast";
 
 function Qr({ setChanged }: any){
     let [qrUrl, setQrUrl] = useState('')
     let [input, setInput] = useState('')
-    const [goodToken, setGoodToken] = useState(false)
+    const notify = (msg: string) => toast.error(msg);
 
     useEffect(() => {
         const fetcher = async () => {
@@ -50,9 +16,7 @@ function Qr({ setChanged }: any){
                 Authorization: `bearer ${Cookies.get('jwt')}`
                 }
             })
-            // console.log("qrcode:??", res.data.qrUrl)
             setQrUrl(() => res.data.qrUrl)
-            // setAvatarUrl(() => res.data.qrUrl)
         }
         fetcher();
     }, [])
@@ -65,10 +29,9 @@ function Qr({ setChanged }: any){
                 }
             })
             setChanged(false)
-            // console.log('soo good')
         }
-        catch (err) {
-            // console.log('not good', err)
+        catch (err: any) {
+            notify(err.response.data.message)
         }
     }
     return (
@@ -79,7 +42,7 @@ function Qr({ setChanged }: any){
                 <p> Please scan and enter 2FA code </p>
             </div>
             <div className={styles.codeInput}>
-            <input placeholder="" type="text" maxLength={6} onChange={e => setInput(() => parseInt(e.target.value))}/>
+            <input placeholder="" type="text" maxLength={6} onChange={e => setInput(() => e.target.value)}/>
             </div>
             <button className={styles.Pass_verify} onClick={checkToken}>Verify</button>
         </div>

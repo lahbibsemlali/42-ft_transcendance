@@ -19,6 +19,7 @@ import { UserService } from 'src/user/user.service';
 import { User } from 'src/user/user.decorator';
 import * as qrcode from 'qrcode';
 import { JwtTwoFaGuard } from 'src/guards/jwt-twofa.guard';
+import TokenDto from './dtos/TokenDto';
 
 @Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -48,18 +49,16 @@ export class TwoFaController {
 
   @UseGuards(JwtGuard)
   @Post('turn-on')
-  async turnTwoFaOn(@Body('token') token, @User() user) {
-    token = token.toString();
-    const isValid = await this.twoFaService.isTwoFaValid(token, user.id);
-    // console.log('hererere ', isValid, typeof token)
+  async turnTwoFaOn(@Body() body: TokenDto, @User() user) {
+    const isValid = await this.twoFaService.isTwoFaValid(body.token, user.id);
     if (!isValid) throw new UnauthorizedException('wrong 2fa token');
     await this.twoFaService.turnTwoFaOn(user.id);
   }
 
   @UseGuards(JwtTwoFaGuard)
   @Post('authenticate')
-  async authenticate(@Body('token') token, @User() user) {
-    const isValid = await this.twoFaService.isTwoFaValid(token, user.id);
+  async authenticate(@Body() body: TokenDto, @User() user) {
+    const isValid = await this.twoFaService.isTwoFaValid(body.token, user.id);
     if (!isValid) throw new UnauthorizedException('Wrong 2fa token');
     const payload = {
       id: user.id,

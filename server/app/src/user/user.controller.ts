@@ -165,6 +165,8 @@ export class UserController {
       throw new BadRequestException('user is blocked by target');
     return {
       username: userInfo.username,
+      state: userInfo.state,
+      inGame: userInfo.inGame,
       isTwoFa: userInfo.twoFA,
       avatar: userInfo.avatar,
       wins: userInfo.wins,

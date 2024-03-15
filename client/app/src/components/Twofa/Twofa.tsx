@@ -4,11 +4,14 @@ import styles from "./Twofa.module.css"
 import loginStyle from "../LoginPage/Login.module.css"
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, redirect } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 function Twofa(){
     const input = useRef('')
     const [red, setRed] = useState(false)
     let cookie: any
+    const notify = (msg: string) => toast.error(msg);
+    
     useEffect(() => {
         cookie = Cookies.get('jwt')
     }, [])
@@ -25,7 +28,8 @@ function Twofa(){
             setRed(() => true)
             // console.log('soo good', res.data)
         }
-        catch (err) {
+        catch (err: any) {
+            notify(err.response.data.message)
             // console.log('not good', err)
         }
     }

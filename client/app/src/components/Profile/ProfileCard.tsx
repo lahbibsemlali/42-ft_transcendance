@@ -6,11 +6,16 @@ import Cookies from "js-cookie";
 import AddFriend from "./AddFriend.tsx";
 import BlockFriend from "./Block.tsx";
 import Online from "./Online.tsx";
+import Offline from "./Offline.tsx";
+import InGame from "./InGame.tsx";
 const backend = `http://${import.meta.env.VITE_DOMAIN}:8000/api`
 
 function ProfileCard({prop}: {prop: any}) {
   const [image, setImage] = useState('')
   const [username, setUsername] = useState('')
+  const [status, setStatus] = useState(0)
+  const [inGame, setIngame] = useState(false)
+
   useEffect(() => {
     const fetcher = async () => {
       try {
@@ -21,6 +26,8 @@ function ProfileCard({prop}: {prop: any}) {
         })
         setImage(res.data.avatar)
         setUsername(res.data.username)
+        setStatus(res.data.state)
+        setIngame(res.data.inGame)
       }
       catch (err) {
         // // console.log('error profile', err.response.data.message)
@@ -31,8 +38,12 @@ function ProfileCard({prop}: {prop: any}) {
   return (
     <div className={styles.Player}>
       <div className={styles.onlineI}>
-        <Online/>
-        <h1>online</h1>
+        {!inGame && status > 0 && <Online/>}
+        {!inGame && status > 0 && <h1> Online </h1>}
+        {status == 0 && <Offline/>}
+        {status == 0 && <h1> Offline </h1>}
+        {inGame && status > 0 && <InGame/>}
+        {inGame && status > 0 && <h1>InGame</h1>}
       </div>
       <h1 className={styles.more}>Player Card</h1>
       <h2 className={styles.username}>{username}</h2>
