@@ -151,7 +151,6 @@ export class GameGateway
     } else this.server.to(client.id).emit('in game');
     // console.log('runCustomRoom', UserId, client.rooms);
   }
-  /home/zero/toPush2/client/app/src/components/GamePage/GamePage.tsx
 
   @SubscribeMessage('updateBallPosition')
   updateBallPosition(
