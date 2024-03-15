@@ -572,7 +572,7 @@ export class ChatService {
     const neededForm = Promise.all(
       await chat.map(async (ch) => ({
         id: ch.chat.id,
-        userId: ch.chat.users.filter((user) => user.userId != userId)[0].userId,
+        userId: !ch.chat.isGroup ? ch.chat.users.filter((user) => user.userId != userId)[0].userId : 0,
         name: ch.chat.isGroup ? ch.chat.name : ch.dmName,
         image: ch.chat.isGroup ? ch.chat.image : ch.dmImage,
         state: await this.getUserState(userId, ch.chat.id),
