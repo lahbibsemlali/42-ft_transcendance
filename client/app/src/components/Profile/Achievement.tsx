@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import Styles from "./Achievement.module.css"
-// import Achievement_Box from "./Achievement_Box"
 import Achievement_Box from "./Achievement_Box"
 import axios from "axios"
 import Cookies from "js-cookie"
@@ -20,7 +19,6 @@ function Achievement({prop}: {prop: any}){
                 setWins(res.data.wins)
             }
             catch (err) {
-                // // //console.log('ach err is ', err.response.data.message)
             }
         }
         fetcher()

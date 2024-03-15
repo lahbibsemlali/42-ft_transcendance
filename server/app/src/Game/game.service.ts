@@ -103,9 +103,7 @@ export class GameService {
     this.ScoorPlayers.delete(idUser);
   }
 
-  //
   setIdWithSocket(idUser: string, socketName: string) {
-    console.log('setIdWithSocket2', idUser, socketName)
     this.idWithSocket.set(idUser, socketName);
   }
 
@@ -116,7 +114,6 @@ export class GameService {
   deleteIdWithSocket(idUser: string) {
     this.idWithSocket.delete(idUser);
   }
-  //
 
   async isPlaying(userId: number) {
     const user = await this.userService.getUserById(userId);

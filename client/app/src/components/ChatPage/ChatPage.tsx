@@ -71,7 +71,6 @@ const ChatPage = () => {
             },
           }
         );
-        console.log('vxvxv', res.data)
         const listsNew = res.data.map((userslist: any) => (
           <Listchat
             isOwner={userslist.isOwner}
@@ -90,7 +89,6 @@ const ChatPage = () => {
         ));
         setListChat(listsNew);
       } catch (error) {
-        // // //console.log(error);
       }
     };
 
@@ -113,28 +111,15 @@ const ChatPage = () => {
   };
 
   const ftsetIdTarget = (id: number) => {
-    // // //console.log(id, 'to add2');
     setIdTarget(id);
   };
 
   const openAddUser = () => {
-    // console
     setBtnAdd(!btnAdd);
   };
 
   const [nameGroup, setNmaeGroup] = useState("");
   const [searchR, setSearchR] = useState<ReactElement | null>(null);
-
-
-  // const searchGroups = () => {
-
-  // };
-
-  // // //console.log('nameGroup', nameGroup);
-
-  // const openModalAddUser = () => {
-  //   setBtnAdd(!btnCraete);
-  // };
 
   const setEmptyValue = () => {
     setNmaeGroup("");
@@ -161,7 +146,6 @@ const ChatPage = () => {
             },
           }
         );
-        // // //console.log("|||||||||", res.data.matches)
         const shearchResult = res.data.matches.map((userslist: any) => (
           <Result
             isProtected={userslist.isProtected}
@@ -175,7 +159,6 @@ const ChatPage = () => {
         ));
         setSearchR(shearchResult);
       } catch (error) {
-        // // //console.log(error);
       }
     };
     if (nameGroup.length)
@@ -235,8 +218,6 @@ const ChatPage = () => {
               isOwner={info.isOwner}
               setID={ftsetIdTarget}
               modalAddUser={openAddUser}
-              // toAdd={toAdd}
-              // groupRemoved={groupRemoved}
               NewGroupCreated={NewGroupCreated}
               isMuted={info.isMuted}
               id={info.id}
@@ -245,7 +226,6 @@ const ChatPage = () => {
               isProtected={info.isProtected}
             />
           )}{" "}
-          {/* send restMsgs in props ===> id */}
         </div>
       </div>
     </div>

@@ -30,7 +30,6 @@ function ProfileCard({prop}: {prop: any}) {
         setIngame(res.data.inGame)
       }
       catch (err) {
-        // // //console.log('error profile', err.response.data.message)
       }
     }
     fetcher()

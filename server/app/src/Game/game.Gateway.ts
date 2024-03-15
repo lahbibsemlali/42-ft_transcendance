@@ -127,7 +127,6 @@ export class GameGateway
       this.server.to(data[0]).emit('start game');
       client.to(data[0]).emit('witchplayer');
       this.gameService.setClientsId();
-      // }
     } else this.server.to(client.id).emit('in game');
   }
 
@@ -263,7 +262,6 @@ export class GameGateway
     this.gameService.setIdWithSocket(client['user'].id.toString(), client.id);
   }
 
-  /////////////// CHAT EVENTS
   @SubscribeMessage('join to this chat room')
   joinToRoom(client: Socket, id: string) {
     client.join(id);

@@ -40,7 +40,6 @@ export class TwoFaController {
         console.error('Error generating QR code:', err);
         return { qrUrl: 'error' };
       }
-      // //console.log('qrcode', qrUrl)
       res.send({
         qrUrl: qrUrl,
       });

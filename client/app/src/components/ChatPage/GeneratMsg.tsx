@@ -1,4 +1,3 @@
-// import React from 'react'
 import LeftMsg from './LeftMsg';
 import RightMsg from './RightMsg';
 

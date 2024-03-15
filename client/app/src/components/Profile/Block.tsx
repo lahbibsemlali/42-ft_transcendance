@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 
 function BlockFriend({prop}: {prop: string}){
     const [status, setStatus] = useState(0)
-    // const [image, setImage] = useState('')
     const blockFriend = async () => {
       try {
         await axios.put(`${backend}/user/block?id=${prop}`, {}, {

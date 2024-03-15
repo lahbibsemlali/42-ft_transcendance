@@ -7,10 +7,8 @@ import Authorization from "./components/Authorization/Authorization.tsx";
 import { Toaster } from 'react-hot-toast';
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  // <React.StrictMode>
   <Authorization>
   <App />
   <Toaster />
   </Authorization>
-  // </React.StrictMode>,
 );

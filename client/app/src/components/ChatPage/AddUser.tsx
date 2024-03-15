@@ -6,11 +6,9 @@ import axios from "axios";
 type Props = {
   handleClick: () => void;
   idTarget: number;
-  // handleClick2: (param: string) => void;
 };
 
 const AddUser = (props: Props) => {
-  // // //console.log("xzxzxzxzxzxzx", props.idTarget);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const notify = (msg: string) => toast.error(msg);
 
@@ -39,7 +37,6 @@ const AddUser = (props: Props) => {
           },
         }
       );
-      // //console.log("send");
     } catch (error: any) {
       notify(error.response.data.message);
       return;

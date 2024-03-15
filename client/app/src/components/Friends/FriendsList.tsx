@@ -30,10 +30,8 @@ function FriendsList(){
                         Authorization: `bearer ${Cookies.get('jwt')}`
                     }
                 })
-                // // //console.log(res3.data.blocked)
                 setBlocked(() => res3.data.blocked)
             } catch (err) {
-                // // //console.log('err is ', err.response.data)
             }
         }
         fetcher()
@@ -49,7 +47,6 @@ function FriendsList(){
           })
         }
         catch (err) {
-          console.error(err.response.data.message)
         }
         setChanged(() => true)
     }

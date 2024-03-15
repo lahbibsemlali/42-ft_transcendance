@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
-// import GamePage from "../GamePage/GamePage";
 import DropdownMenu from "./DropdownMenu";
 import { useState } from "react";
 import socketIOClient from "socket.io-client";
@@ -22,12 +21,10 @@ type Props = {
   isProtected: boolean;
   isMuted: boolean;
   NewGroupCreated: () => void;
-  // toAdd: string;
   setID: (param: number) => void;
 
   modalAddUser: () => void;
   openUpdatePass: () => void;
-  // groupRemoved: () => void;
 };
 
 const ChatMsg = (props: Props) => {
@@ -44,7 +41,6 @@ const ChatMsg = (props: Props) => {
 
   useEffect(() => {
     const mytoken = Cookies.get("jwt") || "";
-    // // //console.log("re fetch data", props.id);
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -73,7 +69,6 @@ const ChatMsg = (props: Props) => {
         ));
         setMsgGenerated(LIstMsg);
       } catch (error) {
-        // // //console.log(error);
       }
     };
     fetchData();
@@ -106,8 +101,6 @@ const ChatMsg = (props: Props) => {
   };
 
   const sendToPlay = () => {
-    // fetch id user
-    console.log('props.idUser.toString()', props.idUser.toString())
     socket.emit('customRoom', props.idUser.toString());
   };
 
@@ -137,7 +130,6 @@ const ChatMsg = (props: Props) => {
               openUpdatePass={props.openUpdatePass}
               setID={props.setID}
               modalAddUser={props.modalAddUser}
-              // toAdd={props.toAdd}
               openMenu={openMenu}
               NewGroupCreated={props.NewGroupCreated}
               isMuted={props.isMuted}

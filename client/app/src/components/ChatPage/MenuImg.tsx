@@ -3,8 +3,6 @@ import MenuBtn from "./MenuBtn";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { Navigate, redirect } from "react-router-dom";
-// imort redirect
-// import Profile from "../Profile/Profile";
 
 type Props = {
   isAdmin: boolean;
@@ -48,10 +46,6 @@ const MenuImg = (props: Props) => {
         }
       );
       setisAdminOrOwner(res2.data.isAdmin);
-      // isAdminOrOwner = res2.data.isAdmin;
-      // // //console.log('isAdminOrOwner2', isAdminOrOwner)
-
-      // BlockStateChanged(() => res.data.isBlocked);
     };
     isBlocked();
   }, []);
@@ -156,9 +150,6 @@ const MenuImg = (props: Props) => {
 
   const viewProfile = () => {
     setviewP(true);
-    // // //console.log('sdsds')
-    // <Navigate to='/' />
-    // return redirect("/");
   };
 
   if (!isAdminOrOwner || isAdminOrOwner == 4) return null;
@@ -167,14 +158,12 @@ const MenuImg = (props: Props) => {
     <>
     {viewP && <Navigate to={`/profile/${props.idClient.toString()}`} />}
     <div style={{ margin: "5px" }}>
-      {/* {isAdminOrOwner == 2 && ( */}
         <MenuBtn
           onChildClick2={viewProfile}
           action={2}
           ifMute={true}
           str="Profile"
         />
-      {/* )} */}
       {!props.isGroup && !isBlock && (
         <MenuBtn
           action={1}

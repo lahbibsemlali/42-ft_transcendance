@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import Styles from "./Achievement.module.css"
-// import Achievement_Box from "./Achievement_Box"
 import Achievement_Box from "./Achievement_Box"
 import axios from "axios"
 import Cookies from "js-cookie"
@@ -15,7 +14,6 @@ function Achievement(){
                     Authorization: `bearer ${Cookies.get('jwt')}`
                 }
             })
-            // // //console.log(res.data, '====')
             setWins(res.data.wins)
         }
         fetcher()

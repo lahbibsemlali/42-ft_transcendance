@@ -265,7 +265,6 @@ export class UserService {
         },
       },
     });
-    // //console.log(friendship)
     if (!friendship) throw new NotFoundException('no friends');
     const friends = friendship.map((friend) => ({
       id: friend.friend1Id != userId ? friend.friend1Id : friend.friend2Id,
@@ -302,7 +301,6 @@ export class UserService {
         },
       },
     });
-    // //console.log(friendship)
     if (!friendship) throw new NotFoundException('no friend requests');
     const requests = friendship.map((friend) => ({
       id: friend.friend1Id,
@@ -369,7 +367,6 @@ export class UserService {
     } else if (hasBlocked) {
       return true;
     }
-    // //console.log(isBlocked, ',,,', hasBlocked)
     return false;
   }
 
@@ -566,7 +563,6 @@ export class UserService {
       },
     });
     if (!profile) return;
-    console.log(profile, profile.lastFive[profile.lastFive.length - 1])
     const gamesCount = profile.lastFive.length;
     if (gamesCount >= 5) {
       const oldestGame = await prisma.game.findFirst({
