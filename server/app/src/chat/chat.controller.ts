@@ -17,6 +17,9 @@ import { JwtGuard } from 'src/guards/jwt.guard';
 import { User } from 'src/user/user.decorator';
 import SearchDto from 'src/user/dtos/searchDto';
 import IdDto from './dtos/idDto';
+import BodyDto from './dtos/bodyDto';
+import PasswordDto from './dtos/passwordDto';
+import TargetDto from './dtos/TargetDto';
 
 @Controller('chat')
 @UseGuards(JwtGuard)
@@ -30,9 +33,9 @@ export class ChatController {
   }
 
   @Post('create_group')
-  createGroup(@User() user, @Body() body) {
-    const { name, password, status } = body;
-    this.chatService.createGroup(user.id, name, password, status);
+  createGroup(@User() user, @Body() body: BodyDto) {
+    console.log(body)
+    this.chatService.createGroup(user.id, body.name, body.password, body.status);
   }
 
   @Delete('remove_group')
@@ -44,9 +47,9 @@ export class ChatController {
   changePass(
     @User() user,
     @Query('groupId', ParseIntPipe) groupId,
-    @Body('password') password,
+    @Body() body: PasswordDto,
   ) {
-    this.chatService.changePass(user.id, groupId, password);
+    this.chatService.changePass(user.id, groupId, body.password);
   }
 
   @Delete('remove_password')
@@ -60,8 +63,7 @@ export class ChatController {
   }
 
   @Get('isBlocked')
-  async isBlocked(@User() user, @Query('targetId') targetId) {
-    targetId = parseInt(targetId);
+  async isBlocked(@User() user, @Query('targetId', ParseIntPipe) targetId) {
     return { isBlocked: await this.chatService.isBlocked(user.id, targetId) };
   }
 
@@ -78,9 +80,9 @@ export class ChatController {
   }
 
   @Post('ban')
-  async ban(@Body() body: IdDto) {
+  async ban(@User() user, @Body() body: IdDto) {
     const { targetId, chatId } = body;
-    await this.chatService.ban(targetId, chatId);
+    await this.chatService.ban(user.id, targetId, chatId);
   }
 
   @Post('promote')
@@ -116,16 +118,14 @@ export class ChatController {
   @Post('add_to_group')
   async addToGroup(
     @User() user,
-    @Query('groupId', ParseIntPipe) groupId,
-    @Body('target') target,
+    @Query('groupId', ParseIntPipe) groupId: number,
+    @Body() body: TargetDto,
   ) {
-    groupId = parseInt(groupId);
-    await this.chatService.addToGroup(user.id, target, groupId);
+      await this.chatService.addToGroup(user.id, body.target, groupId);
   }
 
   @Get('leave_group')
   async leaveGroup(@User() user, @Query('groupId', ParseIntPipe) groupId) {
-    groupId = parseInt(groupId);
     await this.chatService.leaveGroup(user.id, groupId);
   }
 
