@@ -527,9 +527,12 @@ export class UserService {
     });
   }
 
-  async searchUser(keyword: string) {
+  async searchUser(userId: number, keyword: string) {
     const matches = await prisma.profile.findMany({
       where: {
+        NOT: {
+          userId: userId
+        },
         username: {
           startsWith: keyword.toLowerCase(),
         },
@@ -540,7 +543,8 @@ export class UserService {
         avatar: true,
       },
     });
-    return matches;
+    const maped = Promise.all(matches.map(async (match) => await this.checkBlock(userId, match.userId) ? null : match))
+    return (await maped).filter((m) => m != null);
   }
 
   async removeIfMoreThanFive() {

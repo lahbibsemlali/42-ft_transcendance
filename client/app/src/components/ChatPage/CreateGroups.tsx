@@ -78,6 +78,7 @@ const CreateGroups: React.FC<CreateTYpe> = ({ crateGroup, NewGroupCreated }) => 
           placeholder="NAME"
           type="text"
           maxLength={7}
+          className="search"
         />
         <select style={{ width: "25%", textAlign:"center",margin: "10px" , backgroundColor:"#2190e2", borderRadius:"5px", border:"#2190e2", fontFamily:"simo", color:"white"}} id="cars">
           <option onClick={() => GroupType(1)} value="volvo">
