@@ -1,34 +1,29 @@
-# # building the files
+# building the files
 
-# FROM node:latest
+FROM node:latest
 
-# # Define build arguments for environment variables
-# ARG VITE_DOMAIN
+ARG VITE_DOMAIN
 
-# # Set environment variables during the build process
-# ENV VITE_DOMAIN=$VITE_DOMAIN
+ENV VITE_DOMAIN=$VITE_DOMAIN
 
-# WORKDIR /app
+WORKDIR /app
 
-# COPY ./app/package*.json ./
+COPY ./app/package*.json ./
 
-# RUN npm install
+RUN npm install
 
-# COPY ./app .
+COPY ./app .
 
-# RUN npm run build
+RUN npm run build
 
+# serve with nginx
 
-# # serve with nginx
+FROM nginx:latest
 
-# FROM nginx:latest
+WORKDIR /var/www
 
-# WORKDIR /var/www
+COPY ./default.conf /etc/nginx/conf.d/default.conf
 
-# COPY ./default.conf /etc/nginx/conf.d/default.conf
+COPY --from=0 /app/dist/ .
 
-# COPY --from=0 /app/dist/ .
-
-# ENTRYPOINT [ "nginx", "-g", "daemon off;"]
-
-zz
+ENTRYPOINT [ "nginx", "-g", "daemon off;"]

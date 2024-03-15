@@ -8,12 +8,12 @@ services:
     container_name: front-end
     build:
       context: ./client
-    volumes:
-      - ./client/app/src/:/app/src
+      args:
+        - VITE_DOMAIN=${VITE_DOMAIN}
     ports:
-      - 5000:4000
-    env_file:
-      - .env
+      - 8000:80
+    volumes:
+      - ./client/app/src:/app/src
   backend:
     depends_on:
       - postgres
@@ -25,10 +25,7 @@ services:
       - .env
     volumes:
         - ./server/app/src/:/app/src
-        - ./server/app/prisma:/app/prisma
-    ports:
-      - 8000:3000
-      - 5555:5555
+        - ./server/app/uploads:/app/uploads
   postgres:
     image: postgres:latest
     container_name: db
