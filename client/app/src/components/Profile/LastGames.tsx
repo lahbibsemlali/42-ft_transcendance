@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-// import Achievement_Box from "./Achievement_Box"
 import axios from "axios"
 import Cookies from "js-cookie"
 import GameStatus from "./GameStatus";
@@ -19,7 +18,6 @@ function LastGames({prop}: {prop: any}) {
           })
           setLastFive(() => res.data.lastFive)
       } catch (err) {
-        // // //console.log(prop, 'last err', err.response.data.message)
       }
     }
     fetcher()

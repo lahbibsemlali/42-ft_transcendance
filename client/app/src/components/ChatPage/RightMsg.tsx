@@ -11,28 +11,11 @@ type Props = {
 };
 
 const RightMsg = (props: Props) => {
-  // isAdmin = true; // to be remove
-
-  // const [menuClicked, setMenuClicked] = useState(false);
-
-  // const imgClicked = () => {
-  //   if (menuClicked) setMenuClicked(false);
-  //   else setMenuClicked(true);
-  // };
-
   return (
     <div className="rightmsg">
       <div className="div-wrapper2">
         <img src={props.urlImg} />
       </div>
-      {/* {menuClicked && props.isGroup && (
-        <MenuImg
-          isGroup={props.isGroup}
-          isAdmin={props.isAdmin}
-          idClient={props.idClient}
-          idChat={props.idChat}
-        />
-      )} */}
       <div className="contentright">{props.msg}</div>
     </div>
   );

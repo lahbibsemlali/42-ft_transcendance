@@ -1,6 +1,5 @@
 import Achievement from "./Achievement"
 import Styles from "./BoxContainer.module.css"
-// import LastGames from "./LastGames"
 import LastGames from "./LastGames"
 import PlayerCard from "./PlayerCard"
 

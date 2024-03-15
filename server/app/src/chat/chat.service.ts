@@ -410,7 +410,6 @@ export class ChatService {
           ((await this.isBlocked(chat[0].userId, chat[1].userId)) ||
             (await this.hasBlocked(chat[0].userId, chat[1].userId)))) ||
         userChat.isMutted;
-      // //console.log(isBlocked, 'is');
       if (!isBlocked) {
         await prisma.message.create({
           data: {
@@ -424,7 +423,6 @@ export class ChatService {
   }
   async isBlocked(f1Id: number, f2Id: number) {
     if (f1Id == f2Id) return false;
-    // //console.log(f1Id, '--------', f2Id);
     const user = await prisma.user.findFirst({
       where: {
         id: f1Id,

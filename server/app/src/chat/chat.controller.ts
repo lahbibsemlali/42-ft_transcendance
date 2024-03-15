@@ -37,7 +37,6 @@ export class ChatController {
 
   @Post('create_group')
   createGroup(@User() user, @Body() body: BodyDto) {
-    //console.log(body)
     this.chatService.createGroup(
       user.id,
       body.name,

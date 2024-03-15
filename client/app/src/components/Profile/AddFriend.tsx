@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 function AddFriend({prop}: {prop: string}){
     const [status, setStatus] = useState(0)
     const [changed, setChanged] = useState(false)
-    // const [image, setImage] = useState('')
     useEffect(() => {
       const fetcher = async () => {
         try {
@@ -19,7 +18,6 @@ function AddFriend({prop}: {prop: string}){
             setStatus(res.data.status)
           }
           catch (err) {
-            console.error(err.response.data.message)
           }
       }
       fetcher()
@@ -74,7 +72,6 @@ function AddFriend({prop}: {prop: string}){
       if (status != 1)
         status == 0 ? addFriend() : status == 2 ? acceptFriend() : RemoveFriend(); 
     }
-    // // //console.log(changed, '----')
     return (
       <div>
         <button className={styles.PlayButton} onClick={handleFriendship}> {status == 0 ? "Add Friend" : status == 1 ? "Pending" : status == 2 ? "Accept As Friend" : "Remove"} </button>

@@ -15,11 +15,6 @@ type DropWownProps = {
   modalAddUser: () => void;
   setID: (param: number) => void;
   openUpdatePass: () => void;
-
-  // setPass: (param: number) => void;
-
-  // toAdd: string;
-  // groupRemoved: () => void;
 };
 
 const DropdownMenu: React.FC<DropWownProps> = ({
@@ -34,8 +29,6 @@ const DropdownMenu: React.FC<DropWownProps> = ({
   setID,
   openUpdatePass,
   isOwner,
-  // setPass,
-  // toAdd,
 }) => {
 
   const RemoveGroup = async  () => {
@@ -63,7 +56,6 @@ const DropdownMenu: React.FC<DropWownProps> = ({
           Authorization: `bearer ${mytoken}`,
         }});
       } catch (error) {
-        // // //console.log(error)
       }
     openMenu();
     NewGroupCreated();
@@ -84,7 +76,6 @@ const DropdownMenu: React.FC<DropWownProps> = ({
           Authorization: `bearer ${mytoken}`,
         }});
       } catch (error) {
-        // // //console.log(error)
       }
     openMenu();
     NewGroupCreated();
@@ -93,9 +84,6 @@ const DropdownMenu: React.FC<DropWownProps> = ({
 
   return (
     <>
-      {/* <div id="myModal" className="modal">
-        <div className="modal-content"></div>
-      </div> */}
     <div className="dropdown-content">
       {isGroup && <MenuBtn onChildClick5={leaveGroup} action={5} str="Leave group" />}
       {isGroup && isAdmin && <MenuBtn onChildClick6={AddUser} action={6} str="Add User" />}

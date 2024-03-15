@@ -2,12 +2,8 @@ import { P5CanvasInstance, ReactP5Wrapper } from "react-p5-wrapper";
 import socketIOClient from "socket.io-client";
 import Cookies from "js-cookie";
 import axios from "axios";
-// import { useLocation } from 'react-router-dom';
 import { Navigate, useLocation } from 'react-router-dom';
-// import Header from "../Header/Header";
-import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 
 const ENDPOINT = `http://${import.meta.env.VITE_DOMAIN}:8000`;
@@ -67,20 +63,17 @@ function sketch(p5: P5CanvasInstance) {
   };
 
   socket.on("Game Over", () => {
-    // //console.log('game over')
     isGameOver = true;
   });
 
   socket.on("room created", (nameRoom: string) => {
     RoomName = nameRoom;
     inRoom = true;
-    // //console.log('room created', nameRoom)
 
   });
 
   socket.on("start game", () => {
     Play = true;
-    // //console.log('start game', 'Play', Play)
   });
 
   socket.on("in game", () => {
@@ -88,16 +81,10 @@ function sketch(p5: P5CanvasInstance) {
   });
 
   socket.on("witchplayer", () => {
-    // //console.log('witchplayer')
     player = true;
   });
 
   socket.on("done", () => {
-    // console.log('done')
-    // player = true;
-    // toast(toDisplayText, {
-    //   icon: '👏',
-    // });
     setGameOverPointer(true);
   });
 
@@ -105,11 +92,6 @@ function sketch(p5: P5CanvasInstance) {
     socket.emit("updateResulte", {nameRoom: RoomName, bool: false});
     ifWin = true;
     toDisplayText = "WINNER";
-    // toast(toDisplayText, {
-    //   icon: '👏',
-    // });
-    // setGameOverPointer(true);
-    // // //console.log("winner");
   });
 
   socket.on('restPlay', () => {
@@ -121,7 +103,6 @@ function sketch(p5: P5CanvasInstance) {
   p5.preload = () => {};
 
   p5.setup = async () => {
-    // // //console.log('isCustomRoom', isCustomRoom)
     ifGuest = (await CheckAuth()) || false;
     if (!ifGuest) textBtn = "PLEASE LOGIN TO PLAY";
     const canvasContainer = p5.select("#canvas-container")!;
@@ -134,32 +115,15 @@ function sketch(p5: P5CanvasInstance) {
     if (isCustomRoom !== '1')
       createBtn();
     else if (witchplayer === '1') {
-      //console.log('idUser2', idUser2)
       socket.emit('runCustomRoom', customName, idUser2, witchplayer);
     }
     else
       socket.emit('joinMe', customName);
   };
 
-  // let i = 1;
   p5.draw = () => {
-    // //console.log('how')
-// //console.log('i', i)
-
     p5.background(p5.color(34, 71, 113));
-//     if (i == 100) {
-
-//       //console.log('Play', Play)
-//       //console.log('inRoom', inRoom)
-//       //console.log('isPlaying', isPlaying)
-//       //console.log('ifGuest', ifGuest)
-//       //console.log('ifWin', ifWin)
-//       //console.log('isGameOver', isGameOver)
-//     }
-// i++;
       if (Play && inRoom && !isPlaying && ifGuest && !ifWin && !isGameOver) {
-    // //console.log('xaxaxa', scoreUP, scoreDOWN)
-    // //console.log('draw')
 
       if (scoreUP != 5 && scoreDOWN != 5) {
         drawText();
@@ -209,13 +173,6 @@ function sketch(p5: P5CanvasInstance) {
             nameRoom: RoomName,
           });
         }
-        // toast(toDisplayText, {
-        //   icon: '👏',
-        // });
-        // setGameOver(true);
-        // setGameOverPointer(true);
-        // //console.log('updateResulteupdateResulte', toDisplayText)
-        // drawText2();
         setToDefault();
       }
     } else if (inRoom && !isPlaying && ifGuest && !ifWin && !isGameOver) {
@@ -227,22 +184,9 @@ function sketch(p5: P5CanvasInstance) {
       drawText2();
     } else if (ifGuest && ifWin && !isGameOver) {
       toDisplayText = "win";
-      // button.remove();
-      // toast(toDisplayText, {
-      //   icon: '👏',
-      // });
-      // setGameOverPointer(true);
-
-      // drawText2();
       setToDefault();
     } else if (ifGuest && isGameOver) {
       toDisplayText = "game over";
-      // toast(toDisplayText, {
-      //   icon: '👏',
-      // });
-      // setGameOverPointer(true);
-
-      // drawText2();
       setToDefault();
     }
   };
@@ -261,7 +205,6 @@ function sketch(p5: P5CanvasInstance) {
   }
 
   function drawText2() {
-    //console.log('toDisplayText', toDisplayText)
     p5.textSize((p5.width * 50) / 466);
     p5.fill(p5.color(28, 108, 167));
     p5.textAlign(p5.CENTER);
@@ -336,7 +279,6 @@ function sketch(p5: P5CanvasInstance) {
   };
 
   document.addEventListener("visibilitychange", function () {
-    // // //console.log('visibilitychange')
     if (!document.hidden && ifGuest) {
       socket.emit("back", Play);
     }
@@ -543,11 +485,9 @@ const GamePage = () => {
   window.addEventListener('popstate', handleRouteChange);
     window.addEventListener('hashchange', handleRouteChange);
   
-  // const navigate = useNavigate();
 const [gameOver, setGameOver] = useState(false);
 setGameOverPointer = setGameOver;
 
-  //console.log('game called')
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   isCustomRoom = queryParams.get('CustomRoom') || '0';

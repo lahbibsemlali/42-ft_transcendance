@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
-// import GamePage from "../GamePage/GamePage";
 import DropdownMenu from "./DropdownMenu";
 import { useState } from "react";
 import socketIOClient from "socket.io-client";
@@ -11,6 +10,7 @@ import GeneratMsg from "./GeneratMsg";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import SendToPlay from "./SendToPlay";
 
 
 type Props = {
@@ -22,12 +22,10 @@ type Props = {
   isProtected: boolean;
   isMuted: boolean;
   NewGroupCreated: () => void;
-  // toAdd: string;
   setID: (param: number) => void;
 
   modalAddUser: () => void;
   openUpdatePass: () => void;
-  // groupRemoved: () => void;
 };
 
 const ChatMsg = (props: Props) => {
@@ -44,7 +42,6 @@ const ChatMsg = (props: Props) => {
 
   useEffect(() => {
     const mytoken = Cookies.get("jwt") || "";
-    // // //console.log("re fetch data", props.id);
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -73,7 +70,6 @@ const ChatMsg = (props: Props) => {
         ));
         setMsgGenerated(LIstMsg);
       } catch (error) {
-        // // //console.log(error);
       }
     };
     fetchData();
@@ -106,8 +102,6 @@ const ChatMsg = (props: Props) => {
   };
 
   const sendToPlay = () => {
-    // fetch id user
-    console.log('props.idUser.toString()', props.idUser.toString())
     socket.emit('customRoom', props.idUser.toString());
   };
 
@@ -137,7 +131,6 @@ const ChatMsg = (props: Props) => {
               openUpdatePass={props.openUpdatePass}
               setID={props.setID}
               modalAddUser={props.modalAddUser}
-              // toAdd={props.toAdd}
               openMenu={openMenu}
               NewGroupCreated={props.NewGroupCreated}
               isMuted={props.isMuted}
@@ -166,11 +159,7 @@ const ChatMsg = (props: Props) => {
             <i className="fa-solid fa-paper-plane sendicon"></i>
           </button>
         </div>
-        <div className="btnsend">
-          <button onClick={sendToPlay} className="btnsend2">
-            <i className="fa-solid fa-play sendicon"></i>
-          </button>
-        </div>
+            {!props.isGroup && <SendToPlay sendToPlay={sendToPlay} />}
       </div>
     </div>
   );

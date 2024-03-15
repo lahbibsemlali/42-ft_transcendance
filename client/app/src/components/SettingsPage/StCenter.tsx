@@ -23,7 +23,6 @@ const StCenter = () => {
           }
         })
         .then((res) => {
-          // //console.log(res.data)
           setLabel(() => res.data.username)
           setAvatarUrl(() => res.data.avatar)
           setTwoFa(() => res.data.isTwoFa)
@@ -38,7 +37,6 @@ const StCenter = () => {
       const formData = new FormData;
   
       formData.append('file', file)
-      // //console.log("file", file)
       try {
         await axios.post(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/updateAvatar`, formData, {
           headers: {
@@ -52,9 +50,7 @@ const StCenter = () => {
         })
         setAvatarUrl(() => res.data.avatar)
         setAvatar(null)
-        // //console.log(avatar)
       } catch (err) {
-        // //console.log(err)
       }
     }
   
@@ -64,18 +60,15 @@ const StCenter = () => {
       };
   
       try {
-        // //console.log("+++++++++++", username)
         const res = await axios.post(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/updateUsername`, jsonFormat, {
           headers: {
             Authorization: `Bearer ${Cookies.get('jwt')}`
           }
         })
-        // //console.log(res)
         setLabel(username)
         setUsername(() => '')
 
       } catch (err: any) {
-        // //console.log('hola error: ', err.response.data)
         notify(err.response.data.message)
       }
     }
@@ -100,14 +93,11 @@ const StCenter = () => {
             }
           })
         }
-        // //console.log('res is ', res)
       } catch (err) {
-        // //console.log(err)
       }
     }
     
     const updateInfo = async () => {
-      // //console.log(avatar)
       if (username.length)
         await changeUsername(username)
       if (avatar)
@@ -116,7 +106,6 @@ const StCenter = () => {
     }
   
     const stateUsername = (e: any) => {
-      // //console.log(username)
       e.preventDefault();
       setUsername(() => e.target.value);
     }
@@ -127,10 +116,7 @@ const StCenter = () => {
     }
     
     const stateTwoFa = (e: any) => {
-      // e.preventDefault();
-      // //console.log("2fa ", e.target.value)
       setTwoFa((pref) => !pref);
-      // e.target.value = 'off'
     }
 
     if (changed) {
@@ -142,7 +128,6 @@ const StCenter = () => {
         <label>Change Avatar
           <input className={styles.Sbox_button1} name="myImage" type="file" accept="image/*" onChange={stateAvatar}/>
         </label>
-        {/* <button className={styles.Sbox_button1}>Edit Picture </button > */}
         <input placeholder={label} type="text" className={styles.Sbox_input1} onChange={stateUsername} value={username}/>
         <h1> TWO FACTOR AUTHENTICATION </h1>
         <input className={styles.toggle} type="checkbox" onChange={stateTwoFa} checked={twoFa}/>

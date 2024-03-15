@@ -38,8 +38,6 @@ const Listchat: React.FC<ListchatProps> = ({
   if (status)
     stat = true;
 
-  const isgroup = false;
-
   return (
     <div className="listchat" onClick={handleClick}>
       <div className="imgchat">
@@ -59,10 +57,10 @@ const Listchat: React.FC<ListchatProps> = ({
         }}
       />}
       </div>
-      {stat && !isgroup && (
+      {stat && !isGroup && (
         <i style={{ color: "#00ff2a" }} className="fa-solid fa-circle stat"></i>
       )}
-      {!stat  && !isgroup && (
+      {!stat  && !isGroup && (
         <i style={{ color: "red" }} className="fa-solid fa-circle stat"></i>
       )}
       <div className="text-container">

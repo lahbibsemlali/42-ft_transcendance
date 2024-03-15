@@ -12,7 +12,6 @@ export class TwoFaService {
 
   async generateTwoFaSecrete(userId: number) {
     const secrete = authenticator.generateSecret();
-    // //console.log('secrete', secrete)
     const username = (await this.userService.getUserById(userId)).username;
     if (!username)
       return
@@ -31,7 +30,6 @@ export class TwoFaService {
   async isTwoFaValid(token: string, userId: number) {
     const user = await this.userService.getUserById(userId);
     const secrete = user.twoFASecrete;
-    // console.log('secrete', token)
     let totp = new OTPAuth.TOTP({
       issuer: process.env.TWOFA_APP_NAME,
       label: user.username,
@@ -40,7 +38,6 @@ export class TwoFaService {
       secret: secrete,
     });
     const isValid = totp.validate({ token: token }) != null;
-    // //console.log('isvalid: ', isValid)
     return isValid;
   }
 

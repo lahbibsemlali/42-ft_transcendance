@@ -20,7 +20,6 @@ function Overview({prop}: any){
                 setLoses(res.data.loses)
             }
             catch (err) {
-                // // //console.log('err is : ', err)
             }
         }
         fetcher()
