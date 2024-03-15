@@ -461,11 +461,6 @@ export class ChatService {
         id: f1Id,
       },
       select: {
-        blocked: {
-          select: {
-            id: true,
-          },
-        },
         blockedBy: {
           select: {
             id: true,
@@ -474,7 +469,6 @@ export class ChatService {
       },
     });
     return (
-      user.blocked.map((b) => b.id).includes(f2Id) ||
       user.blockedBy.map((b) => b.id).includes(f2Id)
     );
   }
@@ -509,19 +503,20 @@ export class ChatService {
     });
     if (!messages)
       return
-    let fitlered = Promise.all(await messages.filter(
-      async (message) => {
-        const block = await !this.isBlocked(userId, message.sender.profile.userId) &&
-        await !this.hasBlocked(userId, message.sender.profile.userId)
-        console.log(block)
-      }
-    ));
-    const neededForm = (await fitlered).map((message) => ({
-      isMe: message.sender.profile.userId == userId ? true : false,
-      userId: message.sender.profile.userId,
-      avatar: message.sender.profile.avatar,
-      content: message.body,
+    const filteredMessages = await Promise.all(messages.map(async (message) => {
+      const isBlocked = await this.isBlocked(userId, message.sender.profile.userId);
+      const hasBlocked = await this.hasBlocked(userId, message.sender.profile.userId);
+      return !isBlocked && !hasBlocked ? message : null;
     }));
+
+    const neededForm = filteredMessages
+      .filter(message => message !== null)
+      .map(message => ({
+        isMe: message.sender.profile.userId === userId,
+        userId: message.sender.profile.userId,
+        avatar: message.sender.profile.avatar,
+        content: message.body
+      }));
     return neededForm;
   }
 
