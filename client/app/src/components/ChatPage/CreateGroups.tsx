@@ -59,7 +59,7 @@ const CreateGroups: React.FC<CreateTYpe> = ({ crateGroup, NewGroupCreated }) => 
   };
 
   const NewGroupCreated2 = () => {
-    // console.log('created');
+    // // console.log('created');
     if (NewGroupCreated)
       NewGroupCreated();
   };

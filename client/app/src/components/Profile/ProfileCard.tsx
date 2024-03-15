@@ -23,7 +23,7 @@ function ProfileCard({prop}: {prop: any}) {
         setUsername(res.data.username)
       }
       catch (err) {
-        console.log('error profile', err.response.data.message)
+        // // console.log('error profile', err.response.data.message)
       }
     }
     fetcher()

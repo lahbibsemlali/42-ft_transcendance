@@ -43,7 +43,7 @@ const ChatMsg = (props: Props) => {
 
   useEffect(() => {
     const mytoken = Cookies.get("jwt") || "";
-    console.log("re fetch data", props.id);
+    // // console.log("re fetch data", props.id);
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -72,7 +72,7 @@ const ChatMsg = (props: Props) => {
         ));
         setMsgGenerated(LIstMsg);
       } catch (error) {
-        console.log(error);
+        // // console.log(error);
       }
     };
     fetchData();

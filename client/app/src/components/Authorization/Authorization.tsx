@@ -47,7 +47,7 @@ const Authorization: React.FC<AuthorizationProps> = ({ children }) => {
     };
     CheckAuth();
   }, [token]);
-  // console.log("auth called");
+  // // console.log("auth called");
   return (
     <>
       <reCheck.Provider value={{ check, setCheck }}>

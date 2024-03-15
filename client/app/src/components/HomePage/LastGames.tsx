@@ -15,7 +15,7 @@ function LastGames() {
                 Authorization: `bearer ${Cookies.get('jwt')}`
             }
         })
-        console.log(res.data, '====')
+        // // console.log(res.data, '====')
         setLastFive(() => res.data.lastFive)
     }
     fetcher()

@@ -31,7 +31,7 @@ const Profile = () => {
       }
       catch (err) {
         setCheck(true)
-        console.log('error profile', err.response.data.message)
+        // // console.log('error profile', err.response.data.message)
       }
     }
     fetcher()

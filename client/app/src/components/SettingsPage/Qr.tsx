@@ -14,7 +14,7 @@ import { Navigate } from 'react-router-dom';
 //             }
 //         })
 //         .then((res) => {
-//             console.log("qrcode:??", res.data.qrUrl)
+//             // console.log("qrcode:??", res.data.qrUrl)
 //             setQrUrl(() => res.data.qrUrl)
 //             // setAvatarUrl(() => res.data.qrUrl)
 //             return res
@@ -22,7 +22,7 @@ import { Navigate } from 'react-router-dom';
 //         }
 //         fetcher();
 //     }, [])
-//     console.log('url qr ar: ', qrUrl)
+//     // console.log('url qr ar: ', qrUrl)
 //     return (
 //     <>
 //         <img src={qrUrl}></img>
@@ -50,7 +50,7 @@ function Qr({ setChanged }: any){
                 Authorization: `bearer ${Cookies.get('jwt')}`
                 }
             })
-            console.log("qrcode:??", res.data.qrUrl)
+            // console.log("qrcode:??", res.data.qrUrl)
             setQrUrl(() => res.data.qrUrl)
             // setAvatarUrl(() => res.data.qrUrl)
         }
@@ -65,10 +65,10 @@ function Qr({ setChanged }: any){
                 }
             })
             setChanged(false)
-            console.log('soo good')
+            // console.log('soo good')
         }
         catch (err) {
-            console.log('not good', err)
+            // console.log('not good', err)
         }
     }
     return (

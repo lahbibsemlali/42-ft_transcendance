@@ -60,10 +60,48 @@ function sketch(p5: P5CanvasInstance) {
     }
   };
 
+  socket.on("Game Over", () => {
+    // console.log('game over')
+    isGameOver = true;
+  });
+
+  socket.on("room created", (nameRoom: string) => {
+    RoomName = nameRoom;
+    inRoom = true;
+    console.log('room created', 'inRoom', inRoom)
+
+  });
+
+  socket.on("start game", () => {
+    Play = true;
+    console.log('start game', 'Play', Play)
+  });
+
+  socket.on("in game", () => {
+    isPlaying = true;
+  });
+
+  socket.on("witchplayer", () => {
+    console.log('witchplayer')
+    player = true;
+  });
+
+  socket.on("winer", () => {
+    socket.emit("updateResulte", {nameRoom: RoomName, bool: false});
+    ifWin = true;
+    toDisplayText = "WINNER";
+    // // console.log("winner");
+  });
+
+  socket.on('restPlay', () => {
+    inRoom = false;
+    createBtn();
+  });
+
   p5.preload = () => {};
 
   p5.setup = async () => {
-    console.log('isCustomRoom', isCustomRoom)
+    // // console.log('isCustomRoom', isCustomRoom)
     ifGuest = (await CheckAuth()) || false;
     if (!ifGuest) textBtn = "PLEASE LOGIN TO PLAY";
     const canvasContainer = p5.select("#canvas-container")!;
@@ -79,10 +117,26 @@ function sketch(p5: P5CanvasInstance) {
       socket.emit('runCustomRoom', customName, idUser2, witchplayer);
   };
 
+  let i = 1;
   p5.draw = () => {
+    console.log('how')
+// console.log('i', i)
+
     p5.background(p5.color(34, 71, 113));
-    if (Play && inRoom && !isPlaying && ifGuest && !ifWin && !isGameOver) {
-      // console.log('xaxaxa', scoreUP, scoreDOWN)
+//     if (i == 100) {
+
+//       console.log('Play', Play)
+//       console.log('inRoom', inRoom)
+//       console.log('isPlaying', isPlaying)
+//       console.log('ifGuest', ifGuest)
+//       console.log('ifWin', ifWin)
+//       console.log('isGameOver', isGameOver)
+//     }
+// i++;
+      if (Play && inRoom && !isPlaying && ifGuest && !ifWin && !isGameOver) {
+    // console.log('xaxaxa', scoreUP, scoreDOWN)
+    console.log('draw')
+
       if (scoreUP != 5 && scoreDOWN != 5) {
         drawText();
         p5.stroke(33, 144, 226);
@@ -131,7 +185,7 @@ function sketch(p5: P5CanvasInstance) {
             nameRoom: RoomName,
           });
         }
-        console.log('updateResulteupdateResulte')
+        // // console.log('updateResulteupdateResulte')
         drawText2();
         setToDefault();
       }
@@ -246,47 +300,11 @@ function sketch(p5: P5CanvasInstance) {
   };
 
   document.addEventListener("visibilitychange", function () {
-    console.log('visibilitychange')
+    // // console.log('visibilitychange')
     if (!document.hidden && ifGuest) {
       socket.emit("back", Play);
     }
     if (document.hidden && ifGuest) socket.emit("exit", RoomName);
-  });
-
-  socket.on("Game Over", () => {
-    console.log('game over')
-    isGameOver = true;
-  });
-
-  socket.on("room created", (nameRoom: string) => {
-    console.log('room created', nameRoom)
-    RoomName = nameRoom;
-    inRoom = true;
-  });
-
-  socket.on("start game", () => {
-    console.log('start game')
-    Play = true;
-  });
-
-  socket.on("in game", () => {
-    isPlaying = true;
-  });
-
-  socket.on("witchplayer", () => {
-    player = true;
-  });
-
-  socket.on("winer", () => {
-    socket.emit("updateResulte", {nameRoom: RoomName, bool: false});
-    ifWin = true;
-    toDisplayText = "WINNER";
-    console.log("winner");
-  });
-
-  socket.on('restPlay', () => {
-    inRoom = false;
-    createBtn();
   });
 
   socket.on("updateBallPosition", (updatedBall) => {
@@ -481,6 +499,7 @@ function sketch(p5: P5CanvasInstance) {
 }
 
 const GamePage = () => {
+  console.log('game called')
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   isCustomRoom = queryParams.get('CustomRoom') || '0';

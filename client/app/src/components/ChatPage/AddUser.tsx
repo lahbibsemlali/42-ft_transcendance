@@ -10,7 +10,7 @@ type Props = {
 };
 
 const AddUser = (props: Props) => {
-  // console.log("xzxzxzxzxzxzx", props.idTarget);
+  // // console.log("xzxzxzxzxzxzx", props.idTarget);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const notify = (msg: string) => toast.error(msg);
 
@@ -39,7 +39,7 @@ const AddUser = (props: Props) => {
           },
         }
       );
-      console.log("send");
+      // console.log("send");
     } catch (error: any) {
       notify(error.response.data.message);
       return;

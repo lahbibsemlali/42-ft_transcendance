@@ -20,7 +20,7 @@ function Achievement({prop}: {prop: any}){
                 setWins(res.data.wins)
             }
             catch (err) {
-                console.log('ach err is ', err.response.data.message)
+                // // console.log('ach err is ', err.response.data.message)
             }
         }
         fetcher()

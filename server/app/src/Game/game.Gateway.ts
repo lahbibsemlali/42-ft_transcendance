@@ -60,13 +60,12 @@ export class GameGateway
       }
     } catch (error) {}
     client.join(user?.id.toString());
-    if (user && user.id)
-      await this.gameService.incrementState(user?.id);
+    if (user && user.id) await this.gameService.incrementState(user?.id);
 
-    console.log(user?.id, await this.gameService.getState(user?.id));
+    // console.log(user?.id, await this.gameService.getState(user?.id));
 
-    // console.log('con', client?.id, user?.id);
-    // console.log('client.rooms', client.rooms)
+    // // console.log('con', client?.id, user?.id);
+    // // console.log('client.rooms', client.rooms)
   }
 
   async handleDisconnect(client: Socket) {
@@ -90,13 +89,10 @@ export class GameGateway
       this.gameService.deleteClientsId(user.id);
       // this.gameService.deleteScoorPlayer(user.id);
     }
-    if (user && user.id)
-      await this.gameService.decrementState(user?.id);
-    console.log(user?.id, await this.gameService.getState(user?.id));
-    // console.log('discon', client?.id, user?.id);
+    if (user && user.id) await this.gameService.decrementState(user?.id);
+    // console.log(user?.id, await this.gameService.getState(user?.id));
+    // // console.log('discon', client?.id, user?.id);
   }
-
-
 
   @SubscribeMessage('waiting')
   async getRoom(client: Socket) {
@@ -121,31 +117,31 @@ export class GameGateway
     } else this.server.to(client.id).emit('in game');
   }
 
+  
+
+
   @SubscribeMessage('runCustomRoom')
   async generatCustomRoom(client: Socket, data) {
+    // client.join(data[0]);
     const UserId = client['user'].id;
     await this.gameService.updateStatus(UserId, false);
     const ifPlay = await this.gameService.isPlaying(UserId);
     if (!ifPlay) {
-      // await this.gameService.updateStatus(UserId, true);
       this.gameService.setScoorPlayers(UserId);
-      // const nameRoom = this.gameService.createRooms();
       client.join(data[0]);
       this.server.to(data[0]).emit('room created', data[0]);
       this.gameService.setSocketsInGame(client.id, data[0]);
-      // if (this.gameService.getNRooms() % 2 != 0)
-      if (data[2] != '1')
-        this.gameService.players[0] = UserId;
-      console.log('this.gameService.players[0]', UserId);
-      // if (this.gameService.getNRooms() % 2 == 0) {
-        if (data[2] == '1') {
+      if (data[2] != '1') this.gameService.players[0] = UserId;
+      // console.log('this.gameService.players[0]', UserId);
+      if (data[2] == '1') {
+        console.log('run custom room', client['user'].id);
         this.gameService.players[1] = parseInt(data[1]);
         this.server.to(data[0]).emit('start game');
         client.to(data[0]).emit('witchplayer');
         this.gameService.setClientsId();
       }
-      // }
     } else this.server.to(client.id).emit('in game');
+    // console.log('client.rooms', client.rooms);
   }
 
   @SubscribeMessage('updateBallPosition')
@@ -195,7 +191,7 @@ export class GameGateway
 
   @SubscribeMessage('updateResulte') // game over
   async getResulte(client: Socket, data: { nameRoom: string; bool: boolean }) {
-    console.log('update scoor', 'nameRoom', data.nameRoom, 'bool', data.bool);
+    // console.log('update scoor', 'nameRoom', data.nameRoom, 'bool', data.bool);
     if (
       this.gameService.isSocketInGame(client.id) &&
       this.gameService.getPlayerRoom(client.id) === data.nameRoom
@@ -229,7 +225,7 @@ export class GameGateway
       this.gameService.isSocketInGame(client.id) &&
       this.gameService.getPlayerRoom(client.id) === nameRoom
     ) {
-      console.log('exit');
+      // console.log('exit');
       client.to(this.gameService.getPlayerRoom(client.id)).emit('winer');
       if (this.gameService.getNRooms() % 2 != 0)
         this.gameService.decrementNRooms();
@@ -259,7 +255,9 @@ export class GameGateway
         .to(idUser)
         .emit('customRoom', client['user'].id.toString(), room, idUser);
     }
+    // console.log('customRoom', client.rooms)
   }
+
 
   @SubscribeMessage('accepted')
   async Accept(client: Socket, idUser: string) {
@@ -270,9 +268,11 @@ export class GameGateway
       this.server.to(room);
       this.server.to(idUser).emit('accepted', room, idUser);
 
-      // console.log(client['user'].id.toString(), client.rooms)
+      // // console.log(client['user'].id.toString(), client.rooms)
     }
-    // console.log('idUser', idUser)
+    // console.log('accepted', client.rooms)
+
+    // // console.log('idUser', idUser)
   }
 
   /////////////// CHAT EVENTS
