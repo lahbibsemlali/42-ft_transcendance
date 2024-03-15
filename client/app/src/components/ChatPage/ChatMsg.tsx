@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {
   id: number;
+  idUser: number;
   isAdmin: boolean;
   isOwner: boolean;
   isGroup: boolean;
@@ -106,7 +107,8 @@ const ChatMsg = (props: Props) => {
 
   const sendToPlay = () => {
     // fetch id user
-    socket.emit('customRoom', '2');
+    console.log('props.idUser.toString()', props.idUser.toString())
+    socket.emit('customRoom', props.idUser.toString());
   };
 
   const navigate = useNavigate();

@@ -30,6 +30,7 @@ const ChatPage = () => {
     isProtected: false,
     isMuted: false,
     isOwner: false,
+    idUser: 0,
   });
 
   useEffect(() => {
@@ -43,7 +44,8 @@ const ChatPage = () => {
     isAdmin: boolean,
     isProtected: boolean,
     isMuted: boolean,
-    isOwner: boolean
+    isOwner: boolean,
+    idUser: number,
   ) => {
     setrestMsgs({
       id: id,
@@ -52,6 +54,7 @@ const ChatPage = () => {
       isProtected: isProtected,
       isMuted: isMuted,
       isOwner: isOwner,
+      idUser: idUser,
     });
     setSelectchat(true);
   };
@@ -68,10 +71,10 @@ const ChatPage = () => {
             },
           }
         );
-        // //console.log('vxvxv', res.data)
+        console.log('vxvxv', res.data)
         const listsNew = res.data.map((userslist: any) => (
           <Listchat
-          isOwner={userslist.isOwner}
+            isOwner={userslist.isOwner}
             isMuted={userslist.isMuted}
             isAdmin={userslist.isAdmin}
             isGroup={userslist.isGroup}
@@ -81,6 +84,7 @@ const ChatPage = () => {
             last={userslist.lastMessage || ""}
             status={userslist.state}
             isProtected={userslist.isProtected}
+            idUser={userslist.userId}
             onChildClick={displayChat}
           />
         ));
@@ -226,6 +230,7 @@ const ChatPage = () => {
           {!selectchat && <WelcomeChat />}
           {selectchat && (
             <ChatMsg
+            idUser={info.idUser}
               openUpdatePass={openUpdatePass}
               isOwner={info.isOwner}
               setID={ftsetIdTarget}

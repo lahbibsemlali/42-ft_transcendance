@@ -84,7 +84,7 @@ export class GameGateway
         this.gameService.decrementNRooms();
       await this.gameService.updateStatus(user.id, false);
       if (this.gameService.getClientsId(user.id) !== undefined)
-        this.gameService.setResult3(user.id);
+        await this.gameService.setResult3(user.id);
       this.gameService.deleteSocketsInGame(client.id);
       this.gameService.deleteIdWithSocket(client.id.toString());
 
@@ -214,8 +214,8 @@ export class GameGateway
       await this.gameService.updateStatus(client['user'].id, false);
       if (this.gameService.getClientsId(client['user'].id) !== undefined) {
         //console.log('setResult')
-        if (data.bool) this.gameService.setResult(client['user'].id);
-        else this.gameService.setResult2(client['user'].id);
+        if (data.bool) await this.gameService.setResult(client['user'].id);
+        else await this.gameService.setResult2(client['user'].id);
       }
       this.gameService.deleteSocketsInGame(client.id);
       this.gameService.deleteIdWithSocket(client.id.toString());
@@ -248,7 +248,7 @@ export class GameGateway
         this.gameService.decrementNRooms();
       await this.gameService.updateStatus(client['user'].id, false);
       if (this.gameService.getClientsId(client['user'].id) !== undefined)
-        this.gameService.setResult3(client['user'].id);
+        await this.gameService.setResult3(client['user'].id);
       // this.server.to(client.id).emit('done');
       // console.log('done3')
       client.to(this.gameService.getPlayerRoom(client.id)).emit('done');

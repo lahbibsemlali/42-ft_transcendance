@@ -9,7 +9,8 @@ type ListchatProps = {
   status: number;
   isProtected: boolean;
   isMuted: boolean;
-  onChildClick?: (param1: number, param2: boolean, param3: boolean, param4: boolean, param5: boolean, param6: boolean) => void;
+  idUser: number;
+  onChildClick?: (param1: number, param2: boolean, param3: boolean, param4: boolean, param5: boolean, param6: boolean, param7: number) => void;
 };
 
 const Listchat: React.FC<ListchatProps> = ({
@@ -24,11 +25,12 @@ const Listchat: React.FC<ListchatProps> = ({
   status,
   isProtected,
   isMuted,
+  idUser,
 }) => {
 
   const handleClick = () => {
     if (onChildClick) {
-      onChildClick(id, isGroup, isAdmin, isProtected, isMuted, isOwner);
+      onChildClick(id, isGroup, isAdmin, isProtected, isMuted, isOwner, idUser);
     }
   };
 

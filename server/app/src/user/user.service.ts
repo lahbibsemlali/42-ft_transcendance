@@ -566,6 +566,7 @@ export class UserService {
       },
     });
     if (!profile) return;
+    console.log(profile, profile.lastFive[profile.lastFive.length - 1])
     const gamesCount = profile.lastFive.length;
     if (gamesCount >= 5) {
       const oldestGame = await prisma.game.findFirst({
@@ -574,7 +575,6 @@ export class UserService {
         },
       });
       if (!oldestGame) return;
-      //console.log(oldestGame, gamesCount)
       await prisma.game.delete({
         where: {
           id: oldestGame.id,
