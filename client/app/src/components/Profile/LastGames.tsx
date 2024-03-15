@@ -19,7 +19,7 @@ function LastGames({prop}: {prop: any}) {
           })
           setLastFive(() => res.data.lastFive)
       } catch (err) {
-        // // console.log(prop, 'last err', err.response.data.message)
+        // // //console.log(prop, 'last err', err.response.data.message)
       }
     }
     fetcher()

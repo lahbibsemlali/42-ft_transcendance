@@ -21,7 +21,7 @@ const LoginPage = () => {
     if (isLoggedIn == 1) navigate("/");
   // }, [isLoggedIn]);
 
-  // // console.log('[--------]', import.meta.env.VITE_DOMAIN)
+  // // //console.log('[--------]', import.meta.env.VITE_DOMAIN)
   const endpoint = `http://${import.meta.env.VITE_DOMAIN}:8000/api/auth/42`;
   return (
     <div className={styles.loginBox}>

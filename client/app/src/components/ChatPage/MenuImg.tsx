@@ -49,7 +49,7 @@ const MenuImg = (props: Props) => {
       );
       setisAdminOrOwner(res2.data.isAdmin);
       // isAdminOrOwner = res2.data.isAdmin;
-      // // console.log('isAdminOrOwner2', isAdminOrOwner)
+      // // //console.log('isAdminOrOwner2', isAdminOrOwner)
 
       // BlockStateChanged(() => res.data.isBlocked);
     };
@@ -156,7 +156,7 @@ const MenuImg = (props: Props) => {
 
   const viewProfile = () => {
     setviewP(true);
-    // // console.log('sdsds')
+    // // //console.log('sdsds')
     // <Navigate to='/' />
     // return redirect("/");
   };

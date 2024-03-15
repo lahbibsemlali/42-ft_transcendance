@@ -63,7 +63,7 @@ const DropdownMenu: React.FC<DropWownProps> = ({
           Authorization: `bearer ${mytoken}`,
         }});
       } catch (error) {
-        // // console.log(error)
+        // // //console.log(error)
       }
     openMenu();
     NewGroupCreated();
@@ -84,7 +84,7 @@ const DropdownMenu: React.FC<DropWownProps> = ({
           Authorization: `bearer ${mytoken}`,
         }});
       } catch (error) {
-        // // console.log(error)
+        // // //console.log(error)
       }
     openMenu();
     NewGroupCreated();

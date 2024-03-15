@@ -14,7 +14,7 @@ function Overview(){
                     Authorization: `bearer ${Cookies.get('jwt')}`
                 }
             })
-            // // console.log(res.data, '====')
+            // // //console.log(res.data, '====')
             setWins(res.data.wins)
             setLoses(res.data.loses)
         }

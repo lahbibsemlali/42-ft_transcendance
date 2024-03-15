@@ -28,14 +28,22 @@ export class ChatController {
 
   @Get('search')
   async search(@User() user, @Query() searchDto: SearchDto) {
-    const matches = await this.chatService.searchGroups(user.id, searchDto.keyword);
-    return {matches: matches}
+    const matches = await this.chatService.searchGroups(
+      user.id,
+      searchDto.keyword,
+    );
+    return { matches: matches };
   }
 
   @Post('create_group')
   createGroup(@User() user, @Body() body: BodyDto) {
-    console.log(body)
-    this.chatService.createGroup(user.id, body.name, body.password, body.status);
+    //console.log(body)
+    this.chatService.createGroup(
+      user.id,
+      body.name,
+      body.password,
+      body.status,
+    );
   }
 
   @Delete('remove_group')
@@ -58,7 +66,11 @@ export class ChatController {
   }
 
   @Post('blockOrUnblock')
-  blockOrUnblock(@User() user, @Body('block', ParseBoolPipe) block, @Query('targetId', ParseIntPipe) targetId) {
+  blockOrUnblock(
+    @User() user,
+    @Body('block', ParseBoolPipe) block,
+    @Query('targetId', ParseIntPipe) targetId,
+  ) {
     this.chatService.blockOrUnblock(user.id, targetId, block);
   }
 
@@ -110,9 +122,14 @@ export class ChatController {
   }
 
   @Get('get_user_role')
-  async getUserRole(@Query('userId', ParseIntPipe) userId, @Query('groupId', ParseIntPipe) groupId) {
-    const role = await this.chatService.getUserRoleInChat(userId, groupId)
-    return {isAdmin: role == null ? 4 : role == 'Owner' ? 0 : role == 'Admin' ? 1 : 2}
+  async getUserRole(
+    @Query('userId', ParseIntPipe) userId,
+    @Query('groupId', ParseIntPipe) groupId,
+  ) {
+    const role = await this.chatService.getUserRoleInChat(userId, groupId);
+    return {
+      isAdmin: role == null ? 4 : role == 'Owner' ? 0 : role == 'Admin' ? 1 : 2,
+    };
   }
 
   @Post('add_to_group')
@@ -121,7 +138,7 @@ export class ChatController {
     @Query('groupId', ParseIntPipe) groupId: number,
     @Body() body: TargetDto,
   ) {
-      await this.chatService.addToGroup(user.id, body.target, groupId);
+    await this.chatService.addToGroup(user.id, body.target, groupId);
   }
 
   @Get('leave_group')
@@ -130,10 +147,11 @@ export class ChatController {
   }
 
   @Get('join_group')
-  async joinGroup(@User() user, @Query('id', ParseIntPipe) groupId, @Query('password') password) {
+  async joinGroup(
+    @User() user,
+    @Query('id', ParseIntPipe) groupId,
+    @Query('password') password,
+  ) {
     await this.chatService.joinGroup(user.id, groupId, password);
   }
 }
-
-
-

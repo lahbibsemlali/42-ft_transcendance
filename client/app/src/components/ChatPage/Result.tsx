@@ -15,7 +15,7 @@ type Props = {
 
 const Result = (props: Props) => {
   const joinGroup = async () => {
-    // // console.log("xxxxxxxxxxxxxxxxxx", props.isProtected);
+    // // //console.log("xxxxxxxxxxxxxxxxxx", props.isProtected);
     props.onChildClick();
     if (props.isProtected) {
       props.setID(props.idChat);

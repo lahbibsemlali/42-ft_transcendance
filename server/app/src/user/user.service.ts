@@ -265,7 +265,7 @@ export class UserService {
         },
       },
     });
-    // console.log(friendship)
+    // //console.log(friendship)
     if (!friendship) throw new NotFoundException('no friends');
     const friends = friendship.map((friend) => ({
       id: friend.friend1Id != userId ? friend.friend1Id : friend.friend2Id,
@@ -302,7 +302,7 @@ export class UserService {
         },
       },
     });
-    // console.log(friendship)
+    // //console.log(friendship)
     if (!friendship) throw new NotFoundException('no friend requests');
     const requests = friendship.map((friend) => ({
       id: friend.friend1Id,
@@ -369,7 +369,7 @@ export class UserService {
     } else if (hasBlocked) {
       return true;
     }
-    // console.log(isBlocked, ',,,', hasBlocked)
+    // //console.log(isBlocked, ',,,', hasBlocked)
     return false;
   }
 
@@ -531,7 +531,7 @@ export class UserService {
     const matches = await prisma.profile.findMany({
       where: {
         NOT: {
-          userId: userId
+          userId: userId,
         },
         username: {
           startsWith: keyword.toLowerCase(),
@@ -543,36 +543,38 @@ export class UserService {
         avatar: true,
       },
     });
-    const maped = Promise.all(matches.map(async (match) => await this.checkBlock(userId, match.userId) ? null : match))
+    const maped = Promise.all(
+      matches.map(async (match) =>
+        (await this.checkBlock(userId, match.userId)) ? null : match,
+      ),
+    );
     return (await maped).filter((m) => m != null);
   }
 
   async removeIfMoreThanFive(userId: number) {
     const profile = await prisma.profile.findFirst({
-      where: {userId: userId},
+      where: { userId: userId },
       select: {
         lastFive: {
           select: {
-            id: true
+            id: true,
           },
           orderBy: {
-            createdAt: 'desc'
-          }
-        }
-      }
+            createdAt: 'desc',
+          },
+        },
+      },
     });
-    if (!profile)
-      return
-    const gamesCount = profile.lastFive.length
+    if (!profile) return;
+    const gamesCount = profile.lastFive.length;
     if (gamesCount >= 5) {
       const oldestGame = await prisma.game.findFirst({
         where: {
-          id: profile.lastFive[gamesCount - 1].id
-        }
+          id: profile.lastFive[gamesCount - 1].id,
+        },
       });
-      if (!oldestGame)
-        return
-      console.log(oldestGame, gamesCount)
+      if (!oldestGame) return;
+      //console.log(oldestGame, gamesCount)
       await prisma.game.delete({
         where: {
           id: oldestGame.id,
@@ -580,9 +582,6 @@ export class UserService {
       });
     }
   }
-
-
-
 
   async setResult(
     userId: number,

@@ -23,7 +23,7 @@ const StCenter = () => {
           }
         })
         .then((res) => {
-          // console.log(res.data)
+          // //console.log(res.data)
           setLabel(() => res.data.username)
           setAvatarUrl(() => res.data.avatar)
           setTwoFa(() => res.data.isTwoFa)
@@ -38,7 +38,7 @@ const StCenter = () => {
       const formData = new FormData;
   
       formData.append('file', file)
-      // console.log("file", file)
+      // //console.log("file", file)
       try {
         await axios.post(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/updateAvatar`, formData, {
           headers: {
@@ -52,9 +52,9 @@ const StCenter = () => {
         })
         setAvatarUrl(() => res.data.avatar)
         setAvatar(null)
-        // console.log(avatar)
+        // //console.log(avatar)
       } catch (err) {
-        // console.log(err)
+        // //console.log(err)
       }
     }
   
@@ -64,18 +64,18 @@ const StCenter = () => {
       };
   
       try {
-        // console.log("+++++++++++", username)
+        // //console.log("+++++++++++", username)
         const res = await axios.post(`http://${import.meta.env.VITE_DOMAIN}:8000/api/user/updateUsername`, jsonFormat, {
           headers: {
             Authorization: `Bearer ${Cookies.get('jwt')}`
           }
         })
-        // console.log(res)
+        // //console.log(res)
         setLabel(username)
         setUsername(() => '')
 
       } catch (err: any) {
-        // console.log('hola error: ', err.response.data)
+        // //console.log('hola error: ', err.response.data)
         notify(err.response.data.message)
       }
     }
@@ -100,14 +100,14 @@ const StCenter = () => {
             }
           })
         }
-        // console.log('res is ', res)
+        // //console.log('res is ', res)
       } catch (err) {
-        // console.log(err)
+        // //console.log(err)
       }
     }
     
     const updateInfo = async () => {
-      // console.log(avatar)
+      // //console.log(avatar)
       if (username.length)
         await changeUsername(username)
       if (avatar)
@@ -116,7 +116,7 @@ const StCenter = () => {
     }
   
     const stateUsername = (e: any) => {
-      // console.log(username)
+      // //console.log(username)
       e.preventDefault();
       setUsername(() => e.target.value);
     }
@@ -128,7 +128,7 @@ const StCenter = () => {
     
     const stateTwoFa = (e: any) => {
       // e.preventDefault();
-      // console.log("2fa ", e.target.value)
+      // //console.log("2fa ", e.target.value)
       setTwoFa((pref) => !pref);
       // e.target.value = 'off'
     }

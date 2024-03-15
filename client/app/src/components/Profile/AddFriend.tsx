@@ -74,7 +74,7 @@ function AddFriend({prop}: {prop: string}){
       if (status != 1)
         status == 0 ? addFriend() : status == 2 ? acceptFriend() : RemoveFriend(); 
     }
-    // // console.log(changed, '----')
+    // // //console.log(changed, '----')
     return (
       <div>
         <button className={styles.PlayButton} onClick={handleFriendship}> {status == 0 ? "Add Friend" : status == 1 ? "Pending" : status == 2 ? "Accept As Friend" : "Remove"} </button>

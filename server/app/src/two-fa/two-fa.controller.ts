@@ -39,7 +39,7 @@ export class TwoFaController {
         console.error('Error generating QR code:', err);
         return { qrUrl: 'error' };
       }
-      // console.log('qrcode', qrUrl)
+      // //console.log('qrcode', qrUrl)
       res.send({
         qrUrl: qrUrl,
       });
@@ -51,7 +51,7 @@ export class TwoFaController {
   async turnTwoFaOn(@Body('token') token, @User() user) {
     token = token.toString();
     const isValid = await this.twoFaService.isTwoFaValid(token, user.id);
-    // console.log('hererere ', isValid, typeof token)
+    // //console.log('hererere ', isValid, typeof token)
     if (!isValid) throw new UnauthorizedException('wrong 2fa token');
     await this.twoFaService.turnTwoFaOn(user.id);
   }

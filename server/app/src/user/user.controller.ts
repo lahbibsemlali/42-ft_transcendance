@@ -50,7 +50,7 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Get('add_friend')
   async addFiend(@User() user, @Query('id', ParseIntPipe) id: number) {
-    // console.log(user.id, '0000', id)
+    // //console.log(user.id, '0000', id)
     await this.userService.addFriend(user.id, id);
   }
 
@@ -117,21 +117,21 @@ export class UserController {
 
   @Get('getAvatar/:filename')
   async getAvatar(@Res() res, @Param('filename') filename) {
-    // console.log("lllll")
+    // //console.log("lllll")
     res.sendFile(join(__dirname, '..', '..', 'uploads', filename));
   }
 
   @UseGuards(JwtGuard)
   @Post('updateUsername')
   async updateUsername(@User() user, @Body() usernameDto: UsernameDto) {
-    // console.log('username is', usernameDto.username)
+    // //console.log('username is', usernameDto.username)
     return this.userService.updateUsername(user.id, usernameDto.username);
   }
 
   @UseGuards(JwtGuard)
   @Post('updateTwoFa')
   async updateTwoFa(@User() user, @Body('twoFa') twoFa) {
-    // console.log('twofa', twoFa)
+    // //console.log('twofa', twoFa)
     return this.userService.updateTwoFa(user.id, twoFa);
   }
 
@@ -181,7 +181,7 @@ export class UserController {
   @Get('getUserLastFive')
   @UseGuards(JwtGuard)
   async getUserLastFive(@Query('id') id: number) {
-    // console.log(id, '.......')
+    // //console.log(id, '.......')
     return { lastFive: await this.userService.getLastFive(id) };
   }
 

@@ -8,8 +8,6 @@ import { Navigate, useLocation } from 'react-router-dom';
 import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { usehis }
-// import { useHistory } from 'react-router-dom';
 
 
 const ENDPOINT = `http://${import.meta.env.VITE_DOMAIN}:8000`;
@@ -30,6 +28,8 @@ let customName: string;
 let idUser2: string;
 let witchplayer: string;
 let setGameOverPointer: React.Dispatch<React.SetStateAction<boolean>>;
+let RoomName: string;
+
 
 function sketch(p5: P5CanvasInstance) {
   let canvaWidth: number;
@@ -39,7 +39,6 @@ function sketch(p5: P5CanvasInstance) {
   let inRoom: boolean = false;
   let isPlaying: boolean = false;
   let toDisplayText = "WAIT";
-  let RoomName: string;
   let player = false;
   let ifGuest: boolean;
   let myball: Ball;
@@ -68,20 +67,20 @@ function sketch(p5: P5CanvasInstance) {
   };
 
   socket.on("Game Over", () => {
-    // console.log('game over')
+    // //console.log('game over')
     isGameOver = true;
   });
 
   socket.on("room created", (nameRoom: string) => {
     RoomName = nameRoom;
     inRoom = true;
-    // console.log('room created', nameRoom)
+    // //console.log('room created', nameRoom)
 
   });
 
   socket.on("start game", () => {
     Play = true;
-    // console.log('start game', 'Play', Play)
+    // //console.log('start game', 'Play', Play)
   });
 
   socket.on("in game", () => {
@@ -89,16 +88,16 @@ function sketch(p5: P5CanvasInstance) {
   });
 
   socket.on("witchplayer", () => {
-    // console.log('witchplayer')
+    // //console.log('witchplayer')
     player = true;
   });
 
   socket.on("done", () => {
-    // console.log('witchplayer')
+    // console.log('done')
     // player = true;
-    toast(toDisplayText, {
-      icon: '👏',
-    });
+    // toast(toDisplayText, {
+    //   icon: '👏',
+    // });
     setGameOverPointer(true);
   });
 
@@ -110,18 +109,19 @@ function sketch(p5: P5CanvasInstance) {
     //   icon: '👏',
     // });
     // setGameOverPointer(true);
-    // // console.log("winner");
+    // // //console.log("winner");
   });
 
   socket.on('restPlay', () => {
     inRoom = false;
-    createBtn();
+    if (isCustomRoom !== '1')
+      createBtn();
   });
 
   p5.preload = () => {};
 
   p5.setup = async () => {
-    // // console.log('isCustomRoom', isCustomRoom)
+    // // //console.log('isCustomRoom', isCustomRoom)
     ifGuest = (await CheckAuth()) || false;
     if (!ifGuest) textBtn = "PLEASE LOGIN TO PLAY";
     const canvasContainer = p5.select("#canvas-container")!;
@@ -134,7 +134,7 @@ function sketch(p5: P5CanvasInstance) {
     if (isCustomRoom !== '1')
       createBtn();
     else if (witchplayer === '1') {
-      console.log('idUser2', idUser2)
+      //console.log('idUser2', idUser2)
       socket.emit('runCustomRoom', customName, idUser2, witchplayer);
     }
     else
@@ -143,23 +143,23 @@ function sketch(p5: P5CanvasInstance) {
 
   // let i = 1;
   p5.draw = () => {
-    // console.log('how')
-// console.log('i', i)
+    // //console.log('how')
+// //console.log('i', i)
 
     p5.background(p5.color(34, 71, 113));
 //     if (i == 100) {
 
-//       console.log('Play', Play)
-//       console.log('inRoom', inRoom)
-//       console.log('isPlaying', isPlaying)
-//       console.log('ifGuest', ifGuest)
-//       console.log('ifWin', ifWin)
-//       console.log('isGameOver', isGameOver)
+//       //console.log('Play', Play)
+//       //console.log('inRoom', inRoom)
+//       //console.log('isPlaying', isPlaying)
+//       //console.log('ifGuest', ifGuest)
+//       //console.log('ifWin', ifWin)
+//       //console.log('isGameOver', isGameOver)
 //     }
 // i++;
       if (Play && inRoom && !isPlaying && ifGuest && !ifWin && !isGameOver) {
-    // console.log('xaxaxa', scoreUP, scoreDOWN)
-    // console.log('draw')
+    // //console.log('xaxaxa', scoreUP, scoreDOWN)
+    // //console.log('draw')
 
       if (scoreUP != 5 && scoreDOWN != 5) {
         drawText();
@@ -214,7 +214,7 @@ function sketch(p5: P5CanvasInstance) {
         // });
         // setGameOver(true);
         // setGameOverPointer(true);
-        // console.log('updateResulteupdateResulte', toDisplayText)
+        // //console.log('updateResulteupdateResulte', toDisplayText)
         // drawText2();
         setToDefault();
       }
@@ -261,7 +261,7 @@ function sketch(p5: P5CanvasInstance) {
   }
 
   function drawText2() {
-    console.log('toDisplayText', toDisplayText)
+    //console.log('toDisplayText', toDisplayText)
     p5.textSize((p5.width * 50) / 466);
     p5.fill(p5.color(28, 108, 167));
     p5.textAlign(p5.CENTER);
@@ -320,7 +320,7 @@ function sketch(p5: P5CanvasInstance) {
       p5.canvasSize2 = p5.min(p5.windowWidth, p5.windowHeight) * 0.7;
       p5.resizeCanvas(p5.canvasSize, p5.canvasSize2);
       button.remove();
-      if (!Play) createBtn();
+      if (!Play && isCustomRoom !== '1') createBtn();
 
       if (ifWin != true) drawText();
 
@@ -336,7 +336,7 @@ function sketch(p5: P5CanvasInstance) {
   };
 
   document.addEventListener("visibilitychange", function () {
-    // // console.log('visibilitychange')
+    // // //console.log('visibilitychange')
     if (!document.hidden && ifGuest) {
       socket.emit("back", Play);
     }
@@ -535,22 +535,20 @@ function sketch(p5: P5CanvasInstance) {
 }
 
 const GamePage = () => {
-    // const location = useLocation();
-  const location = useLocation();
 
+  const handleRouteChange = () => {
+    socket.emit("exit", RoomName);
+  };
 
-  useEffect(() => {
-    // This function will be called whenever the location (route) changes
-    console.log("Route changed to:", location.pathname);
-    // You can perform any actions or logic here based on the route change
-  }, [location]);
-
-
-  const navigate = useNavigate();
+  window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('hashchange', handleRouteChange);
+  
+  // const navigate = useNavigate();
 const [gameOver, setGameOver] = useState(false);
 setGameOverPointer = setGameOver;
 
-  console.log('game called')
+  //console.log('game called')
+  const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   isCustomRoom = queryParams.get('CustomRoom') || '0';
   customName = queryParams.get('roomName') || '';
