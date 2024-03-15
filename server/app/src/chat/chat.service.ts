@@ -565,6 +565,7 @@ export class ChatService {
             status: true,
             isGroup: true,
             lastMessage: true,
+            users: { select: {userId: true}}
           },
         },
         isMutted: true,
@@ -580,6 +581,7 @@ export class ChatService {
       return
     const neededForm = Promise.all( await chat.map(async (ch) => ({
       id: ch.chat.id,
+      userId: ch.chat.users.filter((user) => user.userId != userId)[0].userId,
       name: ch.chat.isGroup ? ch.chat.name : ch.dmName,
       image: ch.chat.isGroup ? ch.chat.image : ch.dmImage,
       state: await this.getUserState(userId, ch.chat.id),

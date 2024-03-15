@@ -72,13 +72,14 @@ const CreateGroups: React.FC<CreateTYpe> = ({ crateGroup, NewGroupCreated }) => 
         </span>
         <input
           ref={inputRef3}
-          style={{ padding: "5px", marginBottom: "5px" }}
+          style={{width: "300px", padding: "5px", marginBottom: "5px" }}
           placeholder="NAME"
           type="text"
           maxLength={7}
+          className="search"
         />
         <select style={{ width: "20%", margin: "10px" }} id="cars">
-          <option onClick={() => GroupType(1)} value="volvo">
+          <option style={{color:"red"}} onClick={() => GroupType(1)} value="volvo">
             public
           </option>
           <option onClick={() => GroupType(2)} value="saab">
