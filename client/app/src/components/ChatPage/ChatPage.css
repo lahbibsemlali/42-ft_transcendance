@@ -104,6 +104,7 @@
   display: flex;
   background: rgb(255, 0, 55);
   width: 90px;
+  height: 90px;
   justify-content: center;
   align-items: center;
   overflow: hidden;

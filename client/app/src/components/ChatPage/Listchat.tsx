@@ -43,15 +43,21 @@ const Listchat: React.FC<ListchatProps> = ({
   return (
     <div className="listchat" onClick={handleClick}>
       <div className="imgchat">
-        <img
-          src="/group5.jpeg"
+        {isGroup ? <img
+          src="https://pics.craiyon.com/2023-11-24/nogjsbGmTRaAI8eYNclAQw.webp"
           style={{
-            maxWidth: "100%",
-            maxHeight: "100%",
+            width: "100px",
             display: "block",
             height: "auto",
           }}
-        />
+        /> : <img
+        src={url}
+        style={{
+          width: "100px",
+          display: "block",
+          height: "auto",
+        }}
+      />}
       </div>
       {stat && !isgroup && (
         <i style={{ color: "#00ff2a" }} className="fa-solid fa-circle stat"></i>
