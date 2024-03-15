@@ -68,7 +68,7 @@ const ChatPage = () => {
             },
           }
         );
-        // console.log('vxvxv', res.data)
+        // //console.log('vxvxv', res.data)
         const listsNew = res.data.map((userslist: any) => (
           <Listchat
           isOwner={userslist.isOwner}
@@ -86,7 +86,7 @@ const ChatPage = () => {
         ));
         setListChat(listsNew);
       } catch (error) {
-        // // console.log(error);
+        // // //console.log(error);
       }
     };
 
@@ -109,7 +109,7 @@ const ChatPage = () => {
   };
 
   const ftsetIdTarget = (id: number) => {
-    // // console.log(id, 'to add2');
+    // // //console.log(id, 'to add2');
     setIdTarget(id);
   };
 
@@ -126,7 +126,7 @@ const ChatPage = () => {
 
   // };
 
-  // // console.log('nameGroup', nameGroup);
+  // // //console.log('nameGroup', nameGroup);
 
   // const openModalAddUser = () => {
   //   setBtnAdd(!btnCraete);
@@ -157,7 +157,7 @@ const ChatPage = () => {
             },
           }
         );
-        // // console.log("|||||||||", res.data.matches)
+        // // //console.log("|||||||||", res.data.matches)
         const shearchResult = res.data.matches.map((userslist: any) => (
           <Result
             isProtected={userslist.isProtected}
@@ -171,7 +171,7 @@ const ChatPage = () => {
         ));
         setSearchR(shearchResult);
       } catch (error) {
-        // // console.log(error);
+        // // //console.log(error);
       }
     };
     if (nameGroup.length)

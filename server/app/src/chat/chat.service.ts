@@ -18,30 +18,26 @@ export class ChatService {
   async checkGroupPermissions(userId: number, chatId: number, admin: boolean) {
     const chat = await prisma.chat.findFirst({
       where: {
-        id: chatId
-      }
-    })
+        id: chatId,
+      },
+    });
 
-    if (!chat)
-      return false
+    if (!chat) return false;
 
     const userChat = await prisma.userChat.findFirst({
       where: {
         chatId: chatId,
-        userId: userId
+        userId: userId,
       },
       select: {
-        role: true
-      }
-    })
+        role: true,
+      },
+    });
 
-    if (!userChat)
-      return false
-    if (userChat.role == 'Admin' && !admin)
-      return false
-    if (userChat.role == 'User')
-      return false
-    return true
+    if (!userChat) return false;
+    if (userChat.role == 'Admin' && !admin) return false;
+    if (userChat.role == 'User') return false;
+    return true;
   }
 
   async createGroup(
@@ -74,7 +70,7 @@ export class ChatService {
   }
 
   async blockOrUnblock(userId: number, targetId: number, block: boolean) {
-    this.userService.getUserById(targetId)
+    this.userService.getUserById(targetId);
     if (block) {
       await prisma.user.update({
         where: {
@@ -120,12 +116,8 @@ export class ChatService {
     }
   }
 
-  async mute(
-    userId: number,
-    targetId: number,
-    chatId: number
-  ) {
-    this.userService.getUserById(targetId)
+  async mute(userId: number, targetId: number, chatId: number) {
+    this.userService.getUserById(targetId);
     if (this.checkGroupPermissions(userId, chatId, true)) {
       await prisma.userChat.update({
         where: {
@@ -155,7 +147,7 @@ export class ChatService {
   }
 
   async kick(userId: number, targetId: number, chatId: number) {
-    this.userService.getUserById(targetId)
+    this.userService.getUserById(targetId);
     if (targetId == userId)
       throw new BadRequestException('cant kick your self');
     if (this.checkGroupPermissions(userId, chatId, true)) {
@@ -171,7 +163,7 @@ export class ChatService {
   }
 
   async ban(userId: number, targetId: number, chatId: number) {
-    this.userService.getUserById(targetId)
+    this.userService.getUserById(targetId);
     if (this.checkGroupPermissions(userId, chatId, true)) {
       await prisma.userChat.update({
         where: {
@@ -188,7 +180,7 @@ export class ChatService {
   }
 
   async promote(userId: number, targetId: number, chatId: number) {
-    this.userService.getUserById(targetId)
+    this.userService.getUserById(targetId);
     if (this.checkGroupPermissions(userId, chatId, false)) {
       const targetChat = await prisma.userChat.findFirst({
         where: {
@@ -214,7 +206,7 @@ export class ChatService {
   }
 
   async denote(userId: number, targetId: number, chatId: number) {
-    this.userService.getUserById(targetId)
+    this.userService.getUserById(targetId);
     if (this.checkGroupPermissions(userId, chatId, false)) {
       const targetChat = await prisma.userChat.findFirst({
         where: {
@@ -252,7 +244,7 @@ export class ChatService {
   async addToGroup(userId: number, target: string, groupId: number) {
     const user = await this.getUserByUsername(target);
     const targetId = user.userId;
-    
+
     if (this.checkGroupPermissions(userId, groupId, true)) {
       const friendChat = await prisma.userChat.findFirst({
         where: {
@@ -301,13 +293,11 @@ export class ChatService {
         id: groupId,
       },
     });
-    if (!group)
-      return
+    if (!group) return;
     if (group.status == 'Private')
       throw new UnauthorizedException('group is private');
     if (group.status == 'Protected') {
-      if (!password || !password.length)
-        return
+      if (!password || !password.length) return;
       const match = await bcrypt.compare(password, group.password);
       if (!match)
         throw new UnauthorizedException('wrong password to joing group');
@@ -347,11 +337,7 @@ export class ChatService {
         id: groupId,
       },
     });
-    if (
-      !group ||
-      group.status != 'Protected' ||
-      !password || !password.length
-    )
+    if (!group || group.status != 'Protected' || !password || !password.length)
       throw new BadRequestException('something wrong');
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(password, salt);
@@ -392,7 +378,7 @@ export class ChatService {
       const userChat = await prisma.userChat.findFirst({
         where: {
           userId: userId,
-          chatId: chatId
+          chatId: chatId,
         },
         select: {
           isMutted: true,
@@ -403,7 +389,7 @@ export class ChatService {
           },
         },
       });
-      
+
       const chat = await prisma.userChat.findMany({
         where: {
           chatId: chatId,
@@ -418,13 +404,13 @@ export class ChatService {
           userId: true,
         },
       });
-      if (!userChat || !chat)
-        return
-      const isBlocked = !chat[0].chat.isGroup &&
-        ((await this.isBlocked(chat[0].userId, chat[1].userId)) ||
-          (await this.hasBlocked(chat[0].userId, chat[1].userId))) ||
-          userChat.isMutted;
-      // console.log(isBlocked, 'is');
+      if (!userChat || !chat) return;
+      const isBlocked =
+        (!chat[0].chat.isGroup &&
+          ((await this.isBlocked(chat[0].userId, chat[1].userId)) ||
+            (await this.hasBlocked(chat[0].userId, chat[1].userId)))) ||
+        userChat.isMutted;
+      // //console.log(isBlocked, 'is');
       if (!isBlocked) {
         await prisma.message.create({
           data: {
@@ -438,7 +424,7 @@ export class ChatService {
   }
   async isBlocked(f1Id: number, f2Id: number) {
     if (f1Id == f2Id) return false;
-    // console.log(f1Id, '--------', f2Id);
+    // //console.log(f1Id, '--------', f2Id);
     const user = await prisma.user.findFirst({
       where: {
         id: f1Id,
@@ -468,9 +454,7 @@ export class ChatService {
         },
       },
     });
-    return (
-      user.blockedBy.map((b) => b.id).includes(f2Id)
-    );
+    return user.blockedBy.map((b) => b.id).includes(f2Id);
   }
 
   async getMessages(userId: number, chatId: number) {
@@ -501,21 +485,28 @@ export class ChatService {
         createdAt: 'asc',
       },
     });
-    if (!messages)
-      return
-    const filteredMessages = await Promise.all(messages.map(async (message) => {
-      const isBlocked = await this.isBlocked(userId, message.sender.profile.userId);
-      const hasBlocked = await this.hasBlocked(userId, message.sender.profile.userId);
-      return !isBlocked && !hasBlocked ? message : null;
-    }));
+    if (!messages) return;
+    const filteredMessages = await Promise.all(
+      messages.map(async (message) => {
+        const isBlocked = await this.isBlocked(
+          userId,
+          message.sender.profile.userId,
+        );
+        const hasBlocked = await this.hasBlocked(
+          userId,
+          message.sender.profile.userId,
+        );
+        return !isBlocked && !hasBlocked ? message : null;
+      }),
+    );
 
     const neededForm = filteredMessages
-      .filter(message => message !== null)
-      .map(message => ({
+      .filter((message) => message !== null)
+      .map((message) => ({
         isMe: message.sender.profile.userId === userId,
         userId: message.sender.profile.userId,
         avatar: message.sender.profile.avatar,
-        content: message.body
+        content: message.body,
       }));
     return neededForm;
   }
@@ -565,7 +556,7 @@ export class ChatService {
             status: true,
             isGroup: true,
             lastMessage: true,
-            users: { select: {userId: true}}
+            users: { select: { userId: true } },
           },
         },
         isMutted: true,
@@ -577,20 +568,21 @@ export class ChatService {
         updatedAt: 'desc',
       },
     });
-    if (!chat)
-      return
-    const neededForm = Promise.all( await chat.map(async (ch) => ({
-      id: ch.chat.id,
-      userId: ch.chat.users.filter((user) => user.userId != userId)[0].userId,
-      name: ch.chat.isGroup ? ch.chat.name : ch.dmName,
-      image: ch.chat.isGroup ? ch.chat.image : ch.dmImage,
-      state: await this.getUserState(userId, ch.chat.id),
-      isProtected: ch.chat.status == 'Protected',
-      isAdmin: ch.role == 'Admin' || ch.role == 'Owner',
-      isOwner: ch.role == 'Owner',
-      isGroup: ch.chat.isGroup,
-      lastMessage: ch.chat.lastMessage,
-    })));
+    if (!chat) return;
+    const neededForm = Promise.all(
+      await chat.map(async (ch) => ({
+        id: ch.chat.id,
+        userId: ch.chat.users.filter((user) => user.userId != userId)[0].userId,
+        name: ch.chat.isGroup ? ch.chat.name : ch.dmName,
+        image: ch.chat.isGroup ? ch.chat.image : ch.dmImage,
+        state: await this.getUserState(userId, ch.chat.id),
+        isProtected: ch.chat.status == 'Protected',
+        isAdmin: ch.role == 'Admin' || ch.role == 'Owner',
+        isOwner: ch.role == 'Owner',
+        isGroup: ch.chat.isGroup,
+        lastMessage: ch.chat.lastMessage,
+      })),
+    );
     return neededForm;
   }
 
@@ -636,8 +628,7 @@ export class ChatService {
         status: true,
       },
     });
-    if (!matches)
-      return
+    if (!matches) return;
     let filtered = matches.filter((m) => {
       const is = m.users.some((user) => user.userId === userId);
       return !is;

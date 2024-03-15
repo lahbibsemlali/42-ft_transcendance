@@ -30,10 +30,10 @@ function FriendsList(){
                         Authorization: `bearer ${Cookies.get('jwt')}`
                     }
                 })
-                // // console.log(res3.data.blocked)
+                // // //console.log(res3.data.blocked)
                 setBlocked(() => res3.data.blocked)
             } catch (err) {
-                // // console.log('err is ', err.response.data)
+                // // //console.log('err is ', err.response.data)
             }
         }
         fetcher()

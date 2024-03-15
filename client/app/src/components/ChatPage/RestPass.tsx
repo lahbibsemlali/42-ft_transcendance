@@ -29,7 +29,7 @@ const RestPass = (props: Props) => {
               Authorization: `bearer ${mytoken}`,
             }});
           } catch (error) {
-            // // console.log(error)
+            // // //console.log(error)
           }
         props.openUpdatePass();
     };

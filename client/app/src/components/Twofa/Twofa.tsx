@@ -18,7 +18,7 @@ function Twofa(){
 
     const checkToken = async () => {
         try {
-            // console.log('heeeerererere')
+            // //console.log('heeeerererere')
             const res = await axios.post(`http://${import.meta.env.VITE_DOMAIN}:8000/api/2fa/authenticate`, {token: input.current}, {
                 headers: {
                     Authorization: `bearer ${cookie}`
@@ -26,7 +26,7 @@ function Twofa(){
             })
             Cookies.set('jwt', res.data.jwtToken)
             setRed(() => true)
-            // console.log('soo good', res.data)
+            // //console.log('soo good', res.data)
         }
         catch (err: any) {
             notify(err.response.data.message)

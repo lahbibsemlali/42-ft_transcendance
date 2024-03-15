@@ -12,7 +12,7 @@ export class TwoFaService {
 
   async generateTwoFaSecrete(userId: number) {
     const secrete = authenticator.generateSecret();
-    // console.log('secrete', secrete)
+    // //console.log('secrete', secrete)
     const username = (await this.userService.getUserById(userId)).username;
     if (!username)
       return
@@ -40,7 +40,7 @@ export class TwoFaService {
       secret: secrete,
     });
     const isValid = totp.validate({ token: token }) != null;
-    // console.log('isvalid: ', isValid)
+    // //console.log('isvalid: ', isValid)
     return isValid;
   }
 

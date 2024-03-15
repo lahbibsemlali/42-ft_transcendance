@@ -6,7 +6,7 @@ import { UserService } from 'src/user/user.service';
 @Injectable()
 export class FortyTwoStrategy extends PassportStrategy(Strategy) {
   constructor(private userService: UserService) {
-    // console.log(process.env.VITE_DOMAIN)
+    // //console.log(process.env.VITE_DOMAIN)
     super({
       clientID: process.env.INTRA_UID,
       clientSecret: process.env.INTRA_SECRETE,

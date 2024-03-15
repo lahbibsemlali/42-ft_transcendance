@@ -9,7 +9,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request) => {
-          // // console.log(request.handshake.headers)
+          // // //console.log(request.handshake.headers)
           return request?.handshake?.headers?.cookie
             ?.split(';')
             .find((cookie) => cookie.trim().startsWith('jwt='))

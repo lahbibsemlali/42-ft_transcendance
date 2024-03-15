@@ -41,7 +41,7 @@ const JoinGroup = (props: Props) => {
     toast.error('wrong password')
   }
   };
-  // console.log('setIDsetID', props.idTarget);
+  // //console.log('setIDsetID', props.idTarget);
   return (
     <div id="myModal" className="modal">
       <div className="modal-content">

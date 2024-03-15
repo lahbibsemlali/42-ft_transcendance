@@ -31,6 +31,7 @@ export class GameService {
   public players = [];
   public SocketsInGame = new Map();
   public ScoorPlayers = new Map();
+  public idWithSocket = new Map();
 
   constructor(private userService: UserService) {
     this.nRooms = 0;
@@ -76,7 +77,7 @@ export class GameService {
   }
 
   setClientsId() {
-    console.log('setClientsId', this.players[0], this.players[1])
+    //console.log('setClientsId', this.players[0], this.players[1])
     this.clientsId.set(this.players[0], this.players[1]);
     this.clientsId.set(this.players[1], this.players[0]);
   }
@@ -105,16 +106,31 @@ export class GameService {
     this.ScoorPlayers.delete(idUser);
   }
 
+  //
+  setIdWithSocket(idUser: string, socketName: string) {
+    console.log('setIdWithSocket2', idUser, socketName)
+    this.idWithSocket.set(idUser, socketName);
+  }
+
+  getIdWithSocket(idUser: string): string {
+    return this.idWithSocket.get(idUser);
+  }
+
+  deleteIdWithSocket(idUser: string) {
+    this.idWithSocket.delete(idUser);
+  }
+  //
+
   async isPlaying(userId: number) {
     const user = await this.userService.getUserById(userId);
     return user.inGame;
   }
 
   async setResult(userId: number) {
-    console.log('1', userId)
-    console.log('2', this.getScoorPlayer(userId))
-    console.log('3', this.getClientsId(userId))
-    console.log('4', this.getScoorPlayer(this.getClientsId(userId)))
+    //console.log('1', userId)
+    //console.log('2', this.getScoorPlayer(userId))
+    //console.log('3', this.getClientsId(userId))
+    //console.log('4', this.getScoorPlayer(this.getClientsId(userId)))
     await this.userService.setResult(
       userId,
       this.getScoorPlayer(userId),
@@ -148,7 +164,7 @@ export class GameService {
   async incrementState(userId: number) {
     const user = await this.userService.getUserById(userId);
 
-    // console.log('userid,     ', userId, user)
+    // //console.log('userid,     ', userId, user)
     await prisma.profile.update({
       where: {
         userId: userId,
