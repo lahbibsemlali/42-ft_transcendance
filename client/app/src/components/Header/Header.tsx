@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import "./Header.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
-// import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -73,7 +72,6 @@ const Header = () => {
       <input
           placeholder="SEARCH HERE FOR PEOPLE"
           type="text"
-          // onChange={(e) => setSearch(e.target.value)}
           onChange={handleChange}
           className="search"
         />

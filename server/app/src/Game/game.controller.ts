@@ -11,10 +11,4 @@ export class GameController {
   GetState(@Param('username') username: string): string {
     return username;
   }
-
-  // @Post('/GameState')
-  // GetState(@Req() req: Request): string {
-  //     // //console.log(req.body);
-  //     return 'POST CALLED'
-  // }
 }

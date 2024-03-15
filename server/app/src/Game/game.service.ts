@@ -14,8 +14,6 @@ interface GameObject {
 }
 
 interface GameState {
-  // upPaddle: GameObject;
-  // downPaddle: GameObject;
   ball: GameObject;
   score: number;
   userId: number;
@@ -77,7 +75,6 @@ export class GameService {
   }
 
   setClientsId() {
-    //console.log('setClientsId', this.players[0], this.players[1])
     this.clientsId.set(this.players[0], this.players[1]);
     this.clientsId.set(this.players[1], this.players[0]);
   }
@@ -127,10 +124,6 @@ export class GameService {
   }
 
   async setResult(userId: number) {
-    //console.log('1', userId)
-    //console.log('2', this.getScoorPlayer(userId))
-    //console.log('3', this.getClientsId(userId))
-    //console.log('4', this.getScoorPlayer(this.getClientsId(userId)))
     await this.userService.setResult(
       userId,
       this.getScoorPlayer(userId),
@@ -164,7 +157,6 @@ export class GameService {
   async incrementState(userId: number) {
     const user = await this.userService.getUserById(userId);
 
-    // //console.log('userid,     ', userId, user)
     await prisma.profile.update({
       where: {
         userId: userId,
