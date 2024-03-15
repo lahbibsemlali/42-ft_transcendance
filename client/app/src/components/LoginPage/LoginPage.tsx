@@ -26,6 +26,7 @@ const LoginPage = () => {
       <h2>Login with your Accout </h2>
       <a href={endpoint}>
         <button className={styles.button}></button>
+        <img style={{width: "50px", position: "absolute", left: "45%"}} src="https://cdn.intra.42.fr/doorkeeper/application/image/234/ic_launcher-web.png"></img>
       </a>
     </div>
   );

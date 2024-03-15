@@ -43,7 +43,7 @@ export class UserService {
   }) {
     const profile = await prisma.profile.findFirst({
       where: {
-        email: userData.email,
+        email: userData.email
       },
     });
     if (profile)

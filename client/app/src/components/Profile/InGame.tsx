@@ -1,4 +1,4 @@
-import styles from './Online.module.css';
+import styles from './InGame.module.css';
 
 function InGame() {
     return (

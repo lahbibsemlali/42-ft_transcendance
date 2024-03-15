@@ -24,10 +24,10 @@ export class AuthController {
     const user = await this.userService.getUserById(payload.id);
     res.cookie('jwt', token);
     if (payload.firstTime)
-      return res.redirect(`http://${process.env.VITE_DOMAIN}:5000/settings`);
+      return res.redirect(`http://${process.env.VITE_DOMAIN}:8000/settings`);
     if (user.twoFA)
-      return res.redirect(`http://${process.env.VITE_DOMAIN}:5000/auth`);
-    return res.redirect(`http://${process.env.VITE_DOMAIN}:5000/`);
+      return res.redirect(`http://${process.env.VITE_DOMAIN}:8000/auth`);
+    return res.redirect(`http://${process.env.VITE_DOMAIN}:8000/`);
   }
 
   @Get('checkToken')

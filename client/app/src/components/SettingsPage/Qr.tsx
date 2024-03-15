@@ -35,7 +35,7 @@ function Qr({ setChanged }: any){
         }
     }
     return (
-        <div className={styles.fo}>
+        <div className={styles.qrBox}>
             <img src={qrUrl}></img>
             <div>
                 <span> Two-Factor Verification </span>

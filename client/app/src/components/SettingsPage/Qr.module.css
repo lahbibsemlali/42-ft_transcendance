@@ -1,3 +1,20 @@
+.qrBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 500px;
+  height: 400px;
+  background-color: #07264f;
+  border-radius: 10px;
+  border: solid 2px #2190E2;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+}
+
 .fo p{
     margin: 15px;
     text-align: center;
@@ -7,12 +24,16 @@
     color: #fff;
     font-size: 1.6rem;
     font-weight: 900;
+    text-align: center;
+    margin: 10px;
   }
   
 .codeInput{
     display: flex;
     justify-content: space-between;
-    gap: 10px;
+    border-radius: 10px;
+    padding: 15px;
+    /* gap: 10px; */
 }
 
 .fo .codeInput input {
@@ -36,6 +57,7 @@
     box-shadow: transparent;
     border: 1px solid #ffffff80;
     transition: 0.5s ease;
+    margin-bottom: 5px
 
 }
 

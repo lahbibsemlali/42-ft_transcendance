@@ -142,7 +142,7 @@ export class ChatService {
             isMutted: false,
           },
         });
-      }, 20 * 1000);
+      }, 86400000);
     }
   }
 
@@ -165,15 +165,19 @@ export class ChatService {
   async ban(userId: number, targetId: number, chatId: number) {
     this.userService.getUserById(targetId);
     if (this.checkGroupPermissions(userId, chatId, true)) {
-      await prisma.userChat.update({
+      const userChat = await prisma.userChat.findFirst({
+        where: {
+          userId: targetId
+        }
+      })
+      if (!userChat)
+        return
+      await prisma.userChat.delete({
         where: {
           userId_chatId: {
             userId: targetId,
             chatId: chatId,
           },
-        },
-        data: {
-          isBanned: true,
         },
       });
     }

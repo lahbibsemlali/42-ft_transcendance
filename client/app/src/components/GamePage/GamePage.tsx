@@ -45,6 +45,7 @@ function sketch(p5: P5CanvasInstance) {
   let textBtn = "START GAME";
   let ifWin = false;
   let isGameOver = false;
+  let textfont: any;
 
   const CheckAuth = async () => {
     try {
@@ -100,11 +101,14 @@ function sketch(p5: P5CanvasInstance) {
       createBtn();
   });
 
-  p5.preload = () => {};
+  p5.preload = () => {
+    textfont = p5.loadFont("./test.ttf");
+  };
 
   p5.setup = async () => {
     ifGuest = (await CheckAuth()) || false;
     if (!ifGuest) textBtn = "PLEASE LOGIN TO PLAY";
+    p5.textFont(textfont);
     const canvasContainer = p5.select("#canvas-container")!;
     canvaWidth = p5.min(p5.windowWidth, p5.windowHeight) * 0.5;
     canvaHeight = p5.min(p5.windowWidth, p5.windowHeight) * 0.7;
