@@ -3,7 +3,7 @@ import socketIOClient from "socket.io-client";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { Navigate, useLocation } from 'react-router-dom';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 const ENDPOINT = `http://${import.meta.env.VITE_DOMAIN}:8000`;
@@ -481,18 +481,24 @@ function sketch(p5: P5CanvasInstance) {
 }
 
 const GamePage = () => {
+  // const location = useLocation();
+
+  // useEffect(() => {
+  //   console.log('location changed', location.pathname)
+  // }, [location]);
+
 
   const handleRouteChange = () => {
     socket.emit("exit", RoomName);
+    // console.log('route changed', window.location.pathname)
   };
 
   window.addEventListener('popstate', handleRouteChange);
-    window.addEventListener('hashchange', handleRouteChange);
+  //   window.addEventListener('hashchange', handleRouteChange);
   
 const [gameOver, setGameOver] = useState(false);
 setGameOverPointer = setGameOver;
 
-  const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   isCustomRoom = queryParams.get('CustomRoom') || '0';
   customName = queryParams.get('roomName') || '';

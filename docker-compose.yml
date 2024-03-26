@@ -27,7 +27,7 @@ services:
         - ./server/app/src/:/app/src
         - ./server/app/uploads:/app/uploads
   postgres:
-    image: postgres:latest
+    image: postgres
     container_name: db
     env_file:
       - .env

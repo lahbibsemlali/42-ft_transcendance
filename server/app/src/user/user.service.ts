@@ -571,10 +571,18 @@ export class UserService {
         },
       });
       if (!oldestGame) return;
-      await prisma.game.delete({
+      
+      await prisma.profile.update({
         where: {
-          id: oldestGame.id,
+          userId: userId,
         },
+        data: {
+          lastFive: {
+            delete: {
+              id: oldestGame.id
+            }
+          }
+        }
       });
     }
   }
@@ -612,7 +620,7 @@ export class UserService {
 
   async getLastFive(userId: number) {
     await this.getUserById(userId);
-    const lastFive = await prisma.profile.findFirst({
+    const games = await prisma.profile.findFirst({
       where: {
         userId: userId,
       },
@@ -629,8 +637,9 @@ export class UserService {
         },
       },
     });
-    if (!lastFive) throw new NotFoundException('user not found');
-    return lastFive.lastFive;
+    if (!games) throw new NotFoundException('user not found');
+    const lastFive = games.lastFive.filter((game, index) => index < 5)
+    return lastFive;
   }
 
   async updateGameState(userId: number, state: boolean) {

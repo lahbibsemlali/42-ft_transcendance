@@ -12,3 +12,4 @@ export class GameController {
     return username;
   }
 }
+

@@ -73,8 +73,8 @@ export class UserController {
 
   @UseGuards(JwtGuard)
   @Put('unBlock')
-  unBlock(@User() user, @Query('id', ParseIntPipe) id: number) {
-    this.userService.unBlock(user.id, id);
+  async unBlock(@User() user, @Query('id', ParseIntPipe) id: number) {
+    await this.userService.unBlock(user.id, id);
   }
 
   @UseGuards(JwtGuard)
@@ -105,7 +105,7 @@ export class UserController {
   )
   async uploadAvatar(@User() user, @UploadedFile() file: Express.Multer.File) {
     const fileName = `http://${process.env.VITE_DOMAIN}:8000/api/user/getAvatar/${file.filename}`;
-    return this.userService.updateAvatar(user.id, fileName);
+    return await this.userService.updateAvatar(user.id, fileName);
   }
 
   @UseGuards(JwtGuard)
@@ -122,13 +122,13 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Post('updateUsername')
   async updateUsername(@User() user, @Body() usernameDto: UsernameDto) {
-    return this.userService.updateUsername(user.id, usernameDto.username);
+    return await this.userService.updateUsername(user.id, usernameDto.username);
   }
 
   @UseGuards(JwtGuard)
   @Post('updateTwoFa')
   async updateTwoFa(@User() user, @Body('twoFa') twoFa) {
-    return this.userService.updateTwoFa(user.id, twoFa);
+    return await this.userService.updateTwoFa(user.id, twoFa);
   }
 
   @UseGuards(JwtGuard)

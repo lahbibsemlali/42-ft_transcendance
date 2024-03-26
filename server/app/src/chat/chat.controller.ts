@@ -36,8 +36,8 @@ export class ChatController {
   }
 
   @Post('create_group')
-  createGroup(@User() user, @Body() body: BodyDto) {
-    this.chatService.createGroup(
+  async createGroup(@User() user, @Body() body: BodyDto) {
+    await this.chatService.createGroup(
       user.id,
       body.name,
       body.password,
@@ -46,31 +46,31 @@ export class ChatController {
   }
 
   @Delete('remove_group')
-  removeGroup(@User() user, @Query('groupId', ParseIntPipe) groupId: number) {
-    this.chatService.removeGroup(user.id, groupId);
+  async removeGroup(@User() user, @Query('groupId', ParseIntPipe) groupId: number) {
+    await this.chatService.removeGroup(user.id, groupId);
   }
 
   @Post('change_password')
-  changePass(
+  async changePass(
     @User() user,
     @Query('groupId', ParseIntPipe) groupId,
     @Body() body: PasswordDto,
   ) {
-    this.chatService.changePass(user.id, groupId, body.password);
+    await this.chatService.changePass(user.id, groupId, body.password);
   }
 
   @Delete('remove_password')
-  removePass(@User() user, @Query('groupId', ParseIntPipe) groupId) {
-    this.chatService.removePass(user.id, groupId);
+  async removePass(@User() user, @Query('groupId', ParseIntPipe) groupId) {
+    await this.chatService.removePass(user.id, groupId);
   }
 
   @Post('blockOrUnblock')
-  blockOrUnblock(
+  async blockOrUnblock(
     @User() user,
     @Body('block', ParseBoolPipe) block,
     @Query('targetId', ParseIntPipe) targetId,
   ) {
-    this.chatService.blockOrUnblock(user.id, targetId, block);
+    await this.chatService.blockOrUnblock(user.id, targetId, block);
   }
 
   @Get('isBlocked')
@@ -79,15 +79,15 @@ export class ChatController {
   }
 
   @Post('mute')
-  muteOrUnmute(@User() user, @Body() body: IdDto) {
+  async muteOrUnmute(@User() user, @Body() body: IdDto) {
     const { targetId, chatId } = body;
-    this.chatService.mute(user.id, targetId, chatId);
+    await this.chatService.mute(user.id, targetId, chatId);
   }
 
   @Post('kick')
-  kick(@User() user, @Body() body: IdDto) {
+  async kick(@User() user, @Body() body: IdDto) {
     const { targetId, chatId } = body;
-    this.chatService.kick(user.id, targetId, chatId);
+    await this.chatService.kick(user.id, targetId, chatId);
   }
 
   @Post('ban')
@@ -109,14 +109,14 @@ export class ChatController {
   }
 
   @Get('get_chat')
-  getChat(@User() user) {
-    const chat = this.chatService.getChat(user.id);
+  async getChat(@User() user) {
+    const chat = await this.chatService.getChat(user.id);
     return chat;
   }
 
   @Get('get_messages')
-  getMessages(@User() user, @Query('chatId', ParseIntPipe) chatId) {
-    const messages = this.chatService.getMessages(user.id, chatId);
+  async getMessages(@User() user, @Query('chatId', ParseIntPipe) chatId) {
+    const messages = await this.chatService.getMessages(user.id, chatId);
     return messages;
   }
 

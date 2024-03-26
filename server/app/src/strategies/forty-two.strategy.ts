@@ -13,7 +13,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(
+  async validate(
     accessToken: string,
     refreshToken: string,
     profile: Profile,
@@ -25,7 +25,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy) {
       email: profile._json.email,
       imageLink: profile._json.image.link,
     };
-    const info = this.userService.loginOrRegister(user);
+    const info = await this.userService.loginOrRegister(user);
     done(null, info);
   }
 }

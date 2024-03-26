@@ -70,7 +70,7 @@ export class ChatService {
   }
 
   async blockOrUnblock(userId: number, targetId: number, block: boolean) {
-    this.userService.getUserById(targetId);
+    await this.userService.getUserById(targetId);
     if (block) {
       await prisma.user.update({
         where: {
@@ -117,7 +117,7 @@ export class ChatService {
   }
 
   async mute(userId: number, targetId: number, chatId: number) {
-    this.userService.getUserById(targetId);
+    await this.userService.getUserById(targetId);
     if (this.checkGroupPermissions(userId, chatId, true)) {
       await prisma.userChat.update({
         where: {
@@ -147,7 +147,7 @@ export class ChatService {
   }
 
   async kick(userId: number, targetId: number, chatId: number) {
-    this.userService.getUserById(targetId);
+    await this.userService.getUserById(targetId);
     if (targetId == userId)
       throw new BadRequestException('cant kick your self');
     if (this.checkGroupPermissions(userId, chatId, true)) {
@@ -163,7 +163,7 @@ export class ChatService {
   }
 
   async ban(userId: number, targetId: number, chatId: number) {
-    this.userService.getUserById(targetId);
+    await this.userService.getUserById(targetId);
     if (this.checkGroupPermissions(userId, chatId, true)) {
       const userChat = await prisma.userChat.findFirst({
         where: {
@@ -184,7 +184,7 @@ export class ChatService {
   }
 
   async promote(userId: number, targetId: number, chatId: number) {
-    this.userService.getUserById(targetId);
+    await this.userService.getUserById(targetId);
     if (this.checkGroupPermissions(userId, chatId, false)) {
       const targetChat = await prisma.userChat.findFirst({
         where: {
@@ -210,7 +210,7 @@ export class ChatService {
   }
 
   async denote(userId: number, targetId: number, chatId: number) {
-    this.userService.getUserById(targetId);
+    await this.userService.getUserById(targetId);
     if (this.checkGroupPermissions(userId, chatId, false)) {
       const targetChat = await prisma.userChat.findFirst({
         where: {

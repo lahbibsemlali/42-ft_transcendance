@@ -23,7 +23,7 @@ export class TwoFaService {
       secret: secrete,
     });
     const url = totp.toString();
-    this.userService.setTwoFaSecrete(userId, secrete);
+    await this.userService.setTwoFaSecrete(userId, secrete);
     return url;
   }
 

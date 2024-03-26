@@ -12,8 +12,6 @@ COPY ./app .
 
 COPY ./init.sh .
 
-RUN npm run build
-
 RUN chmod u+x init.sh
 
 CMD [ "bash", "./init.sh"]
