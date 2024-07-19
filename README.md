@@ -22,13 +22,11 @@ ft_transcendence is a web application project developed as part of the 42 Networ
 
 ## Tech Stack
 
-- **Frontend**: React / Vue.js / Angular
-- **Backend**: Node.js with Express / NestJS
-- **Database**: PostgreSQL / MongoDB
+- **Frontend**: React
+- **Backend**: Node.js with NestJS
+- **Database**: PostgreSQL
 - **Authentication**: JWT / OAuth
 - **Real-time Communication**: WebSockets
-- **Deployment**: AWS / Heroku / DigitalOcean
-
 
 
 ## License
