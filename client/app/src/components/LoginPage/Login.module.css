@@ -3,45 +3,339 @@
   src: url(./DEMO.ttf);
 }
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
 .loginBox {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 400px;
-  height: 300px;
-  background-color: #07264f;
-  border-radius: 10px;
+  min-width: 450px;
+  max-width: 500px;
+  padding: 45px 40px;
+  background: linear-gradient(135deg, #07264f 0%, #0a3566 100%);
+  border-radius: 20px;
   border: solid 2px #2190E2;
+  box-shadow: 0 10px 40px rgba(33, 144, 226, 0.3), 0 0 20px rgba(33, 144, 226, 0.1);
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  animation: fadeInUp 0.6s ease-out;
+  transition: all 0.3s ease;
+}
+
+.loginBox.success {
+  animation: pulse 0.6s ease;
+  border-color: #4ade80;
+  box-shadow: 0 10px 40px rgba(74, 222, 128, 0.4);
+}
+
+.iconWrapper {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #2190e2 0%, #4db8ff 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 20px rgba(33, 144, 226, 0.4);
+}
+
+.mainIcon {
+  font-size: 35px;
+  color: white;
 }
 
 .loginBox h1 {
   text-align: center;
-  margin-top: -20px;
-  padding: 10px;
-  color: #2190e2;
+  margin: 10px 0;
+  padding: 0;
+  color: #4db8ff;
   font-family: simo;
+  font-size: 32px;
+  font-weight: 600;
+  text-shadow: 0 2px 10px rgba(77, 184, 255, 0.3);
 }
 
 .loginBox h2 {
   text-align: center;
-  margin: 10px;
-  padding: 10px;
-  color: white;
+  margin: 5px 0 30px 0;
+  padding: 0;
+  color: #a0c4e2;
   font-family: simo;
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.form {
+  width: 100%;
+  max-width: 400px;
+}
+
+.inputWrapper {
+  position: relative;
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+}
+
+.inputWrapper i {
+  position: absolute;
+  left: 18px;
+  color: #4db8ff;
+  font-size: 18px;
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.inputWrapper:focus-within i {
+  color: #2190e2;
+  transform: scale(1.1);
+}
+
+.input {
+  width: 100%;
+  height: 52px;
+  padding: 0 50px;
+  font-family: simo;
+  font-size: 15px;
+  color: white;
+  background-color: rgba(34, 71, 113, 0.6);
+  border-radius: 12px;
+  border: solid 2px transparent;
+  outline: none;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.input::placeholder {
+  color: #7a9cbb;
+}
+
+.input:focus {
+  border-color: #2190e2;
+  background-color: rgba(34, 71, 113, 0.8);
+  box-shadow: 0 0 20px rgba(33, 144, 226, 0.2);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.eyeIcon {
+  position: absolute !important;
+  right: 18px !important;
+  left: auto !important;
+  cursor: pointer;
+  color: #7a9cbb !important;
+  font-size: 18px !important;
+  transition: all 0.3s ease;
+}
+
+.eyeIcon:hover {
+  color: #4db8ff !important;
+  transform: scale(1.1);
 }
 
 .button {
-  width: 250px;
-  height: 50px;
+  width: 100%;
+  height: 55px;
+  margin-top: 25px;
   font-family: simo;
-  font-size: xx-large;
+  font-size: 18px;
+  font-weight: 600;
   color: white;
-  background-color: #224771;
+  background: linear-gradient(135deg, #2190e2 0%, #1976d2 100%);
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(33, 144, 226, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1976d2 0%, #2190e2 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(33, 144, 226, 0.5);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button.loading {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+}
+
+.button i {
+  font-size: 20px;
+}
+
+.errorWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  background-color: rgba(239, 68, 68, 0.15);
   border-radius: 10px;
-  border: solid 2px #2190e2;
+  border-left: 4px solid #ef4444;
+  margin: 15px 0;
+  animation: shake 0.5s ease;
+}
+
+.errorWrapper i {
+  color: #ef4444;
+  font-size: 18px;
+  min-width: 18px;
+}
+
+.error {
+  color: #fca5a5;
+  font-family: simo;
+  font-size: 14px;
+  margin: 0;
+}
+
+.successWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  background-color: rgba(74, 222, 128, 0.15);
+  border-radius: 10px;
+  border-left: 4px solid #4ade80;
+  margin: 15px 0;
+  animation: fadeInUp 0.5s ease;
+}
+
+.successWrapper i {
+  color: #4ade80;
+  font-size: 18px;
+  min-width: 18px;
+}
+
+.successMsg {
+  color: #86efac;
+  font-family: simo;
+  font-size: 14px;
+  margin: 0;
+}
+
+.divider {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  margin: 25px 0 15px 0;
+  gap: 15px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #2190e2, transparent);
+}
+
+.divider span {
+  color: #7a9cbb;
+  font-family: simo;
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.toggle {
+  color: #a0c4e2;
+  font-family: simo;
+  margin-top: 15px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.toggle span {
+  color: #4db8ff;
+  cursor: pointer;
+  text-decoration: none;
+  margin-left: 5px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.toggle span::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: #4db8ff;
+  transition: width 0.3s ease;
+}
+
+.toggle span:hover {
+  color: #2190e2;
+}
+
+.toggle span:hover::after {
+  width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .loginBox {
+    min-width: 90%;
+    padding: 35px 25px;
+  }
+  
+  .loginBox h1 {
+    font-size: 26px;
+  }
+  
+  .iconWrapper {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .mainIcon {
+    font-size: 30px;
+  }
 }

@@ -22,41 +22,6 @@ export class UserService {
     return user;
   }
 
-  async createUserProfile(username: string, email: string, imageLink: string) {
-    const user = await prisma.user.create({ data: {} });
-    const profile = await prisma.profile.create({
-      data: {
-        userId: user.id,
-        username: username,
-        email: email,
-        avatar: imageLink,
-      },
-    });
-    return profile;
-  }
-
-  async loginOrRegister(userData: {
-    id: string;
-    username: string;
-    email: string;
-    imageLink: string;
-  }) {
-    const profile = await prisma.profile.findFirst({
-      where: {
-        email: userData.email
-      },
-    });
-    if (profile)
-      return { id: profile.userId, firstTime: false, isTwoFaEnabled: false };
-    else {
-      const profile = await this.createUserProfile(
-        userData.username,
-        userData.email,
-        userData.imageLink,
-      );
-      return { id: profile.userId, firstTime: true, isTwoFaEnabled: false };
-    }
-  }
   async updateAvatar(userId: number, location: string) {
     const user = await prisma.profile.findFirst({
       where: {

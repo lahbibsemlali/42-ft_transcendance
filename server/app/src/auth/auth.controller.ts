@@ -2,8 +2,9 @@ import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, UploadedFile, U
 import { PrismaClient } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
-import { fortyTwoAuthGuard } from 'src/guards/forty-two-auth.guard';
 import { JwtGuard } from 'src/guards/jwt.guard';
+import { SignupDto } from './dtos/signup.dto';
+import { LoginDto } from './dtos/login.dto';
 
 
 const prisma = new PrismaClient();
@@ -12,22 +13,28 @@ const prisma = new PrismaClient();
 export class AuthController {
   constructor(private authService: AuthService, private userService: UserService) {}
 
-  @Get('/42')
-  @UseGuards(fortyTwoAuthGuard)
-  log() {}
-
-  @Get('/42_callback')
-  @UseGuards(fortyTwoAuthGuard)
-  async consL(@Req() req, @Res() res) {
-    const payload = req.user;
-    const token = await this.authService.generateJwtToken(payload);
-    const user = await this.userService.getUserById(payload.id);
+  @Post('/signup')
+  @HttpCode(201)
+  async signup(@Body() signupDto: SignupDto, @Res() res) {
+    const user = await this.authService.signup(signupDto);
+    const token = await this.authService.generateJwtToken({ id: user.userId });
     res.cookie('jwt', token);
-    if (payload.firstTime)
-      return res.redirect(`http://${process.env.VITE_DOMAIN}:8000/settings`);
-    if (user.twoFA)
-      return res.redirect(`http://${process.env.VITE_DOMAIN}:8000/auth`);
-    return res.redirect(`http://${process.env.VITE_DOMAIN}:8000/`);
+    return res.json({ success: true, message: 'User created successfully', user });
+  }
+
+  @Post('/login')
+  @HttpCode(200)
+  async login(@Body() loginDto: LoginDto, @Res() res) {
+    const user = await this.authService.login(loginDto);
+    const token = await this.authService.generateJwtToken({ id: user.id });
+    res.cookie('jwt', token);
+    
+    // Check if user has 2FA enabled
+    if (user.twoFA) {
+      return res.json({ success: true, requiresTwoFa: true });
+    }
+    
+    return res.json({ success: true, user });
   }
 
   @Get('checkToken')
